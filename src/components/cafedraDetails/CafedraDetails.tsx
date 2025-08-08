@@ -14,21 +14,20 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import NotFoundImg from "../../../public/not-found.png";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CircularProgress from "@mui/material/CircularProgress";
-import { getCafName } from '../../services/cafedra/cafedraService';
-import { CafedraUser } from '../../services/cafedra/cafedraService';
+import { getCafDetails, CafedraDetailsInterface, CafedraUser } from '../../services/cafedra/cafedraService';
 import { getCafUsers } from '../../services/cafedra/cafedraService';
 
 export default function CafedraDetails() {
     const { cafedra_code } = useParams();
-    const [cafName, setCafName] = useState("");
+    const [cafDetails, setCafDetails] = useState<CafedraDetailsInterface[] | string>([]);
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<CafedraUser[]>([]);
     const [error, setError] = useState("");
 
     useEffect(() => {
         if (cafedra_code) {
-            getCafName(cafedra_code)
-                .then(setCafName)
+            getCafDetails(cafedra_code)
+                .then(setCafDetails)
 
             getCafUsers(cafedra_code)
                 .then((res) => {
@@ -57,9 +56,16 @@ export default function CafedraDetails() {
     };
     return (
         <div>
-            <h2 className="mb-2 font-semibold text-gray-800 text-xs dark:text-white/90 sm:text-xl">
-                Kafedra adı: {cafName} {cafedra_code}
-            </h2>
+            {typeof cafDetails !== "string" && (
+                <>
+                <h2 className="mb-2 font-semibold text-gray-800 text-xs dark:text-white/90 sm:text-xl">
+                    Kafedra adı: {cafDetails[0]?.cafedra_name} ({cafedra_code})
+                </h2>
+                <h2 className="mb-2 font-semibold text-gray-800 text-xs dark:text-white/90 sm:text-xl">
+                    Fakültə: {cafDetails[0]?.faculty_code}
+                </h2>
+                </>
+            )}
             {error === "No user" ? (
                 <div className="w-full flex justify-center items-center">
                     <img src={NotFoundImg} alt="not found" className="w-[80px] mr-[20px]" />

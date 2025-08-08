@@ -19,14 +19,19 @@ import NotFound from "./pages/OtherPage/NotFound";
 import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
 import MyPlanPage from "./pages/MyPlanPage/MyPlanPage";
+import DekansPage from "./pages/DekansPage/DekansPage";
 import FacultyPage from "./pages/FacultyPage/FacultyPage";
 import NewPlanPage from "./pages/NewPlanPage/NewPlanPage";
 import DocViewPage from "./pages/DocViewPage/DocViewPage";
+import AllUsersPage from "./pages/AllUsersPage/AllUsersPage";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import MyHesabatPage from "./pages/MyHesabatPage/MyHesabatPage";
+import NewPasswordPage from "./pages/AuthPages/NewPasswordPage";
 import MyCafedrasPage from "./pages/MyCafedrasPage/MyCafedrasPage";
+import ResetPasswordPage from "./pages/AuthPages/ResetPasswordPage";
 import UserContentPage from "./pages/UserContentPage/UserContentPage";
 import ReportUsersPage from "./pages/ReportUsersPage/ReportUsersPage";
+import OtpVerificationPage from "./pages/AuthPages/OtpVerificationPage";
 import FacultyDetailsPage from "./pages/FacultyDetailsPage/FacultyDetailsPage";
 import CafedraDetailsPage from "./pages/CafedraDetailsPage/CafedraDetailsPage";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
@@ -35,11 +40,7 @@ import ApproveWaitingUsersPage from "./pages/ApproveWaitingUsersPage/ApproveWait
 
 export default function App() {
   const token = useSelector((state: RootState) => state.auth.token);
-  const faculty_code = useSelector((state: RootState) => state.auth.faculty_code);
-  const cafedra_code = useSelector((state: RootState) => state.auth.cafedra_code);
-  const duty_code = useSelector((state: RootState) => state.auth.duty_code);
-  const role = useSelector((state: RootState) => state.auth.role);
-  console.log(token, faculty_code, cafedra_code, duty_code, role);
+
   return (
     <>
       <Router>
@@ -55,9 +56,16 @@ export default function App() {
             <Route path="/blank" element={<Blank />} />
 
             {/* User */}
+            <Route path="/all-users" element={<AllUsersPage />} />
             <Route path="/user/:finKod" element={<UserContentPage />} />
             <Route path="/report-users" element={<ReportUsersPage />} />
             <Route path="/approve-waiting-users" element={<ApproveWaitingUsersPage />} />
+
+            {/* Dekan */}
+            <Route path="/dekans" element={<DekansPage />} />
+            
+            {/* Cafedra director */}
+            <Route path="/cafedra-directors" element={<CafedraDetailsPage />} />
 
             {/* Faculties */}
             <Route path="/faculties" element={<FacultyPage />} />
@@ -77,6 +85,9 @@ export default function App() {
 
             {/* Doc */}
             <Route path="/doc/*" element={<DocViewPage />} />
+
+            {/* Archive */}
+            {/* <Route path="/archive" element={<DocViewPage />} /> */}
 
             {/* Forms */}
             <Route path="/form-elements" element={<FormElements />} />
@@ -99,6 +110,9 @@ export default function App() {
 
           {/* Auth Layout */}
           <Route path="/" element={<SignIn />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/otp-verification/:finKod" element={<OtpVerificationPage />} />
+          <Route path="/reset-password/:token" element={<NewPasswordPage />} />
           <Route path="/signup" element={<SignUp />} />
 
           {/* Fallback Route */}

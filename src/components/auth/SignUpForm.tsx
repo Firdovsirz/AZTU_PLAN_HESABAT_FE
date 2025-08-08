@@ -4,6 +4,8 @@ import Select from "../form/Select";
 import { Link } from "react-router";
 import { useNavigate } from "react-router";
 import Input from "../form/input/InputField";
+import DoneIcon from '@mui/icons-material/Done';
+import CloseIcon from '@mui/icons-material/Close';
 import { EyeCloseIcon, EyeIcon } from "../../icons";
 import { signup } from "../../services/auth/authService";
 import { getDuties, Duty } from "../../services/duty/duty";
@@ -18,6 +20,7 @@ export default function SignUpForm() {
   const [showRepPassword, setShowRepPassword] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [inputFocussed, setInputFocussed] = useState(false);
 
   // Form Data
 
@@ -148,38 +151,50 @@ export default function SignUpForm() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("fin_kod", finKod);
-      formData.append("name", name);
-      formData.append("surname", surname);
-      formData.append("father_name", fatherName);
-      formData.append("faculty_code", faculty);
-      formData.append("duty_code", duty);
-      formData.append("password", password);
-      formData.append("role", role);
-      formData.append("email", email);
+      if (!(/[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)) && password.length >= 8) {
+        Swal.fire("Xəta", "Daha güclü bir şifrədən istifadə edin!", "error");
+      } else if (password !== repeatedPassword) {
+        Swal.fire("Xəta", "Şifrələr uyğun deyil!", "error");
+      } else {
+        const formData = new FormData();
+        formData.append("fin_kod", finKod);
+        formData.append("name", name);
+        formData.append("surname", surname);
+        formData.append("father_name", fatherName);
+        formData.append("faculty_code", faculty);
+        formData.append("duty_code", duty);
+        formData.append("password", password);
+        formData.append("role", role);
+        formData.append("email", email);
 
-      if (cafedra) {
-        formData.append("cafedra_code", cafedra);
-      }
+        if (cafedra) {
+          formData.append("cafedra_code", cafedra);
+        }
 
-      const res = await signup(formData);
+        const res = await signup(formData);
 
-      if (res === "SUCCESS") {
-        Swal.fire({
-          icon: "success",
-          title: "Qeydiyyat uğurla tamamlandı!",
-          text: "Hesabınız təsdiq edildikdə e-poçt vasitəsilə sizə bildiriş göndəriləcək.",
-          confirmButtonText: "OK"
-        }).then(() => {
-          navigate("/");
-        });
-      } else if (res === "CONFLICT") {
-        Swal.fire({
-          icon: "error",
-          title: "Xəta",
-          confirmButtonText: "OK"
-        })
+        if (res === "SUCCESS") {
+          Swal.fire({
+            icon: "success",
+            title: "Qeydiyyat uğurla tamamlandı!",
+            text: "Hesabınız təsdiq edildikdə e-poçt vasitəsilə sizə bildiriş göndəriləcək.",
+            confirmButtonText: "OK"
+          }).then(() => {
+            navigate("/");
+          });
+        } else if (res === "CONFLICT") {
+          Swal.fire({
+            icon: "error",
+            title: "Xəta",
+            confirmButtonText: "OK"
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "İstifadəçi artıq mövcuddur",
+            confirmButtonText: "OK"
+          });
+        }
       }
     } catch (err) {
       Swal.fire({
@@ -196,7 +211,7 @@ export default function SignUpForm() {
     name.trim() !== "" &&
     surname.trim() !== "" &&
     fatherName.trim() !== "" &&
-    finKod.trim().length === 7 &&
+    finKod.trim().length <= 7 &&
     password.trim() !== "" &&
     repeatedPassword.trim() !== "" &&
     duty.trim() !== "" &&
@@ -249,7 +264,7 @@ export default function SignUpForm() {
                       placeholder="Soyad"
                     />
                   </div>
-                  <div className="sm:col-span-1">   
+                  <div className="sm:col-span-1">
                     <Label>
                       Ata adı<span className="text-error-500">*</span>
                     </Label>
@@ -349,6 +364,8 @@ export default function SignUpForm() {
                       onChange={(e) => { setPassword(e.target.value) }}
                       placeholder="Şifrə"
                       type={showPassword ? "text" : "password"}
+                      onFocus={() => setInputFocussed(true)}
+                      onBlur={() => setInputFocussed(false)}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -361,6 +378,98 @@ export default function SignUpForm() {
                       )}
                     </span>
                   </div>
+                  {inputFocussed ? (
+                    <div className="mb-[10px]">
+                      <div className="flex items-center">
+                        <div className="flex justify-center items-center"
+                          style={{
+                            backgroundColor: password.length >= 8 ? "green" : "red",
+                            borderColor: password.length >= 8 ? "green" : "red",
+                            borderWidth: 2,
+                            width: "15px",
+                            height: "15px",
+                            borderRadius: "50%",
+                            padding: "7px",
+                            marginRight: 10
+                          }}>
+                          {password.length >= 8 ? (
+                            <DoneIcon className="text-white" style={{ fontSize: "14px" }} />
+                          ) : (
+                            <CloseIcon className="text-white" style={{ fontSize: "14px" }} />
+                          )}
+                        </div>
+                        <p>
+                          Minimum 8 simvol
+                        </p>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="flex justify-center items-center"
+                          style={{
+                            backgroundColor: /[A-Z]/.test(password) ? "green" : "red",
+                            borderColor: /[A-Z]/.test(password) ? "green" : "red",
+                            borderWidth: 2,
+                            width: "15px",
+                            height: "15px",
+                            borderRadius: "50%",
+                            padding: "7px",
+                            marginRight: 10
+                          }}>
+                          {/[A-Z]/.test(password) ? (
+                            <DoneIcon className="text-white" style={{ fontSize: "14px" }} />
+                          ) : (
+                            <CloseIcon className="text-white" style={{ fontSize: "14px" }} />
+                          )}
+                        </div>
+                        <p>
+                          Ən azı bir böyük hərf
+                        </p>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="flex justify-center items-center"
+                          style={{
+                            backgroundColor: /[0-9]/.test(password) ? "green" : "red",
+                            borderColor: /[0-9]/.test(password) ? "green" : "red",
+                            borderWidth: 2,
+                            width: "15px",
+                            height: "15px",
+                            borderRadius: "50%",
+                            padding: "7px",
+                            marginRight: 10
+                          }}>
+                          {/[0-9]/.test(password) ? (
+                            <DoneIcon className="text-white" style={{ fontSize: "14px" }} />
+                          ) : (
+                            <CloseIcon className="text-white" style={{ fontSize: "14px" }} />
+                          )}
+                        </div>
+                        <p>
+                          Ən azı bir nömrə
+                        </p>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="flex justify-center items-center"
+                          style={{
+                            backgroundColor: /[^A-Za-z0-9]/.test(password) ? "green" : "red",
+                            borderColor: /[^A-Za-z0-9]/.test(password) ? "green" : "red",
+                            borderWidth: 2,
+                            width: "15px",
+                            height: "15px",
+                            borderRadius: "50%",
+                            padding: "7px",
+                            marginRight: 10
+                          }}>
+                          {/[^A-Za-z0-9]/.test(password) ? (
+                            <DoneIcon className="text-white" style={{ fontSize: "14px" }} />
+                          ) : (
+                            <CloseIcon className="text-white" style={{ fontSize: "14px" }} />
+                          )}
+                        </div>
+                        <p>
+                          Ən azı bir xüsusi simvol (!@#$%^&*(),.?":{ }|")
+                        </p>
+                      </div>
+                    </div>
+                  ) : null}
                   <Label>
                     Təkrar Şifrə<span className="text-error-500">*</span>
                   </Label>
@@ -386,6 +495,7 @@ export default function SignUpForm() {
                 {/* <!-- Button --> */}
                 <div>
                   <button
+                    type="submit"
                     className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
                     disabled={isSubmitting || !isFormValid}
                   >

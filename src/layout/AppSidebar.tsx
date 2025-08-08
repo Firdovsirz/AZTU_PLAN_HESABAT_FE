@@ -12,6 +12,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { Link, useLocation } from "react-router";
 import PeopleIcon from '@mui/icons-material/People';
 import SchoolIcon from '@mui/icons-material/School';
+import HistoryIcon from '@mui/icons-material/History';
 import { useSidebar } from "../context/SidebarContext";
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -43,10 +44,6 @@ const getMainItems = (role: number): NavItem[] => {
       icon: <ListIcon />,
       path: "/my-hesabat"
     }, {
-      name: "İcraya məsul şəxslər",
-      icon: <PeopleIcon />,
-      path: "/report-users"
-    }, {
       name: "Kafedralarım",
       icon: <PeopleIcon />,
       path: "/my-cafedras"
@@ -55,9 +52,21 @@ const getMainItems = (role: number): NavItem[] => {
       icon: <SchoolIcon />,
       path: "/faculties"
     }, {
+      name: "İcraya məsul şəxslər",
+      icon: <PeopleIcon />,
+      path: "/report-users"
+    }, {
       name: "Təsdiq gözləyən istifadəçilər",
       icon: <PeopleAltIcon />,
       path: "/approve-waiting-users"
+    }, {
+      name: "Bütün istifadəçilər",
+      icon: <PeopleAltIcon />,
+      path: "/all-users"
+    }, {
+      name: "Arxiv",
+      icon: <HistoryIcon />,
+      path: "/archive"
     }
   ];
 
@@ -69,13 +78,17 @@ const getMainItems = (role: number): NavItem[] => {
         item.name !== "Planım" &&
         item.name !== "Hesabatım" &&
         item.name !== "Təhvil verilmiş hesabatlar" &&
-        item.name !== "Kafedralarım" 
+        item.name !== "Kafedralarım"
         // item.name !== "Təsdiq gözləyən istifadəçilər"
       );
     });
   } else if (role === 2) {
     return navItems.filter(item => {
-      return item.name !== "Fakültələr";
+      return (
+        item.name !== "Fakültələr" &&
+        item.name !== "Arxiv" &&
+        item.name !== "Bütün istifadəçilər"
+      )
     });
   } else {
     return navItems;
@@ -88,12 +101,12 @@ const getOthersItems = (role: number): NavItem[] => {
     {
       icon: <PieChartIcon />,
       name: "Dekanlar",
-      path: "/faculties/dekans"
+      path: "/dekans"
     },
     {
       icon: <BoxCubeIcon />,
       name: "Kafedra müdirləri",
-      path: "/cafedras/directors"
+      path: "/cafedra-directors"
     },
     {
       icon: <BoxCubeIcon />,

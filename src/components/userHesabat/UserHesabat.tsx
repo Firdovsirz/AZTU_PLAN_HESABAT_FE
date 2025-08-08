@@ -7,9 +7,11 @@ import {
 } from "../ui/table";
 import Label from "../form/Label";
 import { Modal } from "../ui/modal";
+import Stack from '@mui/material/Stack';
 import Button from "../ui/button/Button";
 import { useEffect, useState } from "react";
 import { useModal } from "../../hooks/useModal";
+import Pagination from '@mui/material/Pagination';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CircularProgress from "@mui/material/CircularProgress";
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -22,21 +24,24 @@ interface UserPlanProps {
 export default function UserHesabat({ finKod }: UserPlanProps) {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
-    const [hesabat, setHesabat] = useState<Hesabat>();
+    const [start, setStart] = useState(0);
+    const [end, setEnd] = useState(3);
+    const [hesabatLength, setHesabatLength] = useState();
     const { isOpen, openModal, closeModal } = useModal();
+    const [hesabats, setHesabats] = useState<Hesabat[] | undefined>([]);
 
     useEffect(() => {
         if (finKod) {
-            getHesabatByFinKod(finKod)
+            getHesabatByFinKod(finKod, start, end)
                 .then((res) => {
                     if (res === "Not found") {
                         setError("Not found");
-                        setHesabat(undefined);
+                        setHesabats(undefined);
                     } else if (res === "error") {
                         setError("Server error");
-                        setHesabat(undefined);
+                        setHesabats(undefined);
                     } else {
-                        setHesabat(res);
+                        setHesabats(res.hesabats);
                         setError("");
                     }
                 })
@@ -57,16 +62,16 @@ export default function UserHesabat({ finKod }: UserPlanProps) {
     if (error === "Not found") {
         return (
             <div className="text-center text-red-500 font-medium">
-                İstifadəçi üçün plan tərtib edilməyib.
+                İstifadəçi üçün hesabat tərtib edilməyib.
             </div>
         );
     }
 
-    if (!hesabat) {
+    if (!hesabats) {
         return (
             <div className="w-full flex justify-center items-center">
                 <p className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
-                    İstifadəçi üçün plan tərtib edilməyib.
+                    İstifadəçi üçün hesbat tərtib edilməyib.
                 </p>
             </div>
         );
@@ -75,9 +80,6 @@ export default function UserHesabat({ finKod }: UserPlanProps) {
     const handleViewModal = () => {
         openModal();
     }
-
-    console.log(hesabat.submitted);
-
 
     return (
         <>
@@ -127,7 +129,9 @@ export default function UserHesabat({ finKod }: UserPlanProps) {
                         </TableHeader>
                         {/* Table Body */}
                         <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                            <TableRow>
+                            {hesabats?.map((hesabat, index) => {
+                                return (
+                                    <TableRow>
                                 <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                     {hesabat?.fin_kod}
                                 </TableCell>
@@ -165,11 +169,47 @@ export default function UserHesabat({ finKod }: UserPlanProps) {
                                     </div>
                                 </TableCell>
                             </TableRow>
+                                )
+                            })}
                         </TableBody>
                     </Table>
                 </div>
             </div>
-            <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
+            <div className="w-full flex justify-center items-center">
+                <Stack spacing={2}>
+                    <Pagination
+                        count={hesabatLength ? (hesabatLength <= 1 ? 1 : Math.ceil(hesabatLength / 1)) : 1}
+                        page={Math.floor(start / (end - start)) + 1}
+                        onChange={(_event, page) => {
+                            if (!finKod) return;
+                            const pageSize = end - start;
+                            const newStart = (page - 1) * pageSize;
+                            const newEnd = newStart + pageSize;
+                            setStart(newStart);
+                            setEnd(newEnd);
+                            setLoading(true);
+                            getHesabatByFinKod(finKod, newStart, newEnd)
+                                .then((res) => {
+                                    if (res === "Not found") {
+                                        setError("Not found");
+                                        setHesabats(undefined);
+                                    } else if (res === "error") {
+                                        setError("Server error");
+                                        setHesabats(undefined);
+                                    } else {
+                                        setHesabats(res.hesabats);
+                                        setHesabatLength(res.hesabat_count);
+                                        setError("");
+                                    }
+                                })
+                                .finally(() => {
+                                    setLoading(false);
+                                });
+                        }}
+                    />
+                </Stack>
+            </div>
+            {/* <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
                 <div className="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-11">
                     <div className="px-2 pr-14">
                         <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
@@ -290,7 +330,7 @@ export default function UserHesabat({ finKod }: UserPlanProps) {
                         </div>
                     </form>
                 </div>
-            </Modal>
+            </Modal> */}
         </>
     );
 }

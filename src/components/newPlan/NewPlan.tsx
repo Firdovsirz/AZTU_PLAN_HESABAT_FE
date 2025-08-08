@@ -113,7 +113,7 @@ export default function NewPlan() {
                         width: "calc((100% / 2) - 10px)"
                     }}>
                         <Label htmlFor="input">Fin Kod</Label>
-                        <Input type="text" id="input" value={finKod ? finKod : ""} disabled/>
+                        <Input type="text" id="input" value={finKod ? finKod : ""} disabled readOnly/>
                     </div>
                     <div style={{
                         width: "calc((100% / 2) - 10px)"

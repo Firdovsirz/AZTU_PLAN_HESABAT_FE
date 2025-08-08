@@ -5,6 +5,8 @@ export interface Credentials {
     password: string;
 }
 
+// sign in with fin kod and password
+
 export const signin = async (credentials: Credentials) => {
     try {
         const resposne = await apiClient.post("/auth/signin", credentials);
@@ -21,6 +23,8 @@ export const signin = async (credentials: Credentials) => {
     };
 };
 
+// signup with form data
+
 export const signup = async (formData: FormData) => {
     try {
         const response = await apiClient.post("/auth/signup", formData);
@@ -35,4 +39,27 @@ export const signup = async (formData: FormData) => {
     } catch (err) {
         return "ERROR";
     };
+};
+
+// set a new password
+
+export const resetPassword = async (password: string, token: string) => {
+    try {
+        const response = await apiClient.post("/auth/reset-password", {
+            password,
+            token,
+        });
+
+        if (response.data.statusCode === 200) {
+            return "SUCCESS";
+        } else if (response.data.statusCode === 400) {
+            return "BAD REQUEST";
+        } else if (response.status === 401) {
+            return "UNAUTHORIZED";
+        } else {
+            return "ERROR";
+        }
+    } catch (error) {
+        return { statusCode: 500, message: "Error resetting password." };
+    }
 };

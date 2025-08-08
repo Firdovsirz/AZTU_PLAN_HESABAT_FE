@@ -9,16 +9,16 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { User, getUserByFinKod } from "../../services/user/user";
 import LocalActivityIcon from '@mui/icons-material/LocalActivity';
 import { getFacName } from "../../services/faculty/facultyService";
-import { getCafName } from "../../services/cafedra/cafedraService";
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import { getCafDetails, CafedraDetailsInterface } from "../../services/cafedra/cafedraService";
 
 export default function UserContent() {
     const { finKod } = useParams();
 
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
-    const [cafName, setCafName] = useState("");
+    const [cafDetails, setCafDetails] = useState<CafedraDetailsInterface[] | string>([]);
     const [facName, setFacName] = useState("");
     const [dutyName, setDutyName] = useState("");
 
@@ -30,8 +30,8 @@ export default function UserContent() {
                 })
                 .finally(() => setLoading(false));
             if (user?.cafedra_code) {
-                getCafName(user?.cafedra_code)
-                    .then(setCafName);
+                getCafDetails(user?.cafedra_code)
+                    .then(setCafDetails);
             }
             if (user?.faculty_code) {
                 getFacName(user?.faculty_code)
@@ -52,6 +52,8 @@ export default function UserContent() {
             </div>
         );
     }
+    console.log(user);
+    
 
     return (
         <>
@@ -70,16 +72,18 @@ export default function UserContent() {
                                 Fakültə: {facName}&nbsp;({user?.faculty_code})
                             </p>
                         </div>
-                        <div className="flex justify-start items-center mb-[10px]">
-                            <SchoolIcon className="mr-[10px]" />
-                            Kafedra: {cafName ? (
-                                <p>{cafName}&nbsp;({user?.cafedra_code})</p>
-                            ) : (
-                                <p className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
-                                    Mövcud deyil
-                                </p>
-                            )}
-                        </div>
+                        {Array.isArray(cafDetails) && cafDetails.length > 0 ? (
+                            <div className="flex justify-start items-center mb-[10px]">
+                                <SchoolIcon className="mr-[10px]" />
+                                Kafedra: {cafDetails[0].cafedra_code ? (
+                                    <p>{cafDetails[0].cafedra_name}&nbsp;({user?.cafedra_code})</p>
+                                ) : (
+                                    <p className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                                        Mövcud deyil
+                                    </p>
+                                )}
+                            </div>
+                        ) : null}
                         <div className="flex justify-start items-center mb-[10px]">
                             <BusinessCenterIcon className="mr-[10px]" />
                             <p>

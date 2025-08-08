@@ -5,90 +5,39 @@ import {
     TableHeader,
     TableRow,
 } from "../ui/table";
-import Swal from "sweetalert2";
 import { Link } from "react-router";
 import Stack from '@mui/material/Stack';
 import { useEffect, useState } from "react";
-import DoneIcon from '@mui/icons-material/Done';
 import Pagination from '@mui/material/Pagination';
-import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CircularProgress from "@mui/material/CircularProgress";
-import { getApproveWaitingUsers, AppWaitingUser, ResponseStatus, approveUser, rejectUser } from "../../services/user/user";
+import { AllUser, ResponseStatus, getCafDirectors } from "../../services/user/user";
 
-export default function ApproveWaitingUsers() {
-    const [users, setUsers] = useState<AppWaitingUser[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [noContent, setNoContent] = useState(false);
+export default function CafDirectors() {
     const [error, setError] = useState("");
-
-    console.log(error);
-    
+    const [end, setEnd] = useState<number>(10);
+    const [loading, setLoading] = useState(true);
+    const [start, setStart] = useState<number>(0);
+    const [noContent, setNoContent] = useState(false);
+    const [directorLegth, setDirectorLength] = useState<number>(0);
+    const [cafDirectors, setCafDirectors] = useState<AllUser[]>([]);
 
     useEffect(() => {
-        getApproveWaitingUsers()
+        getCafDirectors(start, end)
             .then((res) => {
                 if (res === ResponseStatus.NO_CONTENT) {
                     setNoContent(true);
-                } else if (res === ResponseStatus.ERROR || res === ResponseStatus.NOT_FOUND) {
+                } else if (res === "ERROR") {
                     setError("Error fetching users");
-                } else if (Array.isArray(res)) {
-                    setUsers(res);
+                } else if (Array.isArray(res.caf_directors)) {
+                    setCafDirectors(res.caf_directors);
+                    setDirectorLength(res.total_caf_directors);
                 }
             })
             .finally(() => {
                 setLoading(false);
             });
     }, []);
-
-    const handleUserApprove = async (finKod: string) => {
-        const res = await approveUser(finKod);
-
-        if (res === ResponseStatus.SUCCESS) {
-            Swal.fire({
-                icon: "success",
-                title: "Uğurlu",
-                text: "İstifadəçi uğurla təsdiq edildi.",
-            });
-        } else if (res === ResponseStatus.NOT_FOUND) {
-            Swal.fire({
-                icon: "error",
-                title: "Xəta ",
-                text: "Sorğu üçün fin kod tapılmadı.",
-            });
-        } else {
-            Swal.fire({
-                icon: "error",
-                title: "Xəta",
-                text: "Gözlənilməz xəta yenidən cəhd edin.",
-            });
-        }
-    };
-
-    const rejectUserApprove = async (finKod: string) => {
-        const res = await rejectUser(finKod);
-
-        if (res === ResponseStatus.SUCCESS) {
-            Swal.fire({
-                icon: "success",
-                title: "Uğurlu",
-                text: "İstifadəçi uğurla ləğv edildi.",
-            });
-        } else if (res === ResponseStatus.NOT_FOUND) {
-            Swal.fire({
-                icon: "error",
-                title: "Xəta ",
-                text: "Sorğu üçün fin kod tapılmadı.",
-            });
-        } else {
-            Swal.fire({
-                icon: "error",
-                title: "Xəta",
-                text: "Gözlənilməz xəta yenidən cəhd edin.",
-            });
-        }
-    }
-
     if (loading) {
         return (
             <div className="flex justify-center items-center w-full h-full py-10">
@@ -97,7 +46,7 @@ export default function ApproveWaitingUsers() {
         );
     };
 
-    console.log(users);
+    console.log(cafDirectors);
 
     return (
         <>
@@ -126,35 +75,23 @@ export default function ApproveWaitingUsers() {
                                 >
                                     Vəzifə
                                 </TableCell>
-                                {/* <TableCell
+                                <TableCell
                                     isHeader
                                     className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                 >
                                     Fakültə
-                                </TableCell> */}
+                                </TableCell>
+                                <TableCell
+                                    isHeader
+                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                >
+                                    İcraçı statusu
+                                </TableCell>
                                 <TableCell
                                     isHeader
                                     className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                 >
                                     Qeydiyyat tarixi
-                                </TableCell>
-                                <TableCell
-                                    isHeader
-                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    Baxış
-                                </TableCell>
-                                <TableCell
-                                    isHeader
-                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    Təsdiq et
-                                </TableCell>
-                                <TableCell
-                                    isHeader
-                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    Ləğv et
                                 </TableCell>
                             </TableRow>
                         </TableHeader>
@@ -168,19 +105,30 @@ export default function ApproveWaitingUsers() {
                                     </TableCell>
                                 </TableRow>
                             ) : null}
-                            {Array.isArray(users) && users?.map((user, index) => {
+                            {Array.isArray(cafDirectors) && cafDirectors?.map((dekan, index) => {
                                 return (
                                     <TableRow key={index}>
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                            {user?.name} {user?.surname} {user?.father_name}
+                                            {dekan?.name} {dekan?.surname} {dekan?.father_name}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                            {user?.fin_kod}
+                                            {dekan?.fin_kod}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                            {user?.duty_code ? (
+                                            {dekan?.duty_name ? (
                                                 <>
-                                                    {user?.duty_code}
+                                                    {dekan?.duty_name}
+                                                </>
+                                            ) : (
+                                                <p className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                                                    Mövcud deyil
+                                                </p>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                            {dekan?.faculty_code ? (
+                                                <>
+                                                    {dekan?.faculty_code}
                                                 </>
                                             ) : (
                                                 <p className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
@@ -189,12 +137,9 @@ export default function ApproveWaitingUsers() {
                                             )}
                                         </TableCell>
                                         {/* <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                            {user?.faculty_name}
-                                        </TableCell> */}
-                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                             {(() => {
-                                                if (!user?.created_at) return "Mövcud deyil";
-                                                const createdDate = new Date(user.created_at);
+                                                if (!dekan?.created_at) return "Mövcud deyil";
+                                                const createdDate = new Date(dekan.created_at);
                                                 const today = new Date();
                                                 const yesterday = new Date();
                                                 yesterday.setDate(today.getDate() - 1);
@@ -206,23 +151,24 @@ export default function ApproveWaitingUsers() {
                                                 if (isYesterday) return "Dünən";
                                                 return createdDate.toISOString().split("T")[0].replace(/-/g, "/");
                                             })()}
+                                        </TableCell> */}
+                                        <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                            {dekan.is_execution ? (
+                                                <p className="bg-green-200 dark:bg-green-600 text-green-900 dark:text-green-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                                                    İcraçı şəxsdir
+                                                </p>
+                                            ) : (
+                                                <p className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                                                    İcraçı şəxs deyil
+                                                </p>
+                                            )}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                            <Link to={`/user/${user?.fin_kod}`}>
+                                            <Link to={`/user/${dekan?.fin_kod}`}>
                                                 <div className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-yellow-200 text-yellow-400 dark:bg-yellow-400 cursor-pointer">
                                                     <VisibilityIcon className="text-yellow-500 dark:text-yellow-700" />
                                                 </div>
                                             </Link>
-                                        </TableCell>
-                                        <TableCell className="px-4 py-3 text-start">
-                                            <div className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-green-500 text-green dark:bg-green cursor-pointer" onClick={() => handleUserApprove(user.fin_kod)}>
-                                                <DoneIcon className="text-white dark:text-white" />
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                            <div className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-red-500 text-red dark:bg-red cursor-pointer" onClick={() => rejectUserApprove(user.fin_kod)}>
-                                                <DeleteIcon className="text-white dark:text-white" />
-                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 )
@@ -231,14 +177,41 @@ export default function ApproveWaitingUsers() {
                     </Table>
                 </div>
             </div>
-            {users.length !== 0 ? (
+            {cafDirectors.length !== 0 ? (
                 <div className="w-full flex justify-center items-center">
                     <Stack spacing={2}>
-                        <Pagination count={10} />
+                        <Pagination
+                            count={directorLegth ? (directorLegth <= 10 ? 1 : Math.ceil(directorLegth / 10)) : 1}
+                            page={Math.floor(start / (end - start)) + 1}
+                            onChange={(_event, page) => {
+                                const pageSize = end - start;
+                                const newStart = (page - 1) * pageSize;
+                                const newEnd = newStart + pageSize;
+                                setStart(newStart);
+                                setEnd(newEnd);
+                                setLoading(true);
+                                getCafDirectors(newStart, newEnd)
+                                    .then((res) => {
+                                        if (res === "ERROR") {
+                                            setError("Not found");
+                                            setCafDirectors([]);
+                                        } else if (res === "NO CONTENT") {
+                                            setError("no user");
+                                            setCafDirectors([]);
+                                        } else {
+                                            setCafDirectors(res.caf_directors);
+                                            setDirectorLength(res.total_caf_directors);
+                                            setError("");
+                                        }
+                                    })
+                                    .finally(() => {
+                                        setLoading(false);
+                                    });
+                            }}
+                        />
                     </Stack>
                 </div>
-            ) : null
-            }
+            ) : null}
         </>
     );
 }

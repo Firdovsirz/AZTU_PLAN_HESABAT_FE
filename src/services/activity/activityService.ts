@@ -53,5 +53,5 @@ export const getActivityByCode = async (activityTypeCode: number) => {
         }
     } catch (err) {
         return "error";
-    }
-}
+    };
+};

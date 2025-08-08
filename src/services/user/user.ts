@@ -7,6 +7,19 @@ export enum ResponseStatus {
     NOT_FOUND = "NOT FOUND"
 }
 
+export interface AllUser {
+    name: string;
+    surname: string;
+    father_name: string;
+    fin_kod: string;
+    email: string;
+    faculty_code: string | null;
+    duty_name: string;
+    created_at: string;
+    updated_at: string | null;
+    is_execution: string;
+}
+
 export interface User {
     fin_kod: string;
     email: string;
@@ -14,12 +27,93 @@ export interface User {
     surname: string;
     father_name: string;
     faculty_code: string;
+    faculty_name: string;
     cafedra_code: string;
     duty_code: number;
     is_execution: boolean;
     created_at: string;
     updated_at?: string;
 }
+
+export interface AppWaitingUser {
+    fin_kod: string;
+    email: string;
+    name: string;
+    surname: string;
+    father_name: string;
+    faculty_code: string;
+    faculty_name: string;
+    cafedra_code: string;
+    duty_code: number;
+    is_execution: boolean;
+    created_at: string;
+    updated_at?: string;
+}
+
+// Get all dekans
+
+export const getDekans = async (start: number, end: number) => {
+    try {
+        const response = await apiClient.get(`/api/dekans/${start}/${end}`);
+
+        if (response.data.statusCode === 200 ) {
+            return {
+                "dekans": response.data.dekans,
+                "total_dekans": response.data.total_dekans
+            }
+        } else if (response.data.statusCode === 204){
+            return "NO CONTENT";
+        } else {
+            return "ERROR";
+        };
+    } catch (err) {
+        return "ERROR";
+    }
+}
+
+// Get cafedra directors
+
+export const getCafDirectors = async (start: number, end: number) => {
+    try {
+        const response = await apiClient.get(`/api/caf-directors/${start}/${end}`);
+
+        if (response.data.statusCode === 200 ) {
+            return {
+                "caf_directors": response.data.caf_directors,
+                "total_caf_directors": response.data.total_caf_directors
+            }
+        } else if (response.data.statusCode === 204){
+            return "NO CONTENT";
+        } else {
+            return "ERROR";
+        };
+    } catch (err) {
+        return "ERROR";
+    }
+}
+
+// Get all users by pagination indexes (start, end)
+
+export const getAllUsers = async (start: number, end: number) => {
+    try {
+        const response = await apiClient(`/api/users/${start}/${end}`);
+
+        if (response.data.statusCode === 200) {
+            return {
+                "users": response.data.users,
+                "total_users": response.data.total_users
+            };
+        } else if (response.data.statusCode === 204) {
+            return "NO CONTENT";
+        } else {
+            return "ERROR";
+        }
+    } catch (err) {
+        return "ERROR";
+    }
+}
+
+// Get user by fin kod
 
 export const getUserByFinKod = async (finKod: string) => {
     const response = await apiClient.get(`/api/user/${finKod}`);
@@ -31,17 +125,24 @@ export const getUserByFinKod = async (finKod: string) => {
     };
 };
 
-export const getExecutionUsers = async () => {
-    const response = await apiClient.get("/api/users/execution");
+// Get execution users
+
+export const getExecutionUsers = async (start: number, end: number) => {
+    const response = await apiClient.get(`/api/users/execution/${start}/${end}`);
 
     if (response.status === 204) {
         return "No user found."
     } else {
-        return response.data.users;
-    };
+        return {
+            user_count: response.data.user_count,
+            users: response.data.users
+        };
+    }
 };
 
-export const getApproveWaitingUsers = async (): Promise<User[] | ResponseStatus> => {
+// Get all approve waiting users only visible by admin
+
+export const getApproveWaitingUsers = async (): Promise<AppWaitingUser[] | ResponseStatus> => {
     try {
         const response = await apiClient.get("/auth/app-wait-users");
 

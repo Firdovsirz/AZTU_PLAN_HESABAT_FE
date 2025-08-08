@@ -25,6 +25,13 @@ export interface CafedraUserResponse {
     users: CafedraUser[];
 }
 
+export interface CafedraDetailsInterface {
+    faculty_code: string;
+    cafedra_code: string;
+    cafedra_name: string;
+    create_at: string;
+}
+
 export const getCafedrasByFaculty = async (
     faculty_code: string
 ): Promise<CafedraResponse | "NOT FOUND"> => {
@@ -41,15 +48,16 @@ export const getCafedrasByFaculty = async (
 };
 
 
-export const getCafName = async (cafedra_code: string) => {
+export const getCafDetails = async (cafedra_code: string): Promise<CafedraDetailsInterface[] | string> => {
     const response = await apiClient.get(`/api/cafedra/${cafedra_code}`);
 
     if (response.data.statusCode === 200) {
-        return response.data.cafedra_name
+        return response.data.cafedra;
     } else {
         return "NOT FOUND";
     }
 };
+
 
 export const getCafUsers = async (cafedra_code: string): Promise<CafedraUser[] | string> => {
     try {

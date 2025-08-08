@@ -21,22 +21,27 @@ interface UserPlanProps {
 
 export default function UserPlan({ finKod }: UserPlanProps) {
     const [error, setError] = useState("");
-    const [plan, setPlan] = useState<Plan>();
+    const [plans, setPlans] = useState<Plan[] | undefined>([]);
     const [loading, setLoading] = useState(true);
+    const [start, setStart] = useState(0);
+    const [end, setEnd] = useState(3);
+    const [planLength, setPlanLength] = useState<number | null>(null);
+    const [selectedPlan, setSelectedPlan] = useState();
     const { isOpen, openModal, closeModal } = useModal();
 
     useEffect(() => {
         if (finKod) {
-            getPlanByFinKod(finKod)
+            getPlanByFinKod(finKod, start, end)
                 .then((res) => {
                     if (res === "Not found") {
                         setError("Not found");
-                        setPlan(undefined);
+                        setPlans(undefined);
                     } else if (res === "error") {
                         setError("Server error");
-                        setPlan(undefined);
+                        setPlans(undefined);
                     } else {
-                        setPlan(res);
+                        setPlans(res.plans);
+                        setPlanLength(res.plan_count);
                         setError("");
                     }
                 })
@@ -44,7 +49,7 @@ export default function UserPlan({ finKod }: UserPlanProps) {
                     setLoading(false);
                 })
         }
-    }, [finKod]);
+    }, [finKod, start, end]);
 
     if (loading) {
         return (
@@ -62,7 +67,7 @@ export default function UserPlan({ finKod }: UserPlanProps) {
         );
     }
 
-    if (!plan) {
+    if (!plans) {
         return (
             <div className="w-full flex justify-center items-center">
                 <p className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
@@ -125,39 +130,84 @@ export default function UserPlan({ finKod }: UserPlanProps) {
                         </TableHeader>
 
                         {/* Table Body */}
-                        <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                            <TableRow>
-                                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                    {finKod}
-                                </TableCell>
-                                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                    {plan.work_plan_serial_number}
-                                </TableCell>
-                                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                    {plan.work_row_number}
-                                </TableCell>
-                                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                    {plan.work_desc?.split(" ").slice(0, 2).join(" ")}{plan.work_desc?.split(" ").length > 2 ? "..." : ""}
-                                </TableCell>
-                                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                    {plan.work_year}
-                                </TableCell>
-                                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-yellow-200 text-yellow-400 dark:bg-yellow-400 cursor-pointer" onClick={handleViewModal}>
-                                        <VisibilityIcon className="text-yellow-500 dark:text-yellow-700" />
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        </TableBody>
+                        {loading ? (
+                            <TableBody>
+                                <TableRow>
+                                    <TableCell colSpan={6}>
+                                        <div className="flex justify-center items-center w-full h-full py-10">
+                                            <CircularProgress />
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        ) : (
+                            <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                                {plans?.map((plan, index) => {
+                                    return (
+                                        <TableRow key={index}>
+                                            <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                {finKod}
+                                            </TableCell>
+                                            <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                {plan.work_plan_serial_number}
+                                            </TableCell>
+                                            <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                {plan.work_row_number}
+                                            </TableCell>
+                                            <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                {plan.work_desc?.split(" ").slice(0, 2).join(" ")}{plan.work_desc?.split(" ").length > 2 ? "..." : ""}
+                                            </TableCell>
+                                            <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                {plan.work_year}
+                                            </TableCell>
+                                            <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                <div className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-yellow-200 text-yellow-400 dark:bg-yellow-400 cursor-pointer" onClick={handleViewModal}>
+                                                    <VisibilityIcon className="text-yellow-500 dark:text-yellow-700" />
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    )
+                                })}
+                            </TableBody>
+                        )}
                     </Table>
                 </div>
             </div>
-                <div className="w-full flex justify-center items-center">
-                    <Stack spacing={2}>
-                    <Pagination count={10} />
+            <div className="w-full flex justify-center items-center">
+                <Stack spacing={2}>
+                    <Pagination
+                        count={planLength ? (planLength <= 1 ? 1 : Math.ceil(planLength / 1)) : 1}
+                        page={Math.floor(start / (end - start)) + 1}
+                        onChange={(_event, page) => {
+                            if (!finKod) return;
+                            const pageSize = end - start;
+                            const newStart = (page - 1) * pageSize;
+                            const newEnd = newStart + pageSize;
+                            setStart(newStart);
+                            setEnd(newEnd);
+                            setLoading(true);
+                            getPlanByFinKod(finKod, newStart, newEnd)
+                                .then((res) => {
+                                    if (res === "Not found") {
+                                        setError("Not found");
+                                        setPlans(undefined);
+                                    } else if (res === "error") {
+                                        setError("Server error");
+                                        setPlans(undefined);
+                                    } else {
+                                        setPlans(res.plans);
+                                        setPlanLength(res.plan_count);
+                                        setError("");
+                                    }
+                                })
+                                .finally(() => {
+                                    setLoading(false);
+                                });
+                        }}
+                    />
                 </Stack>
-                </div>
-            <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
+            </div>
+            {/* <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
                 <div className="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-11">
                     <div className="px-2 pr-14">
                         <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
@@ -213,7 +263,7 @@ export default function UserPlan({ finKod }: UserPlanProps) {
                         </div>
                     </form>
                 </div>
-            </Modal>
+            </Modal> */}
         </>
     );
 }

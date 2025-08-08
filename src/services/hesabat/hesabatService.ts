@@ -17,12 +17,15 @@ export interface Hesabat {
     submitted: boolean;
 }
 
-export const getHesabatByFinKod = async (finKod: string) => {
+export const getHesabatByFinKod = async (finKod: string, start: number, end: number) => {
     try {
-        const response = await apiClient.get(`/api/hesabat/${finKod}`);
+        const response = await apiClient.get(`/api/hesabat/${finKod}/${start}/${end}`);
 
         if (response.data.statusCode === 200) {
-            return response.data.hesabats;
+            return {
+                "hesabat_count": response.data.hesabat_count,
+                "hesabats": response.data.hesabats
+            };
         } else if (response.data.statusCode === 404) {
             return "Not found";
         } else {

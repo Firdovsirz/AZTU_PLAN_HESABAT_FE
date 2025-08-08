@@ -10,12 +10,15 @@ export interface Plan {
     deadline: string;
 }
 
-export const getPlanByFinKod = async (finKod: string) => {
+export const getPlanByFinKod = async (finKod: string, start: number, end: number) => {
     try {
-        const response = await apiClient.get(`/api/plan/${finKod}`);
+        const response = await apiClient.get(`/api/plan/${finKod}/${start}/${end}`);
 
         if (response.data.statusCode === 200) {
-            return response.data.plan;
+            return {
+                "plan_count": response.data.plan_count,
+                "plans": response.data.plan
+            };
         } else if (response.data.statusCode === 404) {
             return "Not found";
         } else {
