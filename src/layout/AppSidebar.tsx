@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import AddIcon from '@mui/icons-material/Add';
 import { Link, useLocation } from "react-router";
+import PersonIcon from '@mui/icons-material/Person';
 import PeopleIcon from '@mui/icons-material/People';
 import SchoolIcon from '@mui/icons-material/School';
 import HistoryIcon from '@mui/icons-material/History';
@@ -99,12 +100,12 @@ const getMainItems = (role: number): NavItem[] => {
 const getOthersItems = (role: number): NavItem[] => {
   const items: NavItem[] = [
     {
-      icon: <PieChartIcon />,
+      icon: <PersonIcon />,
       name: "Dekanlar",
       path: "/dekans"
     },
     {
-      icon: <BoxCubeIcon />,
+      icon: <PersonIcon />,
       name: "Kafedra müdirləri",
       path: "/cafedra-directors"
     },

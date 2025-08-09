@@ -16,7 +16,9 @@ export interface CafedraUser {
     name: string;
     surname: string;
     father_name: string;
-    is_execution: boolean
+    duty_code: string;
+    duty_name: string;
+    is_execution: boolean;
 }
 
 export interface CafedraUserResponse {
@@ -59,12 +61,15 @@ export const getCafDetails = async (cafedra_code: string): Promise<CafedraDetail
 };
 
 
-export const getCafUsers = async (cafedra_code: string): Promise<CafedraUser[] | string> => {
+export const getCafUsers = async (cafedra_code: string, start: number, end: number): Promise<CafedraUser[] | string | {users: CafedraUser[], total_users: number}> => {
     try {
-        const response = await apiClient.get(`/api/cafedra/${cafedra_code}/users`);
+        const response = await apiClient.get(`/api/cafedra/${cafedra_code}/users/${start}/${end}`);
 
         if (response.data.statusCode === 200) {
-            return response.data.users;
+            return {
+                "users": response.data.users,
+                "total_users": response.data.total_users
+            };
         } else if (response.data.statusCode === 404) {
             return "Cafedra code is not valid";
         } else if (response.status === 204) {

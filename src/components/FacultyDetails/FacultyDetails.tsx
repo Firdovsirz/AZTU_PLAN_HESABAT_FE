@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
+import { getDekan, Dekan } from '../../services/user/user';
 import CircularProgress from "@mui/material/CircularProgress";
 import { Cafedra } from '../../services/cafedra/cafedraService';
 import { getFacName } from '../../services/faculty/facultyService';
@@ -12,6 +13,8 @@ export default function FacultyDetails() {
     const [loading, setLoading] = useState(true);
     const [facName, setFacName] = useState("");
     const [cafedraCount, setCafedraCount] = useState(0);
+    const [dekan, setDekan] = useState<Dekan | null>(null);
+    const [dekanNotFound, setDekanNotFound] = useState<boolean>(true);
 
     useEffect(() => {
         if (faculty_code) {
@@ -27,8 +30,21 @@ export default function FacultyDetails() {
                 });
             getFacName(faculty_code)
                 .then(setFacName);
+
+            getDekan(faculty_code).then((res) => {
+                if (res === "NOT FOUND") {
+                    setDekanNotFound(true);
+                } else if (res === "ERROR") {
+                    console.error("An error occurred");
+                } else {
+                    setDekan(res);
+                    setDekanNotFound(false);
+                }
+            });
         }
     }, [faculty_code]);
+
+    console.log(dekan);
 
     if (loading) {
         return (
@@ -42,10 +58,32 @@ export default function FacultyDetails() {
             <h2 className="mb-2 font-semibold text-gray-800 text-xs dark:text-white/90 sm:text-xl">Fakültə adı: {facName}&nbsp;({faculty_code})</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">Kafedra sayı: {cafedraCount}</p>
 
+            <div className='flex justify-start items-center'>
+            <h2 className='mr-[5px]'>Dekan: </h2>
+            {!dekanNotFound ? (
+                <div className='flex justify-start items-center'>
+                    <p>{dekan?.name} {dekan?.surname} {dekan?.father_name} ({dekan?.fin_kod})</p>
+                    {dekan?.is_execution ? (
+                        <p className="bg-green-200 dark:bg-green-600 text-green-900 dark:text-green-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                            İcraçı şəxsdir
+                        </p>
+                    ) : (
+                        <p className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                            İcraçı şəxs deyil
+                        </p>
+                    )}
+                </div>
+            ) : (
+                <p className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                    Mövcud deyil
+                </p>
+            )}
+            </div>
+
             <ul className='mt-[20px] flex-wrap flex justify-between items-center'>
                 {cafedras.map((cafedra, index) => {
                     return (
-                        <Link to={`/cafedra/${cafedra.cafedra_code}`}
+                        <Link to={`/cafedra/${cafedra.cafedra_code}`} key={index}
                             style={{
                                 width: "48%",
                                 padding: 10,

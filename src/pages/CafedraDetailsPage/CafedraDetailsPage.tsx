@@ -1,7 +1,7 @@
 import PageMeta from "../../components/common/PageMeta";
 import ComponentCard from "../../components/common/ComponentCard";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import CafDirectors from "../../components/cafDirectors/CafDirectors";
+import CafedraDetails from "../../components/cafedraDetails/CafedraDetails";
 
 export default function CafedraDetailsPage() {
     return (
@@ -13,7 +13,7 @@ export default function CafedraDetailsPage() {
             <PageBreadcrumb pageTitle="Kafedra müdirləri" />
             <div className="space-y-6">
                 <ComponentCard title="Kafedra müdirləri">
-                    <CafDirectors />
+                    <CafedraDetails />
                 </ComponentCard>
             </div>
         </div>

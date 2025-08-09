@@ -50,22 +50,50 @@ export interface AppWaitingUser {
     updated_at?: string;
 }
 
+export interface Dekan {
+    name: string;
+    surname: string;
+    father_name: string;
+    fin_kod: string;
+    is_execution: string;
+    created_at: string;
+    updated_at: string;
+}
+
 // Get all dekans
 
 export const getDekans = async (start: number, end: number) => {
     try {
         const response = await apiClient.get(`/api/dekans/${start}/${end}`);
 
-        if (response.data.statusCode === 200 ) {
+        if (response.data.statusCode === 200) {
             return {
                 "dekans": response.data.dekans,
                 "total_dekans": response.data.total_dekans
             }
-        } else if (response.data.statusCode === 204){
+        } else if (response.data.statusCode === 204) {
             return "NO CONTENT";
         } else {
             return "ERROR";
         };
+    } catch (err) {
+        return "ERROR";
+    }
+}
+
+// Get single dekan by faculty code
+
+export const getDekan = async (faculty_code: string) => {
+    try {
+        const response = await apiClient.get(`/api/dekan/${faculty_code}`);
+
+        if (response.data.statusCode === 200) {
+            return response.data.dekan;
+        } else if (response.data.statusCode === 404) {
+            return "NOT FOUND";
+        } else {
+            return "ERROR";
+        }
     } catch (err) {
         return "ERROR";
     }
@@ -77,12 +105,12 @@ export const getCafDirectors = async (start: number, end: number) => {
     try {
         const response = await apiClient.get(`/api/caf-directors/${start}/${end}`);
 
-        if (response.data.statusCode === 200 ) {
+        if (response.data.statusCode === 200) {
             return {
                 "caf_directors": response.data.caf_directors,
                 "total_caf_directors": response.data.total_caf_directors
             }
-        } else if (response.data.statusCode === 204){
+        } else if (response.data.statusCode === 204) {
             return "NO CONTENT";
         } else {
             return "ERROR";

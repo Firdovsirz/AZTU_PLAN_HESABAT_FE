@@ -154,16 +154,16 @@ export default function AllUsers() {
                                             })()}
                                         </TableCell> */}
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                {user.is_execution ? (
-                                                    <p className="bg-green-200 dark:bg-green-600 text-green-900 dark:text-green-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
-                                                        İcraçı şəxsdir
-                                                    </p>
-                                                ) : (
-                                                    <p className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
-                                                        İcraçı şəxs deyil
-                                                    </p>
-                                                )}
-                                            </TableCell>
+                                            {user.is_execution ? (
+                                                <p className="bg-green-200 dark:bg-green-600 text-green-900 dark:text-green-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                                                    İcraçı şəxsdir
+                                                </p>
+                                            ) : (
+                                                <p className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                                                    İcraçı şəxs deyil
+                                                </p>
+                                            )}
+                                        </TableCell>
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                             <Link to={`/user/${user?.fin_kod}`}>
                                                 <div className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-yellow-200 text-yellow-400 dark:bg-yellow-400 cursor-pointer">
@@ -208,6 +208,22 @@ export default function AllUsers() {
                                     .finally(() => {
                                         setLoading(false);
                                     });
+                            }}
+                            sx={{
+                                '& .MuiPaginationItem-root': {
+                                    color: 'text.primary',
+                                    bgcolor: 'background.paper',
+                                },
+                                '& .MuiPaginationItem-root.Mui-selected': {
+                                    bgcolor: 'primary.main',
+                                    color: 'primary.contrastText',
+                                    '&:hover': {
+                                        bgcolor: 'primary.dark',
+                                    },
+                                },
+                                '& .MuiPaginationItem-root:hover': {
+                                    bgcolor: 'action.hover',
+                                },
                             }}
                         />
                     </Stack>

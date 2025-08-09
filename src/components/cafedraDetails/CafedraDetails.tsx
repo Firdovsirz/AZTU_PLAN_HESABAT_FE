@@ -23,13 +23,16 @@ export default function CafedraDetails() {
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<CafedraUser[]>([]);
     const [error, setError] = useState("");
+    const [start, setStart] = useState<number>(0);
+    const [end, setEnd] = useState<number>(5);
+    const [userLength, setUserLength] = useState<number | null>(null);
 
     useEffect(() => {
         if (cafedra_code) {
             getCafDetails(cafedra_code)
                 .then(setCafDetails)
 
-            getCafUsers(cafedra_code)
+            getCafUsers(cafedra_code, start, end)
                 .then((res) => {
                     if (typeof res === "string") {
                         if (res === "No user") {
@@ -37,15 +40,16 @@ export default function CafedraDetails() {
                         } else {
                             setError("Unexpected error");
                         }
-                    } else {
-                        setUsers(res);
+                    } else if (!Array.isArray(res)) {
+                        setUsers(res.users);
+                        setUserLength(res.total_users);
                     }
                 })
                 .finally(() => {
                     setLoading(false);
                 })
         }
-    }, []);
+    }, [cafedra_code, start, end]);
 
     if (loading) {
         return (
@@ -58,12 +62,12 @@ export default function CafedraDetails() {
         <div>
             {typeof cafDetails !== "string" && (
                 <>
-                <h2 className="mb-2 font-semibold text-gray-800 text-xs dark:text-white/90 sm:text-xl">
-                    Kafedra adı: {cafDetails[0]?.cafedra_name} ({cafedra_code})
-                </h2>
-                <h2 className="mb-2 font-semibold text-gray-800 text-xs dark:text-white/90 sm:text-xl">
-                    Fakültə: {cafDetails[0]?.faculty_code}
-                </h2>
+                    <h2 className="mb-2 font-semibold text-gray-800 text-xs dark:text-white/90 sm:text-xl">
+                        Kafedra adı: {cafDetails[0]?.cafedra_name} ({cafedra_code})
+                    </h2>
+                    <h2 className="mb-2 font-semibold text-gray-800 text-xs dark:text-white/90 sm:text-xl">
+                        Fakültə: {cafDetails[0]?.faculty_code}
+                    </h2>
                 </>
             )}
             {error === "No user" ? (
@@ -92,6 +96,12 @@ export default function CafedraDetails() {
                                             className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                         >
                                             Fin Kod
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
+                                            Vəzifə
                                         </TableCell>
                                         <TableCell
                                             isHeader
@@ -130,6 +140,9 @@ export default function CafedraDetails() {
                                                 {user.fin_kod}
                                             </TableCell>
                                             <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                {user.duty_name}
+                                            </TableCell>
+                                            <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                                 {user.is_execution ? (
                                                     <p className="bg-green-200 dark:bg-green-600 text-green-900 dark:text-green-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
                                                         İcraçı şəxsdir
@@ -158,25 +171,56 @@ export default function CafedraDetails() {
                             </Table>
                         </div>
                     </div>
-                    <div className="w-full flex justify-center items-center mt-[20px]">
-                        <Stack spacing={2}>
-                            <Pagination
-                                count={10}
-                                sx={{
-                                    "& .MuiPaginationItem-root": {
-                                        color: "white"
-                                    },
-                                    "& .Mui-selected": {
-                                        backgroundColor: "rgb(67, 88, 251)",
-                                        color: "white",
-                                        "&:hover": {
-                                            backgroundColor: "rgb(67, 88, 251)"
-                                        }
-                                    }
-                                }}
-                            />
-                        </Stack>
-                    </div>
+                    {users.length !== 0 ? (
+                        <div className="w-full flex justify-center items-center bg-white dark:bg-gray-800 p-4 rounded-md">
+                            <Stack spacing={2} className="text-gray-900 dark:text-white">
+                                <Pagination
+                                    count={userLength ? (userLength <= 5 ? 1 : Math.ceil(userLength / 5)) : 1}
+                                    page={Math.floor(start / (end - start)) + 1}
+                                    onChange={(_event, page) => {
+                                        const pageSize = end - start;
+                                        const newStart = (page - 1) * pageSize;
+                                        const newEnd = newStart + pageSize;
+                                        setStart(newStart);
+                                        setEnd(newEnd);
+                                        setLoading(true);
+                                        getCafUsers(cafedra_code ?? "", newStart, newEnd)
+                                            .then((res) => {
+                                                if (typeof res === "string") {
+                                                    if (res === "No user") {
+                                                        setError(res);
+                                                    } else {
+                                                        setError("Unexpected error");
+                                                    }
+                                                } else if (!Array.isArray(res)) {
+                                                    setUsers(res.users);
+                                                    setUserLength(res.total_users);
+                                                }
+                                            })
+                                            .finally(() => {
+                                                setLoading(false);
+                                            });
+                                    }}
+                                    sx={{
+                                        '& .MuiPaginationItem-root': {
+                                            color: 'text.primary',
+                                            bgcolor: 'background.paper',
+                                        },
+                                        '& .MuiPaginationItem-root.Mui-selected': {
+                                            bgcolor: 'primary.main',
+                                            color: 'primary.contrastText',
+                                            '&:hover': {
+                                                bgcolor: 'primary.dark',
+                                            },
+                                        },
+                                        '& .MuiPaginationItem-root:hover': {
+                                            bgcolor: 'action.hover',
+                                        },
+                                    }}
+                                />
+                            </Stack>
+                        </div>
+                    ) : null}
                 </>
             )}
         </div>
