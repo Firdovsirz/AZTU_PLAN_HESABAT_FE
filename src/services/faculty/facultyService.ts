@@ -8,16 +8,24 @@ export interface Faculty {
     created_at: string;
 }
 
-export const getFaculties = async () => {
-    const response = await apiClient.get("/api/faculties");
+export const getFaculties = async (token: string | null) => {
+    const response = await apiClient.get("/api/faculties", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
     if (response.data.statusCode === 200) {
         return response.data.faculties;
     }
 }
 
-export const getFacName = async (faculty_code: string) => {
-    const response = await apiClient.get(`/api/faculties/${faculty_code}`);
+export const getFacName = async (faculty_code: string, token: string | null) => {
+    const response = await apiClient.get(`/api/faculties/${faculty_code}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
     if (response.data.statusCode === 200) {
         return response.data.faculty_name;

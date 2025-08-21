@@ -69,7 +69,7 @@ export default function NewPassword() {
                 return Swal.fire({
                     icon: "success",
                     title: "Şifrəniz uğurla yeniləndi!",
-                    text: "Hesabınız təsdiq edildikdə e-poçt vasitəsilə sizə bildiriş göndəriləcək.",
+                    text: "Yeni şifrədən istifadə edərək daxil ola bilərsiz.",
                     timer: 3000,
                     showConfirmButton: false,
                     timerProgressBar: true

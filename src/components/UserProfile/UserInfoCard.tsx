@@ -1,74 +1,264 @@
-import { useModal } from "../../hooks/useModal";
+import Swal from "sweetalert2";
+import Label from "../form/Label";
 import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
+import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 import Input from "../form/input/InputField";
-import Label from "../form/Label";
+import { RootState } from "../../redux/store";
+import Skeleton from "@mui/material/Skeleton";
+import { useModal } from "../../hooks/useModal";
+import { getDutyByCode } from "../../services/duty/duty";
+import { getFacName } from "../../services/faculty/facultyService";
+import { getCafDetails, CafedraDetailsInterface } from "../../services/cafedra/cafedraService";
+import { getUserByFinKod, updateUser, User, UpdateUser, ResponseStatus } from "../../services/user/user";
 
 export default function UserInfoCard() {
+  const [user, setUser] = useState<User>();
+  const [dutyName, setDutyName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [facultyName, setFacultyName] = useState("");
   const { isOpen, openModal, closeModal } = useModal();
-  const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
-    closeModal();
+  const token = useSelector((state: RootState) => state.auth.token);
+  const finKod = useSelector((state: RootState) => state.auth.fin_kod);
+  const [cafedraDetails, setCafedraDetails] = useState<CafedraDetailsInterface[]>([]);
+
+  const [modalName, setModalName] = useState("");
+  const [modalSurname, setModalSurname] = useState("");
+  const [modalFatherName, setModalFatherName] = useState("");
+  const [modalDuty, setModalDuty] = useState<number | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (!finKod) return;
+
+    setLoading(true);
+
+    // Sequential fetching: first get user, then dependent calls
+    getUserByFinKod(finKod, token ?? "")
+      .then((fetchedUser) => {
+        setUser(fetchedUser);
+        if (!fetchedUser) {
+          setDutyName("");
+          setFacultyName("");
+          setCafedraDetails([]);
+          return;
+        }
+        return Promise.all([
+          getDutyByCode(fetchedUser.duty_code ?? 0, token ?? "").then(setDutyName),
+          getFacName(fetchedUser.faculty_code ?? "", token ?? "").then(setFacultyName),
+          getCafDetails(fetchedUser.cafedra_code ?? "", token ?? "").then((res) => {
+            if (Array.isArray(res)) {
+              setCafedraDetails(res);
+            } else {
+              console.error("Unexpected response:", res);
+              setCafedraDetails([]);
+            }
+          }),
+        ]);
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [finKod, token]);
+
+  const openEditModal = () => {
+    if (user) {
+      setModalName(user.name ?? "");
+      setModalSurname(user.surname ?? "");
+      setModalFatherName(user.father_name ?? "");
+      setModalDuty(user.duty_code ?? null);
+    }
+    openModal();
   };
+
+  const handleSave = async () => {
+    if (!user) return;
+    setIsSaving(true);
+    const updatedUser: UpdateUser = {
+      fin_kod: user.fin_kod,
+      name: modalName,
+      surname: modalSurname,
+      father_name: modalFatherName,
+      duty_code: modalDuty
+    };
+    let result: ResponseStatus | undefined;
+    try {
+      if (token) {
+        result = await updateUser(updatedUser, token);
+      }
+    } catch (error) {
+      result = undefined;
+    } finally {
+      setIsSaving(false);
+    }
+    closeModal();
+    if (result === ResponseStatus.SUCCESS) {
+      setUser({
+        ...user,
+        name: modalName,
+        surname: modalSurname,
+        father_name: modalFatherName,
+      });
+      await Swal.fire({
+        icon: "success",
+        title: "Uğurlu!",
+        text: "İstifadəçi məlumatları yeniləndi.",
+      });
+    } else if (result === ResponseStatus.NOT_FOUND) {
+      await Swal.fire({
+        icon: "error",
+        title: "Xəta!",
+        text: "İstifadəçi tapılmadı.",
+      });
+    } else {
+      await Swal.fire({
+        icon: "error",
+        title: "Xəta!",
+        text: "Məlumatları yeniləmək mümkün olmadı.",
+      });
+    }
+  };
+
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-            Personal Information
+            Şəxsi məlumatlar
           </h4>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 lg:gap-7 2xl:gap-x-32">
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                First Name
+                Ad
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Musharof
+                {loading ? <Skeleton variant="text" width={150} height={30} /> : user?.name}
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Last Name
+                Soyad
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Chowdhury
+                {loading ? <Skeleton variant="text" width={150} height={30} /> : user?.surname}
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Email address
+                Ata adı
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                randomuser@pimjo.com
+                {loading ? <Skeleton variant="text" width={150} height={30} /> : user?.father_name}
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Phone
+                E-poçt adresi
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                +09 363 398 46
+                {loading ? <Skeleton variant="text" width={150} height={30} /> : user?.email}
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Bio
+                Vəzifə
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Team Manager
+                {loading ? (
+                  <Skeleton variant="text" width={150} height={30} />
+                ) : dutyName ? (
+                  <>
+                    {dutyName}
+                  </>
+                ) : (
+                  <div className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block">
+                    Məlumat yoxdur
+                  </div>
+                )}
+              </p>
+            </div>
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Fakültə
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {loading ? (
+                  <Skeleton variant="text" width={150} height={30} />
+                ) : facultyName ? (
+                  <>
+                    {facultyName}
+                  </>
+                ) : (
+                  <div className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block">
+                    Məlumat yoxdur
+                  </div>
+                )}
+              </p>
+            </div>
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Kafedra
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {loading ? (
+                  <Skeleton variant="text" width={150} height={30} />
+                ) : cafedraDetails[0] ? (
+                  <>
+                    {cafedraDetails[0].cafedra_name}
+                  </>
+                ) : (
+                  <div className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block">
+                    Məlumat yoxdur
+                  </div>
+                )}
+              </p>
+            </div>
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Qeydiyyat tarixi
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                {loading ? (
+                  <Skeleton variant="text" width={150} height={30} />
+                ) : user?.created_at ? (
+                  <>
+                    {(() => {
+                      const createdDate = new Date(user.created_at);
+                      const today = new Date();
+                      const yesterday = new Date();
+                      yesterday.setDate(today.getDate() - 1);
+
+                      const isSameDay = (d1: Date, d2: Date) =>
+                        d1.getFullYear() === d2.getFullYear() &&
+                        d1.getMonth() === d2.getMonth() &&
+                        d1.getDate() === d2.getDate();
+
+                      if (isSameDay(createdDate, today)) return "Bu gün";
+                      if (isSameDay(createdDate, yesterday)) return "Dünən";
+                      return createdDate.toLocaleDateString("en-GB");
+                    })()}
+                  </>
+                ) : (
+                  <div className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block">
+                    Məlumat yoxdur
+                  </div>
+                )}
               </p>
             </div>
           </div>
         </div>
 
         <button
-          onClick={openModal}
+          onClick={openEditModal}
           className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
         >
           <svg
@@ -86,7 +276,7 @@ export default function UserInfoCard() {
               fill=""
             />
           </svg>
-          Edit
+          Düzəliş et
         </button>
       </div>
 
@@ -94,86 +284,52 @@ export default function UserInfoCard() {
         <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <div className="px-2 pr-14">
             <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Edit Personal Information
+              Şəxsi məlumatlarınızda düzəliş edin
             </h4>
-            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Update your details to keep your profile up-to-date.
-            </p>
           </div>
-          <form className="flex flex-col">
+          <form className="flex flex-col" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
             <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
-              <div>
-                <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Social Links
-                </h5>
-
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div>
-                    <Label>Facebook</Label>
-                    <Input
-                      type="text"
-                      value="https://www.facebook.com/PimjoHQ"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>X.com</Label>
-                    <Input type="text" value="https://x.com/PimjoHQ" />
-                  </div>
-
-                  <div>
-                    <Label>Linkedin</Label>
-                    <Input
-                      type="text"
-                      value="https://www.linkedin.com/company/pimjo"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Instagram</Label>
-                    <Input type="text" value="https://instagram.com/PimjoHQ" />
-                  </div>
-                </div>
-              </div>
               <div className="mt-7">
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Personal Information
+                  Şəxsi məlumatlar
                 </h5>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>First Name</Label>
-                    <Input type="text" value="Musharof" />
+                    <Label>Ad</Label>
+                    <Input
+                      type="text"
+                      value={modalName}
+                      onChange={(e) => setModalName(e.target.value)}
+                    />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Last Name</Label>
-                    <Input type="text" value="Chowdhury" />
+                    <Label>Soyad</Label>
+                    <Input
+                      type="text"
+                      value={modalSurname}
+                      onChange={(e) => setModalSurname(e.target.value)}
+                    />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Email Address</Label>
-                    <Input type="text" value="randomuser@pimjo.com" />
-                  </div>
-
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>Phone</Label>
-                    <Input type="text" value="+09 363 398 46" />
-                  </div>
-
-                  <div className="col-span-2">
-                    <Label>Bio</Label>
-                    <Input type="text" value="Team Manager" />
+                    <Label>Ata adı</Label>
+                    <Input
+                      type="text"
+                      value={modalFatherName}
+                      onChange={(e) => setModalFatherName(e.target.value)}
+                    />
                   </div>
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
               <Button size="sm" variant="outline" onClick={closeModal}>
-                Close
+                Bağla
               </Button>
-              <Button size="sm" onClick={handleSave}>
-                Save Changes
+              <Button size="sm" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? "Yadda saxlanır..." : "Yadda saxla"}
               </Button>
             </div>
           </form>

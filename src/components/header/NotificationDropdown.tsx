@@ -190,7 +190,7 @@ export default function NotificationDropdown() {
             <DropdownItem
               onItemClick={closeDropdown}
               className="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
-              to="/"
+              to="/home"
             >
               <span className="relative block w-full h-10 rounded-full z-1 max-w-10">
                 <img

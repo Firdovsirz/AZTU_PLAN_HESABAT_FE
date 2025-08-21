@@ -7,10 +7,13 @@ import {
 } from "../ui/table";
 import { Link } from "react-router";
 import Stack from '@mui/material/Stack';
+import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
+import { RootState } from "../../redux/store";
 import Pagination from '@mui/material/Pagination';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CircularProgress from "@mui/material/CircularProgress";
+import Skeleton from "@mui/material/Skeleton";
 import { AllUser, ResponseStatus, getDekans } from "../../services/user/user";
 
 export default function Dekans() {
@@ -21,9 +24,10 @@ export default function Dekans() {
     const [dekans, setDekans] = useState<AllUser[]>([]);
     const [noContent, setNoContent] = useState(false);
     const [userLength, setUserLength] = useState<number>(0);
+    const token = useSelector((state: RootState) => state.auth.token);
 
     useEffect(() => {
-        getDekans(start, end)
+        getDekans(start, end, token ? token : '')
             .then((res) => {
                 if (res === ResponseStatus.NO_CONTENT) {
                     setNoContent(true);
@@ -39,14 +43,80 @@ export default function Dekans() {
             });
     }, []);
     if (loading) {
+        // Skeleton table with 5 rows and 6 columns
         return (
-            <div className="flex justify-center items-center w-full h-full py-10">
-                <CircularProgress />
+            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+                <div className="max-w-full overflow-x-auto">
+                    <Table>
+                        <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                            <TableRow>
+                                <TableCell
+                                    isHeader
+                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                >
+                                    Ad, Soyad, Ata adı
+                                </TableCell>
+                                <TableCell
+                                    isHeader
+                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                >
+                                    Fin Kod
+                                </TableCell>
+                                <TableCell
+                                    isHeader
+                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                >
+                                    Vəzifə
+                                </TableCell>
+                                <TableCell
+                                    isHeader
+                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                >
+                                    Fakültə
+                                </TableCell>
+                                <TableCell
+                                    isHeader
+                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                >
+                                    İcraçı statusu
+                                </TableCell>
+                                <TableCell
+                                    isHeader
+                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                >
+                                    Qeydiyyat tarixi
+                                </TableCell>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                            {[...Array(5)].map((_, idx) => (
+                                <TableRow key={idx}>
+                                    <TableCell className="px-4 py-3">
+                                        <Skeleton variant="rounded" height={24} width="90%" />
+                                    </TableCell>
+                                    <TableCell className="px-4 py-3">
+                                        <Skeleton variant="rounded" height={24} width="70%" />
+                                    </TableCell>
+                                    <TableCell className="px-4 py-3">
+                                        <Skeleton variant="rounded" height={24} width="60%" />
+                                    </TableCell>
+                                    <TableCell className="px-4 py-3">
+                                        <Skeleton variant="rounded" height={24} width="60%" />
+                                    </TableCell>
+                                    <TableCell className="px-4 py-3">
+                                        <Skeleton variant="rounded" height={24} width="60%" />
+                                    </TableCell>
+                                    <TableCell className="px-4 py-3 flex justify-center">
+                                        <Skeleton variant="circular" width={40} height={40} />
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
             </div>
         );
-    };
-
-    console.log(dekans);
+    }
 
     return (
         <>
@@ -190,7 +260,7 @@ export default function Dekans() {
                                 setStart(newStart);
                                 setEnd(newEnd);
                                 setLoading(true);
-                                getDekans(newStart, newEnd)
+                                getDekans(newStart, newEnd, token ? token : '')
                                     .then((res) => {
                                         if (res === "ERROR") {
                                             setError("Not found");

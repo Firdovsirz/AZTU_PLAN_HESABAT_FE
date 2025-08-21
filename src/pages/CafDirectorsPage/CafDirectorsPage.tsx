@@ -7,8 +7,8 @@ export default function CafDirectorsPage() {
     return (
         <div>
             <PageMeta
-                title="React.js Chart Dashboard | TailAdmin - React.js Admin Dashboard Template"
-                description="This is React.js Chart Dashboard page for TailAdmin - React.js Tailwind CSS Admin Dashboard Template"
+                title="Plan Hesabat AzTU"
+                description="Azərbaycan Texniki Universiteti Plan Hesabat İnformasiya sistemi"
             />
             <PageBreadcrumb pageTitle="Dekanlar" />
             <div className="space-y-6">

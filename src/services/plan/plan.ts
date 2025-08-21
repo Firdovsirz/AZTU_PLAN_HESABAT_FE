@@ -10,9 +10,52 @@ export interface Plan {
     deadline: string;
 }
 
-export const getPlanByFinKod = async (finKod: string, start: number, end: number) => {
+export interface AllPlan {
+    name: string;
+    surname: string;
+    father_name: string;
+    fin_kod: string;
+    is_submitted: boolean;
+    work_plan_serial_number: string;
+    work_year: string;
+    work_row_number: number;
+    activity_type_code: number;
+    deadline: string;
+    created_at: string;
+}
+
+// Get all plans
+
+export const getPlans = async (start: number, end: number, token: string): Promise<string | { plans: AllPlan, total_plans: number }> => {
     try {
-        const response = await apiClient.get(`/api/plan/${finKod}/${start}/${end}`);
+        const response = await apiClient.get(`/api/plans/${start}/${end}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (response.data.statusCode === 200) {
+            return {
+                "plans": response.data.plans,
+                "total_plans": response.data.total_plans
+            }
+        } else if (response.data.statusCode === 204) {
+            return "NO CONTENT";
+        } else {
+            return "ERROR";
+        }
+    } catch (err) {
+        return "ERROR";
+    }
+}
+
+export const getPlanByFinKod = async (finKod: string, start: number, end: number, token: string) => {
+    try {
+        const response = await apiClient.get(`/api/plan/${finKod}/${start}/${end}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         if (response.data.statusCode === 200) {
             return {
@@ -30,9 +73,13 @@ export const getPlanByFinKod = async (finKod: string, start: number, end: number
     }
 };
 
-export const createPlan = async (formData: FormData) => {
+export const createPlan = async (formData: FormData, token: string) => {
     try {
-        const response = await apiClient.post("/api/create-plan", formData);
+        const response = await apiClient.post("/api/create-plan", formData, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         if (response.data.statusCode === 201) {
             return "SUCCESS";

@@ -4,11 +4,15 @@ export interface Assessment {
     assessment_score: number;
     score_name: string;
     score_desc: string;
-}
+};
 
-export const getAssessments = async () => {
+export const getAssessments = async (token: string) => {
     try {
-        const response = await apiClient.get("/api/assessments");
+        const response = await apiClient.get("/api/assessments", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         if (response.data.statusCode === 200) {
             return response.data.assessments;

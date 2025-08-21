@@ -7,8 +7,8 @@ export default function DocViewPage() {
     return (
         <div>
             <PageMeta
-                title="Plan Hesabat İnformasiya Sistemi"
-                description="Plan Report Informastion System"
+                title="Plan Hesabat AzTU"
+                description="Azərbaycan Texniki Universiteti Plan Hesabat İnformasiya sistemi"
             />
             <PageBreadcrumb pageTitle="Sənəd" />
             <div className="space-y-6">

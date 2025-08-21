@@ -7,9 +7,13 @@ export interface Activity {
     created_at: string;
 }
 
-export const getActivities = async () => {
+export const getActivities = async (token: string) => {
     try {
-        const response = await apiClient.get("/api/activities");
+        const response = await apiClient.get("/api/activities", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         if (response.data.statusCode === 200) {
             return response.data.activities;
@@ -24,9 +28,13 @@ export const getActivities = async () => {
 }
 
 
-export const createActivity = async (activity_type_name: string) => {
+export const createActivity = async (activity_type_name: string, token: string) => {
     try {
-        const response = await apiClient.post(`/api/add-activity/${activity_type_name}`);
+        const response = await apiClient.post(`/api/add-activity/${activity_type_name}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         if (response.data.statusCode === 201) {
             return "SUCCESS";
@@ -40,9 +48,13 @@ export const createActivity = async (activity_type_name: string) => {
     }
 }
 
-export const getActivityByCode = async (activityTypeCode: number) => {
+export const getActivityByCode = async (activityTypeCode: number, token: string) => {
     try {
-        const response = await apiClient.get(`/api/activity/${activityTypeCode}`);
+        const response = await apiClient.get(`/api/activity/${activityTypeCode}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         if (response.data.statusCode === 200) {
             return response.data.activity_name;

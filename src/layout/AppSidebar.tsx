@@ -3,12 +3,12 @@ import {
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
-  ListIcon,
-  PieChartIcon
+  ListIcon
 } from "../icons";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import AddIcon from '@mui/icons-material/Add';
+import Logo from "../../public/logo-light.png";
 import { Link, useLocation } from "react-router";
 import PersonIcon from '@mui/icons-material/Person';
 import PeopleIcon from '@mui/icons-material/People';
@@ -46,7 +46,7 @@ const getMainItems = (role: number): NavItem[] => {
       path: "/my-hesabat"
     }, {
       name: "Kafedralarım",
-      icon: <PeopleIcon />,
+      icon: <SchoolIcon />,
       path: "/my-cafedras"
     }, {
       name: "Fakültələr",
@@ -65,8 +65,20 @@ const getMainItems = (role: number): NavItem[] => {
       icon: <PeopleAltIcon />,
       path: "/all-users"
     }, {
+      name: "Bütün planlar",
+      icon: <ListIcon />,
+      path: "/all-plans"
+    }, {
+      name: "Təhvil verilmiş hesabatlar",
+      icon: <ListIcon />,
+      path: "/submitted-hesabats"
+    }, {
       name: "Arxiv",
       icon: <HistoryIcon />,
+      path: "/archive"
+    }, {
+      name: "Kafedram",
+      icon: <SchoolIcon />,
       path: "/archive"
     }
   ];
@@ -78,9 +90,8 @@ const getMainItems = (role: number): NavItem[] => {
         item.name !== "Yeni Plan" &&
         item.name !== "Planım" &&
         item.name !== "Hesabatım" &&
-        item.name !== "Təhvil verilmiş hesabatlar" &&
-        item.name !== "Kafedralarım"
-        // item.name !== "Təsdiq gözləyən istifadəçilər"
+        item.name !== "Kafedralarım" &&
+        item.name !== "Kafedram"
       );
     });
   } else if (role === 2) {
@@ -88,7 +99,42 @@ const getMainItems = (role: number): NavItem[] => {
       return (
         item.name !== "Fakültələr" &&
         item.name !== "Arxiv" &&
-        item.name !== "Bütün istifadəçilər"
+        item.name !== "Bütün istifadəçilər" &&
+        item.name !== "Bütün planlar" &&
+        item.name !== "Təhvil verilmiş hesabatlar" &&
+        item.name !== "İcraya məsul şəxslər" &&
+        item.name !== "Təsdiq gözləyən istifadəçilər" &&
+        item.name !== "Bütün hesabatlar" &&
+        item.name !== "Kafedram"
+      )
+    });
+  } else if (role === 3) {
+    return navItems.filter(item => {
+      return (
+        item.name !== "Kafedralarım" &&
+        item.name !== "Fakültələr" &&
+        item.name !== "Arxiv" &&
+        item.name !== "Bütün istifadəçilər" &&
+        item.name !== "Bütün planlar" &&
+        item.name !== "Təhvil verilmiş hesabatlar" &&
+        item.name !== "Bütün hesabatlar" &&
+        item.name !== "İcraya məsul şəxslər" &&
+        item.name !== "Təsdiq gözləyən istifadəçilər"
+      )
+    });
+  } else if (role === 4) {
+    return navItems.filter(item => {
+      return (
+        item.name !== "Kafedralarım" &&
+        item.name !== "Fakültələr" &&
+        item.name !== "Arxiv" &&
+        item.name !== "Bütün istifadəçilər" &&
+        item.name !== "Bütün planlar" &&
+        item.name !== "Təhvil verilmiş hesabatlar" &&
+        item.name !== "Bütün hesabatlar" &&
+        item.name !== "İcraya məsul şəxslər" &&
+        item.name !== "Təsdiq gözləyən istifadəçilər" &&
+        item.name !== "Kafedram"
       )
     });
   } else {
@@ -99,34 +145,23 @@ const getMainItems = (role: number): NavItem[] => {
 
 const getOthersItems = (role: number): NavItem[] => {
   const items: NavItem[] = [
-    {
-      icon: <PersonIcon />,
-      name: "Dekanlar",
-      path: "/dekans"
-    },
-    {
-      icon: <PersonIcon />,
-      name: "Kafedra müdirləri",
-      path: "/cafedra-directors"
-    },
-    {
-      icon: <BoxCubeIcon />,
-      name: "Fakültəm",
-      path: "/cafedras/directors"
-    },
-    {
-      icon: <BoxCubeIcon />,
-      name: "Kafedram",
-      path: "/cafedras/directors"
-    }
+    { icon: <PersonIcon />, name: "Dekanlar", path: "/dekans" },
   ];
 
-  return role === 1
-    ? items.filter(
-      (item) =>
-        item.name !== "Fakültəm" && item.name !== "Kafedram"
-    )
-    : items;
+  switch (role) {
+    case 1:
+      // Hide "Fakültəm" and "Kafedram"
+      return items.filter(item => item.name !== "Fakültəm" && item.name !== "Kafedram");
+    case 2:
+      // Hide "Kafedram", "Dekanlar" and "Kafedra müdirləri"
+      return items.filter(item => !["Kafedram", "Dekanlar", "Kafedra müdirləri"].includes(item.name));
+    case 3:
+      // Only display "Kafedram"
+      return items.filter(item => item.name === "Kafedram");
+    default:
+      // Role 4 or others: display nothing
+      return [];
+  }
 };
 
 const AppSidebar: React.FC = () => {
@@ -336,27 +371,27 @@ const AppSidebar: React.FC = () => {
         className={`py-8 flex ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
           }`}
       >
-        <Link to="/">
+        <Link to="/home">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <img
                 className="dark:hidden"
-                src="/images/logo/logo.svg"
+                src={Logo}
                 alt="Logo"
-                width={150}
+                width={70}
                 height={40}
               />
               <img
                 className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                src={Logo}
                 alt="Logo"
-                width={150}
+                width={70}
                 height={40}
               />
             </>
           ) : (
             <img
-              src="/images/logo/logo-icon.svg"
+              src={Logo}
               alt="Logo"
               width={32}
               height={32}
@@ -375,28 +410,24 @@ const AppSidebar: React.FC = () => {
                   }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
+                  "Menyu"
                 ) : (
                   <HorizontaLDots className="size-6" />
                 )}
               </h2>
               {renderMenuItems(getMainItems(role), "main")}
             </div>
-            <div className="">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered
-                  ? "lg:justify-center"
-                  : "justify-start"
-                  }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Others"
-                ) : (
-                  <HorizontaLDots />
-                )}
-              </h2>
-              {renderMenuItems(othersItems, "others")}
-            </div>
+            {role < 4 && othersItems.length > 0 && (
+              <div className="">
+                <h2
+                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
+                    }`}
+                >
+                  {isExpanded || isHovered || isMobileOpen ? "Digər" : <HorizontaLDots />}
+                </h2>
+                {renderMenuItems(othersItems, "others")}
+              </div>
+            )}
           </div>
         </nav>
       </div>

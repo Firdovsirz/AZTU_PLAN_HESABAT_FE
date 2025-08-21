@@ -35,9 +35,14 @@ export interface CafedraDetailsInterface {
 }
 
 export const getCafedrasByFaculty = async (
-    faculty_code: string
+    faculty_code: string,
+    token: string
 ): Promise<CafedraResponse | "NOT FOUND"> => {
-    const response = await apiClient.get(`/api/cafedras/${faculty_code}`);
+    const response = await apiClient.get(`/api/cafedras/${faculty_code}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
 
     if (response.data.statusCode === 200) {
         return {
@@ -50,8 +55,12 @@ export const getCafedrasByFaculty = async (
 };
 
 
-export const getCafDetails = async (cafedra_code: string): Promise<CafedraDetailsInterface[] | string> => {
-    const response = await apiClient.get(`/api/cafedra/${cafedra_code}`);
+export const getCafDetails = async (cafedra_code: string, token: string): Promise<CafedraDetailsInterface[] | string> => {
+    const response = await apiClient.get(`/api/cafedra/${cafedra_code}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
 
     if (response.data.statusCode === 200) {
         return response.data.cafedra;
@@ -61,9 +70,13 @@ export const getCafDetails = async (cafedra_code: string): Promise<CafedraDetail
 };
 
 
-export const getCafUsers = async (cafedra_code: string, start: number, end: number): Promise<CafedraUser[] | string | {users: CafedraUser[], total_users: number}> => {
+export const getCafUsers = async (cafedra_code: string, start: number, end: number, token: string): Promise<CafedraUser[] | string | { users: CafedraUser[], total_users: number }> => {
     try {
-        const response = await apiClient.get(`/api/cafedra/${cafedra_code}/users/${start}/${end}`);
+        const response = await apiClient.get(`/api/cafedra/${cafedra_code}/users/${start}/${end}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         if (response.data.statusCode === 200) {
             return {

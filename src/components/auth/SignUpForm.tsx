@@ -2,8 +2,10 @@ import Swal from "sweetalert2";
 import Label from "../form/Label";
 import Select from "../form/Select";
 import { Link } from "react-router";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import Input from "../form/input/InputField";
+import { RootState } from "../../redux/store";
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 import { EyeCloseIcon, EyeIcon } from "../../icons";
@@ -16,11 +18,12 @@ import { getCafedrasByFaculty, Cafedra } from "../../services/cafedra/cafedraSer
 
 export default function SignUpForm() {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showRepPassword, setShowRepPassword] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [inputFocussed, setInputFocussed] = useState(false);
+  const [showRepPassword, setShowRepPassword] = useState(false);
+  const token = useSelector((state: RootState) => state.auth.token);
 
   // Form Data
 
@@ -41,7 +44,7 @@ export default function SignUpForm() {
   const [faculties, setFaculties] = useState<Faculty[]>([]);
 
   useEffect(() => {
-    getFaculties()
+    getFaculties(token)
       .then(setFaculties)
       .finally(() => {
         setLoading(false);
@@ -65,7 +68,7 @@ export default function SignUpForm() {
   const [duties, setDuties] = useState<Duty[]>([]);
 
   useEffect(() => {
-    getDuties()
+    getDuties(token ? token : '')
       .then(setDuties)
       .finally(() => {
         setLoading(false);
@@ -94,7 +97,6 @@ export default function SignUpForm() {
       case "3":
         setRole("2");
         break;
-        break;
       case "4":
         setRole("3");
         break;
@@ -120,7 +122,7 @@ export default function SignUpForm() {
   const [cafedras, setCafedras] = useState<Cafedra[]>([]);
 
   useEffect(() => {
-    getCafedrasByFaculty(faculty)
+    getCafedrasByFaculty(faculty, token ? token : '')
       .then((res) => {
         if (res === "NOT FOUND") {
           setCafedras([]);

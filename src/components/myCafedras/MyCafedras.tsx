@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
+import Skeleton from "@mui/material/Skeleton";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import { getCafedrasByFaculty, Cafedra } from "../../services/cafedra/cafedraService";
 import { useSelector } from "react-redux";
@@ -12,10 +13,11 @@ export default function MyCafedras() {
     const [notFound, setNotFound] = useState(false);
     const [cafedras, setCafedras] = useState<Cafedra[]>([]);
     const facultyCode = useSelector((state: RootState) => state.auth.faculty_code);
+    const token = useSelector((state: RootState) => state.auth.token);
     
     useEffect(() => {
         if (facultyCode) {
-            getCafedrasByFaculty(facultyCode)
+            getCafedrasByFaculty(facultyCode, token ? token : '')
             .then((res) => {
                 if (res === "NOT FOUND") {
                     setNotFound(true);
@@ -34,8 +36,21 @@ export default function MyCafedras() {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center w-full h-full py-10">
-                <CircularProgress />
+            <div className="flex justify-between items-center width-full flex-wrap">
+                {[1,2,3,4].map((item) => (
+                    <div
+                        key={item}
+                        className="flex items-center justify-between"
+                        style={{
+                            width: "48%",
+                            padding: 10,
+                            borderRadius: 10,
+                            marginBlock: 10,
+                        }}
+                    >
+                        <Skeleton variant="rectangular" width="100%" height={50} sx={{ borderRadius: 2 }} />
+                    </div>
+                ))}
             </div>
         );
     };

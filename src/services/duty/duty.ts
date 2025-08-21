@@ -7,8 +7,12 @@ export interface Duty {
     created_at: Date;
 }
 
-export const getDutyByCode = async (duty_code: number) => {
-    const response = await apiClient.get(`/api/duty/${duty_code}`);
+export const getDutyByCode = async (duty_code: number, token: string) => {
+    const response = await apiClient.get(`/api/duty/${duty_code}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
 
     if (response.data.statusCode === 200) {
         return response.data.duty_name;
@@ -17,9 +21,13 @@ export const getDutyByCode = async (duty_code: number) => {
     };
 };
 
-export const getDuties = async () => {
+export const getDuties = async (token: string) => {
     try {
-        const response = await apiClient.get("/api/duties");
+        const response = await apiClient.get("/api/duties", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         if (response.data.statusCode === 200) {
             return response.data.duties;

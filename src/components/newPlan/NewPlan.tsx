@@ -10,6 +10,7 @@ import { RootState } from "../../redux/store";
 import { createPlan } from "../../services/plan/plan";
 import React, { useEffect, useState, useMemo } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
+import Skeleton from "@mui/material/Skeleton";
 import { createActivity } from "../../services/activity/activityService";
 import { Activity, getActivities } from "../../services/activity/activityService";
 
@@ -18,6 +19,7 @@ export default function NewPlan() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [activities, setActivities] = useState<Activity[]>([]);
     const finKod = useSelector((state: RootState) => state.auth.fin_kod);
+    const token = useSelector((state: RootState) => state.auth.token);
 
     // form data
 
@@ -29,7 +31,7 @@ export default function NewPlan() {
     const [activityTypeName, setActivityTypeName] = useState("");
 
     useEffect(() => {
-        getActivities()
+        getActivities(token ? token : '')
             .then(setActivities)
             .finally(() => {
                 setLoading(false);
@@ -67,14 +69,14 @@ export default function NewPlan() {
 
         try {
             if (activityTypeName.length !== 0) {
-                const activityResult = await createActivity(activityTypeName);
+                const activityResult = await createActivity(activityTypeName, token ? token : '');
                 if (activityResult !== "SUCCESS") {
                     throw new Error("Activity creation failed");
                 }
                 formData.append("activity_type_name", activityTypeName);
             }
 
-            const result = await createPlan(formData);
+            const result = await createPlan(formData, token ? token : '');
 
             if (result === "SUCCESS") {
                 Swal.fire({
@@ -99,9 +101,23 @@ export default function NewPlan() {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center w-full h-full py-10">
-                <CircularProgress />
-            </div>
+            <form className="w-full space-y-5 py-10">
+                <div className="flex justify-between items-center w-full mb-[20px]">
+                    <Skeleton variant="rectangular" width="calc((100% / 2) - 10px)" height={56} sx={{ borderRadius: 1 }} />
+                    <Skeleton variant="rectangular" width="calc((100% / 2) - 10px)" height={56} sx={{ borderRadius: 1 }} />
+                </div>
+                <div className="flex justify-between items-center w-full mb-[20px]">
+                    <Skeleton variant="rectangular" width="calc((100% / 2) - 10px)" height={56} sx={{ borderRadius: 1 }} />
+                    <Skeleton variant="rectangular" width="calc((100% / 2) - 10px)" height={56} sx={{ borderRadius: 1 }} />
+                </div>
+                <div className="flex justify-between items-center w-full mb-[20px]">
+                    <Skeleton variant="rectangular" width="calc((100% / 2) - 10px)" height={56} sx={{ borderRadius: 1 }} />
+                    <Skeleton variant="rectangular" width="calc((100% / 2) - 10px)" height={56} sx={{ borderRadius: 1 }} />
+                </div>
+                <div className="w-full flex justify-center items-center">
+                    <Skeleton variant="rectangular" width={120} height={40} sx={{ borderRadius: 1 }} />
+                </div>
+            </form>
         );
     };
 

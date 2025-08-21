@@ -5,14 +5,13 @@ import {
     TableHeader,
     TableRow,
 } from "../ui/table";
-import Label from "../form/Label";
-import { Modal } from "../ui/modal";
 import Stack from '@mui/material/Stack';
+import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { useModal } from "../../hooks/useModal";
+import { RootState } from "../../redux/store";
+import Skeleton from "@mui/material/Skeleton";
 import Pagination from '@mui/material/Pagination';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import CircularProgress from "@mui/material/CircularProgress";
 import { Plan, getPlanByFinKod } from "../../services/plan/plan";
 
 interface UserPlanProps {
@@ -26,12 +25,11 @@ export default function UserPlan({ finKod }: UserPlanProps) {
     const [start, setStart] = useState(0);
     const [end, setEnd] = useState(3);
     const [planLength, setPlanLength] = useState<number | null>(null);
-    const [selectedPlan, setSelectedPlan] = useState();
-    const { isOpen, openModal, closeModal } = useModal();
+    const token = useSelector((state: RootState) => state.auth.token);
 
     useEffect(() => {
         if (finKod) {
-            getPlanByFinKod(finKod, start, end)
+            getPlanByFinKod(finKod, start, end, token ? token : '')
                 .then((res) => {
                     if (res === "Not found") {
                         setError("Not found");
@@ -51,13 +49,7 @@ export default function UserPlan({ finKod }: UserPlanProps) {
         }
     }, [finKod, start, end]);
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center w-full h-full py-10">
-                <CircularProgress />
-            </div>
-        );
-    };
+    // Remove old loading state here, skeletons will be rendered in table and pagination
 
     if (error === "Not found") {
         return (
@@ -77,10 +69,6 @@ export default function UserPlan({ finKod }: UserPlanProps) {
         );
     }
 
-    const handleViewModal = () => {
-        openModal();
-    }
-
     return (
         <>
 
@@ -90,55 +78,30 @@ export default function UserPlan({ finKod }: UserPlanProps) {
                         {/* Table Header */}
                         <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                             <TableRow>
-                                <TableCell
-                                    isHeader
-                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    Fin Kod
-                                </TableCell>
-                                <TableCell
-                                    isHeader
-                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    Plan nömrəsi
-                                </TableCell>
-                                <TableCell
-                                    isHeader
-                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    Planın sıra sayı
-                                </TableCell>
-                                <TableCell
-                                    isHeader
-                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    Planın qısa təsviri
-                                </TableCell>
-                                <TableCell
-                                    isHeader
-                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    İş ili
-                                </TableCell>
-                                <TableCell
-                                    isHeader
-                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                                >
-                                    Baxış
-                                </TableCell>
+                                {["Fin Kod", "Plan nömrəsi", "Planın sıra sayı", "Planın qısa təsviri", "İş ili", "Baxış"].map((header) => (
+                                    <TableCell
+                                        key={header}
+                                        isHeader
+                                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    >
+                                        {header}
+                                    </TableCell>
+                                ))}
                             </TableRow>
                         </TableHeader>
 
                         {/* Table Body */}
                         {loading ? (
                             <TableBody>
-                                <TableRow>
-                                    <TableCell colSpan={6}>
-                                        <div className="flex justify-center items-center w-full h-full py-10">
-                                            <CircularProgress />
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
+                                {[...Array(3)].map((_, rowIdx) => (
+                                    <TableRow key={rowIdx}>
+                                        {[...Array(6)].map((__, colIdx) => (
+                                            <TableCell key={colIdx} className="px-4 py-3">
+                                                <Skeleton variant={colIdx === 5 ? "rectangular" : "text"} width={colIdx === 5 ? 40 : 80 + colIdx*10} height={colIdx === 5 ? 40 : 24} />
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))}
                             </TableBody>
                         ) : (
                             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
@@ -161,7 +124,7 @@ export default function UserPlan({ finKod }: UserPlanProps) {
                                                 {plan.work_year}
                                             </TableCell>
                                             <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                <div className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-yellow-200 text-yellow-400 dark:bg-yellow-400 cursor-pointer" onClick={handleViewModal}>
+                                                <div className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-yellow-200 text-yellow-400 dark:bg-yellow-400 cursor-pointer">
                                                     <VisibilityIcon className="text-yellow-500 dark:text-yellow-700" />
                                                 </div>
                                             </TableCell>
@@ -174,96 +137,63 @@ export default function UserPlan({ finKod }: UserPlanProps) {
                 </div>
             </div>
             <div className="w-full flex justify-center items-center">
-                <Stack spacing={2}>
-                    <Pagination
-                        count={planLength ? (planLength <= 1 ? 1 : Math.ceil(planLength / 1)) : 1}
-                        page={Math.floor(start / (end - start)) + 1}
-                        onChange={(_event, page) => {
-                            if (!finKod) return;
-                            const pageSize = end - start;
-                            const newStart = (page - 1) * pageSize;
-                            const newEnd = newStart + pageSize;
-                            setStart(newStart);
-                            setEnd(newEnd);
-                            setLoading(true);
-                            getPlanByFinKod(finKod, newStart, newEnd)
-                                .then((res) => {
-                                    if (res === "Not found") {
-                                        setError("Not found");
-                                        setPlans(undefined);
-                                    } else if (res === "error") {
-                                        setError("Server error");
-                                        setPlans(undefined);
-                                    } else {
-                                        setPlans(res.plans);
-                                        setPlanLength(res.plan_count);
-                                        setError("");
-                                    }
-                                })
-                                .finally(() => {
-                                    setLoading(false);
-                                });
-                        }}
-                    />
-                </Stack>
+                {loading ? (
+                    <Stack spacing={2} direction="row">
+                        {[...Array(3)].map((_, idx) => (
+                            <Skeleton key={idx} variant="rectangular" width={40} height={40} sx={{ borderRadius: 2 }} />
+                        ))}
+                    </Stack>
+                ) : (
+                    <Stack spacing={2}>
+                        <Pagination
+                            count={planLength ? (planLength <= 3 ? 1 : Math.ceil(planLength / 3)) : 1}
+                            page={Math.floor(start / (end - start)) + 1}
+                            onChange={(_event, page) => {
+                                if (!finKod) return;
+                                const pageSize = end - start;
+                                const newStart = (page - 1) * pageSize;
+                                const newEnd = newStart + pageSize;
+                                setStart(newStart);
+                                setEnd(newEnd);
+                                setLoading(true);
+                                getPlanByFinKod(finKod, newStart, newEnd, token ? token : '')
+                                    .then((res) => {
+                                        if (res === "Not found") {
+                                            setError("Not found");
+                                            setPlans(undefined);
+                                        } else if (res === "error") {
+                                            setError("Server error");
+                                            setPlans(undefined);
+                                        } else {
+                                            setPlans(res.plans);
+                                            setPlanLength(res.plan_count);
+                                            setError("");
+                                        }
+                                    })
+                                    .finally(() => {
+                                        setLoading(false);
+                                    });
+                            }}
+                            sx={{
+                                '& .MuiPaginationItem-root': {
+                                    color: 'text.primary',
+                                    bgcolor: 'background.paper',
+                                },
+                                '& .MuiPaginationItem-root.Mui-selected': {
+                                    bgcolor: 'primary.main',
+                                    color: 'primary.contrastText',
+                                    '&:hover': {
+                                        bgcolor: 'primary.dark',
+                                    },
+                                },
+                                '& .MuiPaginationItem-root:hover': {
+                                    bgcolor: 'action.hover',
+                                },
+                            }}
+                        />
+                    </Stack>
+                )}
             </div>
-            {/* <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
-                <div className="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-11">
-                    <div className="px-2 pr-14">
-                        <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-                            İş Planı
-                        </h4>
-                        <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-                            İş planı haqqında ətraflı məlumat
-                        </p>
-                    </div>
-                    <form className="flex flex-col">
-                        <div className="px-2 overflow-y-auto custom-scrollbar">
-                            <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                                <div>
-                                    <Label>Fin Kod</Label>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {plan.fin_kod}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <Label>Plan nömrəsi</Label>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {plan.work_plan_serial_number}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <Label>Plan sıra sayı</Label>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {plan.work_row_number}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <Label>Planın qısa təsviri</Label>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {plan.work_desc}
-                                    </p>
-                                </div>
-                                <div>
-                                    <Label>Planın icra ili</Label>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {plan.work_year}
-                                    </p>
-                                </div>
-                                <div>
-                                    <Label>Plan təhvil vermə tarixi</Label>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {plan.deadline}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </Modal> */}
         </>
     );
 }

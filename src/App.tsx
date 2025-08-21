@@ -1,29 +1,21 @@
-import Blank from "./pages/Blank";
-import Calendar from "./pages/Calendar";
+import { jwtDecode } from "jwt-decode";
 import Home from "./pages/Dashboard/Home";
 import { useSelector } from "react-redux";
 import { RootState } from "./redux/store";
 import AppLayout from "./layout/AppLayout";
+import type { JwtPayload } from "jwt-decode";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
-import Videos from "./pages/UiElements/Videos";
-import Images from "./pages/UiElements/Images";
-import Alerts from "./pages/UiElements/Alerts";
-import Badges from "./pages/UiElements/Badges";
-import BarChart from "./pages/Charts/BarChart";
 import UserProfiles from "./pages/UserProfiles";
-import Avatars from "./pages/UiElements/Avatars";
-import Buttons from "./pages/UiElements/Buttons";
-import LineChart from "./pages/Charts/LineChart";
 import NotFound from "./pages/OtherPage/NotFound";
-import BasicTables from "./pages/Tables/BasicTables";
-import FormElements from "./pages/Forms/FormElements";
 import MyPlanPage from "./pages/MyPlanPage/MyPlanPage";
 import DekansPage from "./pages/DekansPage/DekansPage";
 import FacultyPage from "./pages/FacultyPage/FacultyPage";
 import NewPlanPage from "./pages/NewPlanPage/NewPlanPage";
 import DocViewPage from "./pages/DocViewPage/DocViewPage";
+import ArchivePage from "./pages/ArchivePage/ArchivePage";
 import AllUsersPage from "./pages/AllUsersPage/AllUsersPage";
+import AllPlansPage from "./pages/AllPlansPage/AllPlansPage";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import MyHesabatPage from "./pages/MyHesabatPage/MyHesabatPage";
 import NewPasswordPage from "./pages/AuthPages/NewPasswordPage";
@@ -36,10 +28,25 @@ import FacultyDetailsPage from "./pages/FacultyDetailsPage/FacultyDetailsPage";
 import CafedraDetailsPage from "./pages/CafedraDetailsPage/CafedraDetailsPage";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import MyHesabatDetailsPage from "./pages/MyHesabatDetailsPage/MyHesabatDetailsPage";
+import SubmittedHesabatsPage from "./pages/SubmittedHesabatsPage/SubmittedHesabatsPage";
 import ApproveWaitingUsersPage from "./pages/ApproveWaitingUsersPage/ApproveWaitingUsersPage";
+
+function isTokenValid(token: string | null): boolean {
+  if (!token) return false;
+  try {
+    const decoded = jwtDecode<JwtPayload>(token);
+    if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+      return false;
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
 
 export default function App() {
   const token = useSelector((state: RootState) => state.auth.token);
+  const isValid = isTokenValid(token);
 
   return (
     <>
@@ -47,13 +54,11 @@ export default function App() {
         <ScrollToTop />
         <Routes>
           {/* Dashboard Layout */}
-          <Route element={token ? <AppLayout /> : <Navigate to="/" />}>
+          <Route element={isValid ? <AppLayout /> : <Navigate to="/" />}>
             <Route index path="/home" element={<Home />} />
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/blank" element={<Blank />} />
 
             {/* User */}
             <Route path="/all-users" element={<AllUsersPage />} />
@@ -63,7 +68,7 @@ export default function App() {
 
             {/* Dekan */}
             <Route path="/dekans" element={<DekansPage />} />
-            
+
             {/* Cafedra director */}
             <Route path="/cafedra-directors" element={<CafedraDetailsPage />} />
 
@@ -78,34 +83,19 @@ export default function App() {
             {/* Plan */}
             <Route path="/new-plan" element={<NewPlanPage />} />
             <Route path="/my-plan" element={<MyPlanPage />} />
+            <Route path="/all-plans" element={<AllPlansPage />} />
 
             {/* Hesabat */}
             <Route path="/my-hesabat" element={<MyHesabatPage />} />
             <Route path="/my-hesabat-details" element={<MyHesabatDetailsPage />} />
+            <Route path="/submitted-hesabats" element={<SubmittedHesabatsPage />} />
 
             {/* Doc */}
             <Route path="/doc/*" element={<DocViewPage />} />
 
             {/* Archive */}
-            {/* <Route path="/archive" element={<DocViewPage />} /> */}
+            <Route path="/archive" element={<ArchivePage />} />
 
-            {/* Forms */}
-            <Route path="/form-elements" element={<FormElements />} />
-
-            {/* Tables */}
-            <Route path="/basic-tables" element={<BasicTables />} />
-
-            {/* Ui Elements */}
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/avatars" element={<Avatars />} />
-            <Route path="/badge" element={<Badges />} />
-            <Route path="/buttons" element={<Buttons />} />
-            <Route path="/images" element={<Images />} />
-            <Route path="/videos" element={<Videos />} />
-
-            {/* Charts */}
-            <Route path="/line-chart" element={<LineChart />} />
-            <Route path="/bar-chart" element={<BarChart />} />
           </Route>
 
           {/* Auth Layout */}

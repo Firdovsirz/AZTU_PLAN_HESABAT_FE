@@ -8,14 +8,17 @@ import {
 import { Link } from "react-router";
 import Stack from '@mui/material/Stack';
 import { useParams } from 'react-router';
+import { useSelector } from "react-redux";
 import { useEffect, useState } from 'react';
+import { RootState } from "../../redux/store";
 import Pagination from '@mui/material/Pagination';
 import DeleteIcon from '@mui/icons-material/Delete';
 import NotFoundImg from "../../../public/not-found.png";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CircularProgress from "@mui/material/CircularProgress";
-import { getCafDetails, CafedraDetailsInterface, CafedraUser } from '../../services/cafedra/cafedraService';
+import Skeleton from "@mui/material/Skeleton";
 import { getCafUsers } from '../../services/cafedra/cafedraService';
+import { getCafDetails, CafedraDetailsInterface, CafedraUser } from '../../services/cafedra/cafedraService';
 
 export default function CafedraDetails() {
     const { cafedra_code } = useParams();
@@ -26,13 +29,14 @@ export default function CafedraDetails() {
     const [start, setStart] = useState<number>(0);
     const [end, setEnd] = useState<number>(5);
     const [userLength, setUserLength] = useState<number | null>(null);
+    const token = useSelector((state: RootState) => state.auth.token);
 
     useEffect(() => {
         if (cafedra_code) {
-            getCafDetails(cafedra_code)
+            getCafDetails(cafedra_code, token ? token : '')
                 .then(setCafDetails)
 
-            getCafUsers(cafedra_code, start, end)
+            getCafUsers(cafedra_code, start, end, token ? token : '')
                 .then((res) => {
                     if (typeof res === "string") {
                         if (res === "No user") {
@@ -52,9 +56,79 @@ export default function CafedraDetails() {
     }, [cafedra_code, start, end]);
 
     if (loading) {
+        // Skeleton Table Loader
         return (
-            <div className="flex justify-center items-center w-full h-full py-10">
-                <CircularProgress />
+            <div className="w-full h-full py-10 flex justify-center items-start">
+                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] w-full max-w-6xl">
+                    <div className="max-w-full overflow-x-auto">
+                        <Table>
+                            <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                                <TableRow>
+                                    <TableCell
+                                        isHeader
+                                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    >
+                                        Ad, Soyad, Ata adı
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    >
+                                        Fin Kod
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    >
+                                        Vəzifə
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    >
+                                        İcraçı statusu
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    >
+                                        Baxış
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    >
+                                        Sil
+                                    </TableCell>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                                {[...Array(5)].map((_, idx) => (
+                                    <TableRow key={idx}>
+                                        <TableCell className="px-5 py-4 sm:px-6 text-start">
+                                            <Skeleton variant="rectangular" height={24} width="80%" sx={{ borderRadius: '6px' }} />
+                                        </TableCell>
+                                        <TableCell className="px-4 py-3 text-start">
+                                            <Skeleton variant="rectangular" height={24} width="60%" sx={{ borderRadius: '6px' }} />
+                                        </TableCell>
+                                        <TableCell className="px-4 py-3 text-start">
+                                            <Skeleton variant="rectangular" height={24} width="70%" sx={{ borderRadius: '6px' }} />
+                                        </TableCell>
+                                        <TableCell className="px-4 py-3 text-start">
+                                            <Skeleton variant="rectangular" height={24} width="60%" sx={{ borderRadius: '16px' }} />
+                                        </TableCell>
+                                        <TableCell className="px-4 py-3 text-start">
+                                            <Skeleton variant="circular" width={40} height={40} />
+                                        </TableCell>
+                                        <TableCell className="px-4 py-3 text-start">
+                                            <Skeleton variant="circular" width={40} height={40} />
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </div>
             </div>
         );
     };
@@ -184,7 +258,7 @@ export default function CafedraDetails() {
                                         setStart(newStart);
                                         setEnd(newEnd);
                                         setLoading(true);
-                                        getCafUsers(cafedra_code ?? "", newStart, newEnd)
+                                        getCafUsers(cafedra_code ?? "", newStart, newEnd, token ? token : '')
                                             .then((res) => {
                                                 if (typeof res === "string") {
                                                     if (res === "No user") {

@@ -1,11 +1,12 @@
 import { Link } from "react-router";
 import { useEffect, useState } from "react";
 import { RootState } from "../../redux/store";
+import Skeleton from "@mui/material/Skeleton";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { logout } from "../../redux/slices/authSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import CircularProgress from "@mui/material/CircularProgress";
+import ProfileImage from "../../../public/profile_photo.webp";
 import { getUserByFinKod, User } from "../../services/user/user";
 
 export default function UserDropdown() {
@@ -13,11 +14,12 @@ export default function UserDropdown() {
   const [user, setUser] = useState<User>();
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const token = useSelector((state: RootState) => state.auth.token);
   const finKod = useSelector((state: RootState) => state.auth.fin_kod);
 
   useEffect(() => {
     if (finKod) {
-      getUserByFinKod(finKod)
+      getUserByFinKod(finKod, token ? token : '')
         .then(setUser)
         .finally(() => {
           setLoading(false);
@@ -35,11 +37,16 @@ export default function UserDropdown() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center w-full h-full py-10">
-        <CircularProgress />
+      <div className="flex items-center">
+        <span className="mr-3 overflow-hidden rounded-full h-11 w-11 flex items-center justify-center">
+          <Skeleton variant="circular" width={44} height={44} />
+        </span>
+        <span className="block mr-1">
+          <Skeleton variant="text" width={80} height={24} />
+        </span>
       </div>
     );
-  };
+  }
 
   const handleLogout = () => {
     dispatch(logout());
@@ -52,10 +59,10 @@ export default function UserDropdown() {
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-          <img src="/images/user/owner.jpg" alt="User" />
+          <img src={ProfileImage} alt="User" />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">Musharof</span>
+        <span className="block mr-1 font-medium text-theme-sm">{user?.name} {user?.surname}</span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
             }`}
@@ -115,7 +122,7 @@ export default function UserDropdown() {
               Şəxsi məlumatlar
             </DropdownItem>
           </li>
-          <li>
+          {/* <li>
             <DropdownItem
               onItemClick={closeDropdown}
               tag="a"
@@ -139,7 +146,7 @@ export default function UserDropdown() {
               </svg>
               Texniki dəstək
             </DropdownItem>
-          </li>
+          </li> */}
         </ul>
         <Link
           onClick={handleLogout}

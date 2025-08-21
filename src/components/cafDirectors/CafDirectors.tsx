@@ -12,6 +12,8 @@ import Pagination from '@mui/material/Pagination';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CircularProgress from "@mui/material/CircularProgress";
 import { AllUser, ResponseStatus, getCafDirectors } from "../../services/user/user";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 
 export default function CafDirectors() {
     const [error, setError] = useState("");
@@ -21,9 +23,10 @@ export default function CafDirectors() {
     const [noContent, setNoContent] = useState(false);
     const [directorLegth, setDirectorLength] = useState<number>(0);
     const [cafDirectors, setCafDirectors] = useState<AllUser[]>([]);
+    const token = useSelector((state: RootState) => state.auth.token);
 
     useEffect(() => {
-        getCafDirectors(start, end)
+        getCafDirectors(start, end, token ? token : '')
             .then((res) => {
                 if (res === ResponseStatus.NO_CONTENT) {
                     setNoContent(true);
@@ -190,7 +193,7 @@ export default function CafDirectors() {
                                 setStart(newStart);
                                 setEnd(newEnd);
                                 setLoading(true);
-                                getCafDirectors(newStart, newEnd)
+                                getCafDirectors(newStart, newEnd, token ? token : '')
                                     .then((res) => {
                                         if (res === "ERROR") {
                                             setError("Not found");

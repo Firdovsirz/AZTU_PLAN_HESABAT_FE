@@ -30,6 +30,7 @@ export interface User {
     faculty_name: string;
     cafedra_code: string;
     duty_code: number;
+    duty_name: string;
     is_execution: boolean;
     created_at: string;
     updated_at?: string;
@@ -45,6 +46,7 @@ export interface AppWaitingUser {
     faculty_name: string;
     cafedra_code: string;
     duty_code: number;
+    duty_name: string;
     is_execution: boolean;
     created_at: string;
     updated_at?: string;
@@ -60,11 +62,42 @@ export interface Dekan {
     updated_at: string;
 }
 
+export interface UserFilters {
+    start?: number;
+    end?: number;
+    name?: string;
+    surname?: string;
+    father_name?: string;
+    fin_kod?: string;
+    faculty_code?: string;
+    cafedra_code?: string;
+}
+
+export interface GetUsersResponse {
+    statusCode: number;
+    message: string;
+    total_users?: number;
+    users?: User[];
+    error?: string;
+}
+
+export interface UpdateUser {
+    fin_kod: string;
+    name: string | null;
+    surname: string | null;
+    duty_code: number | null;
+    father_name: string | null;
+}
+
 // Get all dekans
 
-export const getDekans = async (start: number, end: number) => {
+export const getDekans = async (start: number, end: number, token: string) => {
     try {
-        const response = await apiClient.get(`/api/dekans/${start}/${end}`);
+        const response = await apiClient.get(`/api/dekans/${start}/${end}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         if (response.data.statusCode === 200) {
             return {
@@ -83,9 +116,13 @@ export const getDekans = async (start: number, end: number) => {
 
 // Get single dekan by faculty code
 
-export const getDekan = async (faculty_code: string) => {
+export const getDekan = async (faculty_code: string, token: string) => {
     try {
-        const response = await apiClient.get(`/api/dekan/${faculty_code}`);
+        const response = await apiClient.get(`/api/dekan/${faculty_code}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         if (response.data.statusCode === 200) {
             return response.data.dekan;
@@ -101,9 +138,13 @@ export const getDekan = async (faculty_code: string) => {
 
 // Get cafedra directors
 
-export const getCafDirectors = async (start: number, end: number) => {
+export const getCafDirectors = async (start: number, end: number, token: string) => {
     try {
-        const response = await apiClient.get(`/api/caf-directors/${start}/${end}`);
+        const response = await apiClient.get(`/api/caf-directors/${start}/${end}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         if (response.data.statusCode === 200) {
             return {
@@ -120,31 +161,51 @@ export const getCafDirectors = async (start: number, end: number) => {
     }
 }
 
-// Get all users by pagination indexes (start, end)
+// Get all users by pagination (start, end)
 
-export const getAllUsers = async (start: number, end: number) => {
+export async function getUsers(filters: UserFilters, token?: string): Promise<any> {
     try {
-        const response = await apiClient(`/api/users/${start}/${end}`);
+        console.log(filters);
 
-        if (response.data.statusCode === 200) {
+        const params = new URLSearchParams();
+        Object.entries(filters).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== "") {
+                params.append(key, String(value));
+            }
+        });
+
+        const response = await apiClient.get(`api/users?${params.toString()}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        const statusCode = response.data.statusCode;
+        if (statusCode === 200) {
+            console.log(response.data.users);
+
             return {
                 "users": response.data.users,
                 "total_users": response.data.total_users
             };
-        } else if (response.data.statusCode === 204) {
+        } else if (response.status === 204) {
             return "NO CONTENT";
         } else {
             return "ERROR";
         }
-    } catch (err) {
+    } catch (err: any) {
         return "ERROR";
     }
 }
 
 // Get user by fin kod
 
-export const getUserByFinKod = async (finKod: string) => {
-    const response = await apiClient.get(`/api/user/${finKod}`);
+export const getUserByFinKod = async (finKod: string, token: string) => {
+    const response = await apiClient.get(`/api/user/${finKod}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
 
     if (response.data.statusCode === 200) {
         return response.data.user;
@@ -155,8 +216,12 @@ export const getUserByFinKod = async (finKod: string) => {
 
 // Get execution users
 
-export const getExecutionUsers = async (start: number, end: number) => {
-    const response = await apiClient.get(`/api/users/execution/${start}/${end}`);
+export const getExecutionUsers = async (start: number, end: number, token: string) => {
+    const response = await apiClient.get(`/api/users/execution/${start}/${end}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
 
     if (response.status === 204) {
         return "No user found."
@@ -170,15 +235,28 @@ export const getExecutionUsers = async (start: number, end: number) => {
 
 // Get all approve waiting users only visible by admin
 
-export const getApproveWaitingUsers = async (): Promise<AppWaitingUser[] | ResponseStatus> => {
+export const getApproveWaitingUsers = async (
+    token: string,
+    start: number,
+    end: number
+): Promise<{ users: AppWaitingUser[], total_users: number } | ResponseStatus> => {
     try {
-        const response = await apiClient.get("/auth/app-wait-users");
+        const response = await apiClient.get(`/auth/app-wait-users/${start}/${end}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         const status = response.data.status;
 
         if (status === 200) {
-            return response.data.users;
-        } else if (status === 204) {
+            console.log(response.data.status);
+
+            return {
+                "users": response.data.users,
+                "total_users": response.data.total_users
+            };
+        } else if (response.status === 204) {
             return ResponseStatus.NO_CONTENT;
         } else {
             return ResponseStatus.ERROR;
@@ -190,9 +268,13 @@ export const getApproveWaitingUsers = async (): Promise<AppWaitingUser[] | Respo
 
 // Approve requested user by fin code only for super admin role
 
-export const approveUser = async (finKod: string): Promise<ResponseStatus> => {
+export const approveUser = async (finKod: string, token: string): Promise<ResponseStatus> => {
     try {
-        const response = await apiClient.post(`/auth/approve-user/${finKod}`);
+        const response = await apiClient.post(`/auth/approve-user/${finKod}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         const status = response.data.status;
 
@@ -210,9 +292,13 @@ export const approveUser = async (finKod: string): Promise<ResponseStatus> => {
 
 // Reject requested user by fin code only for super admin role
 
-export const rejectUser = async (finKod: string): Promise<ResponseStatus> => {
+export const rejectUser = async (finKod: string, token: string): Promise<ResponseStatus> => {
     try {
-        const response = await apiClient.delete(`/auth/reject-user/${finKod}`);
+        const response = await apiClient.delete(`/auth/reject-user/${finKod}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
         const status = response.data.status;
 
@@ -227,3 +313,26 @@ export const rejectUser = async (finKod: string): Promise<ResponseStatus> => {
         return ResponseStatus.ERROR;
     }
 }
+
+// Update user by fin_kod
+export const updateUser = async (userDetails: UpdateUser, token: string): Promise<ResponseStatus> => {
+    try {
+        const response = await apiClient.patch("/api/user/update", userDetails, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        const statusCode = response.data.statusCode;
+
+        if (statusCode === 200) {
+            return ResponseStatus.SUCCESS;
+        } else if (statusCode === 404) {
+            return ResponseStatus.NOT_FOUND;
+        } else {
+            return ResponseStatus.ERROR;
+        }
+    } catch (error) {
+        return ResponseStatus.ERROR;
+    }
+};

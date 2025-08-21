@@ -12,23 +12,25 @@ import { useEffect, useState } from "react";
 import { RootState } from "../../redux/store";
 import Pagination from '@mui/material/Pagination';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import CircularProgress from "@mui/material/CircularProgress";
+import Skeleton from "@mui/material/Skeleton";
 import { getHesabatByFinKod, Hesabat } from "../../services/hesabat/hesabatService";
 
 export default function MyHesabat() {
     const navigate = useNavigate();
     const [end, setEnd] = useState(5);
     const [error, setError] = useState("");
+    console.log(error);
     const [loading, setLoading] = useState(true);
     const [start, setStart] = useState<number>(0);
     const [notFound, setNotFound] = useState(false);
     const [hesabats, setHesabats] = useState<Hesabat[] | undefined>([]);
     const finKod = useSelector((state: RootState) => state.auth.fin_kod);
+    const token = useSelector((state: RootState) => state.auth.token);
     const [hesabatLength, setHesabatLength] = useState<number | null>(null);
 
     useEffect(() => {
         if (finKod) {
-            getHesabatByFinKod(finKod, start, end)
+            getHesabatByFinKod(finKod, start, end, token ? token : '')
                 .then(
                     (res) => {
                         if (res === "Not found") {
@@ -49,16 +51,91 @@ export default function MyHesabat() {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center w-full h-full py-10">
-                <CircularProgress />
-            </div>
+            <>
+                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+                    <div className="max-w-full overflow-x-auto">
+                        <Table>
+                            <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                                <TableRow>
+                                    <TableCell
+                                        isHeader
+                                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    >
+                                        Fin Kod
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    >
+                                        Plan nömrəsi
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    >
+                                        Fəaliyyət növü
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    >
+                                        Təhvil verilmə statusu
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    >
+                                        İcraçı Qiymətləndirməsi
+                                    </TableCell>
+                                    <TableCell
+                                        isHeader
+                                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                    >
+                                        Baxış
+                                    </TableCell>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                                {[...Array(5)].map((_, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell className="px-4 py-3 text-theme-sm">
+                                            <Skeleton variant="rectangular" width="100%" height={24} className="rounded-md" />
+                                        </TableCell>
+                                        <TableCell className="px-4 py-3 text-theme-sm">
+                                            <Skeleton variant="rectangular" width="100%" height={24} className="rounded-md" />
+                                        </TableCell>
+                                        <TableCell className="px-4 py-3 text-theme-sm">
+                                            <Skeleton variant="rectangular" width="100%" height={24} className="rounded-md" />
+                                        </TableCell>
+                                        <TableCell className="px-4 py-3 text-theme-sm">
+                                            <Skeleton variant="rectangular" width="100%" height={24} className="rounded-md" />
+                                        </TableCell>
+                                        <TableCell className="px-4 py-3 text-theme-sm">
+                                            <Skeleton variant="rectangular" width="100%" height={24} className="rounded-md" />
+                                        </TableCell>
+                                        <TableCell className="px-4 py-3 text-theme-sm">
+                                            <Skeleton variant="rectangular" width={40} height={40} className="rounded-md" />
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </div>
+                {/* Skeleton loader for pagination */}
+                <div className="w-full flex justify-center items-center mt-4">
+                    <Skeleton variant="rectangular" width={250} height={40} />
+                </div>
+            </>
         );
-    };
+    }
 
     if (notFound || !hesabats || hesabats.length === 0) {
         return (
             <div className="w-full flex justify-center items-center">
-                Hesabat not found.
+                <p className="bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                    Mövcud deyil
+                </p>
             </div>
         );
     }
@@ -172,7 +249,7 @@ export default function MyHesabat() {
                             setStart(newStart);
                             setEnd(newEnd);
                             setLoading(true);
-                            getHesabatByFinKod(finKod, newStart, newEnd)
+                            getHesabatByFinKod(finKod, newStart, newEnd, token ? token : '')
                                 .then((res) => {
                                     if (res === "Not found") {
                                         setError("Not found");
@@ -189,6 +266,22 @@ export default function MyHesabat() {
                                 .finally(() => {
                                     setLoading(false);
                                 });
+                        }}
+                        sx={{
+                            '& .MuiPaginationItem-root': {
+                                color: 'text.primary',
+                                bgcolor: 'background.paper',
+                            },
+                            '& .MuiPaginationItem-root.Mui-selected': {
+                                bgcolor: 'primary.main',
+                                color: 'primary.contrastText',
+                                '&:hover': {
+                                    bgcolor: 'primary.dark',
+                                },
+                            },
+                            '& .MuiPaginationItem-root:hover': {
+                                bgcolor: 'action.hover',
+                            },
                         }}
                     />
                 </Stack>
