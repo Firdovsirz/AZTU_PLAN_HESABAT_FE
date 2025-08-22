@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import CircularProgress from "@mui/material/CircularProgress";
 import Skeleton from "@mui/material/Skeleton";
+import { RootState } from "../../redux/store";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import { getCafedrasByFaculty, Cafedra } from "../../services/cafedra/cafedraService";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
 
 export default function MyCafedras() {
     const [error, setError] = useState("");

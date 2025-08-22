@@ -29,6 +29,7 @@ type AllUsersFilterProps = {
 
 export default function AllUsers({ filters }: AllUsersFilterProps) {
     const [error, setError] = useState("");
+    console.error(error);
     const [end, setEnd] = useState<number>(10);
     const [loading, setLoading] = useState(true);
     const [start, setStart] = useState<number>(0);

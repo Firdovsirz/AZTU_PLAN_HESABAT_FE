@@ -23,6 +23,7 @@ import { getActivityByCode } from "../../services/activity/activityService";
 export default function AllPlans() {
     const navigate = useNavigate();
     const [error, setError] = useState("");
+    console.error(error);
     const [end, setEnd] = useState<number>(5);
     const [loading, setLoading] = useState(true);
     const [start, setStart] = useState<number>(0);

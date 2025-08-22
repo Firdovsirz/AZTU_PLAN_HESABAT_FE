@@ -26,7 +26,8 @@ export default function AllUsersFilter({ onChange }: AllUsersFilterProps) {
     const [finKod, setFinKod] = useState("");
     const [surname, setSurname] = useState("");
     const [filter, setFilter] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [, setLoading] = useState(false);
+
     const [fatherName, setFatherName] = useState("");
     const [faculties, setFaculties] = useState<Faculty[]>([]);
     const [selectedFaculty, setSelectedFaculty] = useState("");

@@ -10,7 +10,6 @@ import Label from "../form/Label";
 import Stack from '@mui/material/Stack';
 import Button from "../ui/button/Button";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import Input from "../form/input/InputField";
 import { RootState } from "../../redux/store";
@@ -36,7 +35,6 @@ export default function MyPlan() {
     const [planLength, setPLanLength] = useState<number | null>();
     const finKod = useSelector((state: RootState) => state.auth.fin_kod);
     const token = useSelector((state: RootState) => state.auth.token);
-    const navigate = useNavigate();
 
     console.log(planLength);
 

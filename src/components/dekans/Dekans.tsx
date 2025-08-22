@@ -10,14 +10,13 @@ import Stack from '@mui/material/Stack';
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { RootState } from "../../redux/store";
+import Skeleton from "@mui/material/Skeleton";
 import Pagination from '@mui/material/Pagination';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import CircularProgress from "@mui/material/CircularProgress";
-import Skeleton from "@mui/material/Skeleton";
 import { AllUser, ResponseStatus, getDekans } from "../../services/user/user";
 
 export default function Dekans() {
-    const [error, setError] = useState("");
+    const [, setError] = useState("");
     const [end, setEnd] = useState<number>(10);
     const [loading, setLoading] = useState(true);
     const [start, setStart] = useState<number>(0);

@@ -1,11 +1,10 @@
 import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { RootState } from '../../redux/store';
+import Skeleton from "@mui/material/Skeleton";
 import { Link, useParams } from 'react-router';
 import { getDekan, Dekan } from '../../services/user/user';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import CircularProgress from "@mui/material/CircularProgress";
-import Skeleton from "@mui/material/Skeleton";
 import { Cafedra } from '../../services/cafedra/cafedraService';
 import { getFacName } from '../../services/faculty/facultyService';
 import { getCafedrasByFaculty } from '../../services/cafedra/cafedraService';

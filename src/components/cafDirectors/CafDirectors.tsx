@@ -16,7 +16,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 
 export default function CafDirectors() {
-    const [error, setError] = useState("");
+    const [, setError] = useState("");
     const [end, setEnd] = useState<number>(10);
     const [loading, setLoading] = useState(true);
     const [start, setStart] = useState<number>(0);
