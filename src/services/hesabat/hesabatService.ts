@@ -4,14 +4,15 @@ export interface Hesabat {
     fin_kod: string;
     work_plan_serial_number: string;
     doc_name: string;
+    work_desc: string;
     activity_doc_path: File;
     done_percentage: number;
     assessment_score: number;
     admin_assessment: number;
     ai_assessment: string;
     submitted_at: string;
-    activity_type_code: number;
-    activity_type_name: string;
+    activity_type_names: string[];
+    activity_type_codes: string[];
     duration_analysis: number;
     note: string;
     submitted: boolean;
@@ -29,7 +30,8 @@ export interface SubmittedHesabatsInterface {
     done_percentage: string;
     assessment_score: number;
     admin_assessment: number | null,
-    activity_type_code: number;
+    activity_type_codes: string[];
+    activity_type_names: string[];
     ai_assessment: number;
     submitted_at: string;
     duration_analysis: number,
@@ -53,7 +55,8 @@ export interface ArchiveInterface {
     done_percentage: string;
     admin_assessment: number;
     ai_assessment: number;
-    activity_type_name: string;
+    activity_type_names: string[];
+    activity_type_codes: string[];
 }
 
 // Get all submitted hesabats by pagination
@@ -116,7 +119,7 @@ export const getHesabatBySerialNumber = async (serialNumber: string, token: stri
             }
         });
         if (response.data.statusCode === 200) {
-            return response.data.hesabat;
+            return response.data.hesabat[0];
         } else if (response.data.statusCode === 404) {
             return "Not found";
         } else {
@@ -183,7 +186,7 @@ export const doneHesabat = async (work_plan_serial_number: string, token: string
 
 export const addAssessment = async (assessment_data: { work_plan_serial_number: string, admin_assessment_score: number }, token: string) => {
     try {
-        const response = await apiClient.post("/api/assessment", assessment_data, {
+        const response = await apiClient.post("/api/hesabat/assessment", assessment_data, {
             headers: {
                 Authorization: `Bearer ${token}`
             },
@@ -208,7 +211,7 @@ export const addAssessment = async (assessment_data: { work_plan_serial_number: 
 
 export const updateAssessment = async (assessment_data: UpdateAssessmentRequest, token: string) => {
     try {
-        const response = await apiClient.patch("/api/assessment/update", assessment_data, {
+        const response = await apiClient.patch("/api/hesabat/assessment/update", assessment_data, {
             headers: {
                 Authorization: `Bearer ${token}`
             },

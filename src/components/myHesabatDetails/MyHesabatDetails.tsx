@@ -1,9 +1,9 @@
-import { 
-    getHesabatBySerialNumber, 
-    Hesabat, 
-    addAssessment, 
-    doneHesabat, 
-    updateAssessment 
+import {
+    getHesabatBySerialNumber,
+    Hesabat,
+    addAssessment,
+    doneHesabat,
+    updateAssessment
 } from "../../services/hesabat/hesabatService";
 import Swal from "sweetalert2";
 import Label from "../form/Label";
@@ -22,7 +22,6 @@ import { useEffect, useState, useMemo } from "react";
 import DownloadIcon from '@mui/icons-material/Download';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { submitHesabat } from "../../services/hesabat/hesabatService";
-import { getActivities, Activity } from "../../services/activity/activityService";
 import { getAssessments, Assessment } from "../../services/assessment/assessmentService";
 
 export default function MyHesabatDetails() {
@@ -35,16 +34,17 @@ export default function MyHesabatDetails() {
     const work_plan_serial_number = location.state ?? "";
     const [doneLoading, setDoneLoading] = useState(false);
     const [donePercentage, setDonePercentage] = useState("");
-    const [activities, setActivities] = useState<Activity[]>([]);
+    const [activities, setActivities] = useState<[]>([]);
     const role = useSelector((state: RootState) => state.auth.role);
     const [assessments, setAssessments] = useState<Assessment[]>([]);
     const [assessmentLoading, setAssessmentLoading] = useState(false);
     const token = useSelector((state: RootState) => state.auth.token);
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-    const [adminAsessment, setAdminAssessment] = useState<number | null>(null);
+    const finKod = useSelector((state: RootState) => state.auth.fin_kod);
+    const [adminAssessment, setAdminAssessment] = useState<number | null>(null);
     const [assessmentScore, setAssessmentScore] = useState<number | null>(null);
-    const [activityTypeCode, setActivityTypeCode] = useState<number | null>(null);
-    const [activityTypeName, setActivityTypeName] = useState<string | null>(null);
+    const [activityTypeCodes, setActivityTypeCodes] = useState<number | null>(null);
+    const [activityTypeNames, setActivityTypeNames] = useState<string | null>(null);
     const [updatableAssessment, setUpdatableAssessment] = useState<boolean>(false);
     const [newAdminAssessment, setNewAdminAssessment] = useState<number | null>(null);
 
@@ -52,24 +52,24 @@ export default function MyHesabatDetails() {
         setLoading(true);
         getAssessments(token ? token : '')
             .then(setAssessments);
-        getActivities(token ? token : '')
-            .then(setActivities)
-            .finally(() => {
-                setLoading(false);
-            });
+        // getActivities(finKod ? finKod : "", token ? token : '')
+        //     .then(setActivities)
+        //     .finally(() => {
+        //         setLoading(false);
+        //     });
     }, []);
 
-    const maxCode = activities.length > 0 ? Math.max(...activities.map((a) => a.actvity_type_code)) : 0;
+    // const maxCode = activities.length > 0 ? Math.max(...activities.map((a) => a.actvity_type_code)) : 0;
 
-    const activityOptions = useMemo(() => {
-        const options = activities.map((activity) => ({
-            value: String(activity.actvity_type_code),
-            label: activity.activity_type_name,
-        }));
-        const maxCode = activities.length > 0 ? Math.max(...activities.map((a) => a.actvity_type_code)) : 0;
-        options.push({ value: String(maxCode + 1), label: "Digər" });
-        return options;
-    }, [activities]);
+    // const activityOptions = useMemo(() => {
+    //     const options = activities.map((activity) => ({
+    //         value: String(activity.actvity_type_code),
+    //         label: activity.activity_type_name,
+    //     }));
+    //     const maxCode = activities.length > 0 ? Math.max(...activities.map((a) => a.actvity_type_code)) : 0;
+    //     options.push({ value: String(maxCode + 1), label: "Digər" });
+    //     return options;
+    // }, [activities]);
 
     const assessmentOptions = useMemo(() => {
         const options = assessments.map((assessment) => ({
@@ -80,26 +80,32 @@ export default function MyHesabatDetails() {
     }, [assessments]);
 
     useEffect(() => {
+        setLoading(true);
         getHesabatBySerialNumber(work_plan_serial_number, token ? token : '')
             .then((res) => {
-                setHesabat(res);
-                setDocName(res.doc_name);
-                setAssessmentScore(res.assessment_score);
-                setActivityTypeCode(res.activity_type_code);
-                setActivityTypeName(res.activity_type_name);
-                setDonePercentage(res.done_percentage);
-                setDocPath(res.activity_doc_path);
-                setSubmitted(res.submitted);
+                if (res) {
+                    const h = res;
+                    console.log(h);
+                    setHesabat(h);
+                    setDocName(h.doc_name);
+                    setAssessmentScore(h.assessment_score);
+                    setActivityTypeCodes(h.activity_type_codes);
+                    setActivityTypeNames(h.activity_type_names);
+                    setDonePercentage(h.done_percentage);
+                    setDocPath(h.activity_doc_path);
+                    setSubmitted(h.submitted);
+                }
             })
             .finally(() => {
                 setLoading(false);
-
             });
     }, [work_plan_serial_number]);
 
-    const handleActivityChange = (value: string) => {
-        setActivityTypeCode(+value);
-    };
+    console.log(hesabat);
+
+    // const handleActivityChange = (value: string) => {
+    //     setActivityTypeCode(+value);
+    // };
 
     const handleAssessmentChange = (value: string) => {
         const numericValue = Number(value);
@@ -274,6 +280,8 @@ export default function MyHesabatDetails() {
                         icon: "success",
                         title: "Hesabat təqdim edildi",
                         confirmButtonText: "OK"
+                    }).then(() => {
+                        setDoneLoading(false);
                     });
                     break;
                 case "NOT FOUND":
@@ -281,6 +289,8 @@ export default function MyHesabatDetails() {
                         icon: "error",
                         title: "Təmin edilən məlumatların düzgünlüyündən əmin olun",
                         confirmButtonText: "OK"
+                    }).then(() => {
+                        setDoneLoading(false);
                     });
                     break;
                 case "BAD REQUEST":
@@ -288,6 +298,8 @@ export default function MyHesabatDetails() {
                         icon: "error",
                         title: "Bütün məlumatların təmin edildiyindən əmin olun",
                         confirmButtonText: "OK"
+                    }).then(() => {
+                        setDoneLoading(false);
                     });
                     break;
                 case "ERROR":
@@ -295,6 +307,8 @@ export default function MyHesabatDetails() {
                         icon: "error",
                         title: "Gözlənilməz xəta baş verdi",
                         confirmButtonText: "OK"
+                    }).then(() => {
+                        setDoneLoading(false);
                     });
                     break;
                 default:
@@ -302,6 +316,8 @@ export default function MyHesabatDetails() {
                         icon: "error",
                         title: "Gözlənilməz xəta baş verdi",
                         confirmButtonText: "OK"
+                    }).then(() => {
+                        setDoneLoading(false);
                     });
                     break;
             };
@@ -386,7 +402,7 @@ export default function MyHesabatDetails() {
             Swal.fire({ icon: "error", title: "Uğursuz", text: "Hesabat məlumatı mövcud deyil." });
             return;
         }
-        if (adminAsessment === null || isNaN(adminAsessment)) {
+        if (adminAssessment === null || isNaN(adminAssessment)) {
             Swal.fire({ icon: "error", title: "Uğursuz", text: "Qiymət daxil edin." });
             return;
         }
@@ -394,7 +410,7 @@ export default function MyHesabatDetails() {
         try {
             const res = await addAssessment({
                 work_plan_serial_number: hesabat?.work_plan_serial_number,
-                admin_assessment_score: Number(adminAsessment)
+                admin_assessment_score: Number(adminAssessment)
             }, token ? token : '');
 
             switch (res) {
@@ -403,6 +419,8 @@ export default function MyHesabatDetails() {
                         icon: "error",
                         title: "Uğursuz",
                         text: "Təyin edilən qiymət mənfi ola bilməz.",
+                    }).then(() => {
+                        setAssessmentLoading(false);
                     });
                     break;
                 case "CONFLICT":
@@ -410,6 +428,8 @@ export default function MyHesabatDetails() {
                         icon: "error",
                         title: "Uğursuz",
                         text: "Hesabata qiymət edilməsi üçün ilkin olaraq hesabat icraçı tərəfindən təhvil verilməlidir.",
+                    }).then(() => {
+                        setAssessmentLoading(false);
                     });
                     break;
                 case "SUCCESS":
@@ -427,6 +447,8 @@ export default function MyHesabatDetails() {
                         icon: "error",
                         title: "Uğursuz",
                         text: "Gözlənilməz xəta bir müddət sonra yenidən cəhd edin.",
+                    }).then(() => {
+                        setAssessmentLoading(false);
                     });
                     break;
                 default:
@@ -434,6 +456,8 @@ export default function MyHesabatDetails() {
                         icon: "error",
                         title: "Uğursuz",
                         text: "Gözlənilməz xəta bir müddət sonra yenidən cəhd edin.",
+                    }).then(() => {
+                        setAssessmentLoading(false);
                     });
                     break;
             }
@@ -442,12 +466,40 @@ export default function MyHesabatDetails() {
                 icon: "error",
                 title: "Uğursuz",
                 text: "Gözlənilməz xəta bir müddət sonra yenidən cəhd edin.",
+            }).then(() => {
+                setAssessmentLoading(false);
             });
         }
     };
 
+    console.log(typeof hesabat?.activity_type_names);
+
     return (
         <div>
+            <div className="mb-[20px]">
+                <p className="text-gray-700 dark:text-gray-300">
+                    Fəaliyyət növləri
+                </p>
+            </div>
+            <div className="mb-[10px]">
+                <Label htmlFor="input">Fəaliyyət növləri</Label>
+                {loading ? (
+                    <>
+                        <Skeleton variant="rectangular" width={120} height={30} sx={{ borderRadius: "20px", display: "inline-block", marginRight: "8px", marginBottom: "8px" }} />
+                        <Skeleton variant="rectangular" width={150} height={30} sx={{ borderRadius: "20px", display: "inline-block", marginRight: "8px", marginBottom: "8px" }} />
+                        <Skeleton variant="rectangular" width={100} height={30} sx={{ borderRadius: "20px", display: "inline-block", marginRight: "8px", marginBottom: "8px" }} />
+                    </>
+                ) : (
+                    hesabat?.activity_type_names.map((activity, index) => (
+                        <div
+                            className="inline-block bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-[20px] px-3 py-2 mb-2 mr-2"
+                            key={index}
+                        >
+                            {activity}
+                        </div>
+                    ))
+                )}
+            </div>
             <form className="flex flex-col" onSubmit={handleSubmit}>
                 <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
                     <div>
@@ -463,14 +515,12 @@ export default function MyHesabatDetails() {
                             </div>
 
                             <div>
-                                <Label>Fəaliyyət Növü</Label>
-                                <Select
-                                    options={activityOptions}
-                                    defaultValue={activityTypeCode?.toString()}
-                                    placeholder={!activityTypeCode ? "Təyin edilməyib" : activityTypeName?.toString()}
-                                    onChange={handleActivityChange}
-                                    className="dark:bg-dark-900"
-                                    disabled={activityTypeCode ? true : false}
+                                <Label>İşin qısa təsviri</Label>
+                                <Input
+                                    type="text"
+                                    value={hesabat?.work_desc ?? ""}
+                                    disabled
+                                    readOnly
                                 />
                             </div>
 
@@ -482,18 +532,18 @@ export default function MyHesabatDetails() {
                                     placeholder={!assessmentScore ? "Təyin edilməyib" : assessmentScore?.toString()}
                                     onChange={handleAssessmentChange}
                                     className="dark:bg-dark-900"
-                                    disabled={assessmentScore ? true : false}
+                                    // disabled={assessmentScore ? true : false}
                                 />
                             </div>
 
-                            {activityTypeCode === maxCode + 1 ? (
+                            {/* {activityTypeCode === maxCode + 1 ? (
                                 <div style={{
                                     width: "calc((100% / 2) - 10px)"
                                 }}>
                                     <Label htmlFor="input">Fəaliyyət növü (Fəaliyyət növünüzü əsaslandırın)</Label>
                                     <Input type="text" id="input" placeholder="Fəaliyyət növü" value={activityTypeName?.toString() ?? ""} onChange={(e) => { setActivityTypeName(e.target.value) }} />
                                 </div>
-                            ) : null}
+                            ) : null} */}
 
                             {docPath || docName ? (
                                 <div style={{
@@ -552,14 +602,17 @@ export default function MyHesabatDetails() {
                                             type="number"
                                             min={0}
                                             max={100}
-                                            value={hesabat?.admin_assessment ?? ""}
-                                            placeholder={hesabat?.admin_assessment ? undefined : "Təyin edilməyib"}
+                                            value={adminAssessment ?? hesabat?.admin_assessment ?? ""}
+                                            placeholder={
+                                                adminAssessment !== null
+                                                    ? undefined
+                                                    : (hesabat?.admin_assessment !== null ? String(hesabat?.admin_assessment) : "Təyin edilməyib")
+                                            }
                                             disabled={role !== 1}
                                             onChange={(e) => {
                                                 const val = e.target.value;
-                                                if (val === "") {
-                                                    setAdminAssessment(null);
-                                                } else {
+                                                if (val === "") setAdminAssessment(null);
+                                                else {
                                                     let num = Number(val);
                                                     if (num < 0) num = 0;
                                                     if (num > 100) num = 100;
@@ -588,18 +641,20 @@ export default function MyHesabatDetails() {
                                             }}
                                         />
                                     )}
-                                    <span className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                        {!updatableAssessment ? (
-                                            <div className="inline-flex items-center justify-center w-8 h-8 rounded-[5px] bg-blue-600 dark:bg-blue-400 cursor-pointer text-white" onClick={() => setUpdatableAssessment(true)}>
-                                                <EditIcon />
-                                            </div>
-                                        ) : (
-                                            <div className="inline-flex items-center justify-center w-8 h-8 rounded-[5px] bg-green-600 dark:bg-green-400 cursor-pointer text-white"
-                                            onClick={handleUpdateAssessment}>
-                                                <DoneIcon />
-                                            </div>
-                                        )}
-                                    </span>
+                                    {role === 1 ? (
+                                        <span className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                            {!updatableAssessment ? (
+                                                <div className="inline-flex items-center justify-center w-8 h-8 rounded-[5px] bg-blue-600 dark:bg-blue-400 cursor-pointer text-white" onClick={() => setUpdatableAssessment(true)}>
+                                                    <EditIcon />
+                                                </div>
+                                            ) : (
+                                                <div className="inline-flex items-center justify-center w-8 h-8 rounded-[5px] bg-green-600 dark:bg-green-400 cursor-pointer text-white"
+                                                    onClick={handleUpdateAssessment}>
+                                                    <DoneIcon />
+                                                </div>
+                                            )}
+                                        </span>
+                                    ) : null}
                                 </div>
                             </div>
 
@@ -607,7 +662,7 @@ export default function MyHesabatDetails() {
                                 <Label>Süni intellekt qiymətləndirməsi</Label>
                                 <Input
                                     type="text"
-                                    value={hesabat?.ai_assessment ?? ""}    
+                                    value={hesabat?.ai_assessment ?? ""}
                                     placeholder={hesabat?.ai_assessment ? undefined : "Təyin edilməyib"}
                                     disabled
                                     readOnly
@@ -630,7 +685,7 @@ export default function MyHesabatDetails() {
                         {assessmentLoading ? "Yüklənir..." : "Təsdiq et"}
                     </button>
                     <button className={`inline-flex items-center justify-center gap-2 rounded-lg transition bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300 px-5 py-2`} disabled={doneLoading} onClick={handleDoneHesabat}>
-                        {doneLoading     ? "Yüklənir..." : "Hesabatı bitir"}
+                        {doneLoading ? "Yüklənir..." : "Hesabatı bitir"}
                     </button>
                 </div>
             ) : null}

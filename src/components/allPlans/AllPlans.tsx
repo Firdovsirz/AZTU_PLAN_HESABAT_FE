@@ -15,10 +15,8 @@ import Skeleton from '@mui/material/Skeleton';
 import Pagination from '@mui/material/Pagination';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { AllPlan, getPlans } from "../../services/plan/plan";
-import CircularProgress from "@mui/material/CircularProgress";
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { getActivityByCode } from "../../services/activity/activityService";
 
 export default function AllPlans() {
     const navigate = useNavigate();
@@ -33,9 +31,6 @@ export default function AllPlans() {
     const role = useSelector((state: RootState) => state.auth.role);
     const token = useSelector((state: RootState) => state.auth.token);
     const finKod = useSelector((state: RootState) => state.auth.fin_kod);
-    const [activityNames, setActivityNames] = useState<{ [key: number]: string }>({});
-
-    console.log(planLength);
 
     useEffect(() => {
         setLoading(true);
@@ -50,6 +45,7 @@ export default function AllPlans() {
                         }
                     } else if (Array.isArray(res.plans)) {
                         setPlans(res.plans);
+                        console.log(res.plans);
                         setPLanLength(res.total_plans);
                     }
                 })
@@ -59,43 +55,7 @@ export default function AllPlans() {
         }
     }, [start, end]);
 
-    const getActivityNameByCode = async (activityCode: number) => {
-        if (activityNames[activityCode]) {
-            return activityNames[activityCode];
-        }
-
-        try {
-            const res = await getActivityByCode(activityCode, token ? token : '');
-            let name = "Gözlənilməz xəta";
-            if (res === "Not found") {
-                name = "Mismatch";
-            } else if (res !== "error") {
-                name = res;
-            }
-
-            setActivityNames(prev => ({ ...prev, [activityCode]: name }));
-            return name;
-        } catch (err) {
-            return "Gözlənilməz xəta";
-        }
-    };
-
-    useEffect(() => {
-        const loadActivityNames = async () => {
-            if (plans) {
-                const uniqueCodes = Array.from(new Set(plans.map(p => p.activity_type_code)));
-                const activityMap: { [key: number]: string } = {};
-
-                for (const code of uniqueCodes) {
-                    const name = await getActivityNameByCode(code);
-                    activityMap[code] = name;
-                }
-
-                setActivityNames(activityMap);
-            }
-        };
-        loadActivityNames();
-    }, [plans]);
+    console.log(plans);
 
     if (loading) {
         return (
@@ -230,7 +190,7 @@ export default function AllPlans() {
                                                     {plan.work_plan_serial_number}
                                                 </TableCell>
                                                 <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                    {activityNames[plan.activity_type_code] || <CircularProgress size={16} />}
+                                                    {plan.activity_type_names[0]} <span className="text-center bg-green-200 dark:bg-green-600 text-green-900 dark:text-green-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">+{plan.activity_type_names.length - 1}</span>
                                                 </TableCell>
                                                 <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                                     {plan.work_row_number}

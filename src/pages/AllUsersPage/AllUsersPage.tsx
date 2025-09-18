@@ -16,10 +16,6 @@ type Filters = {
 
 export default function AllUsersPage() {
     const [filters, setFilters] = useState<Filters>({});
-    useEffect(() => {
-        console.log(filters);
-        
-    })
     return (
         <div>
             <PageMeta

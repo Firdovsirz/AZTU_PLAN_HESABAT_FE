@@ -10,9 +10,9 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { RootState } from "../../redux/store";
+import Skeleton from "@mui/material/Skeleton";
 import Pagination from '@mui/material/Pagination';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import Skeleton from "@mui/material/Skeleton";
 import { getHesabatByFinKod, Hesabat } from "../../services/hesabat/hesabatService";
 
 export default function MyHesabat() {
@@ -23,9 +23,9 @@ export default function MyHesabat() {
     const [loading, setLoading] = useState(true);
     const [start, setStart] = useState<number>(0);
     const [notFound, setNotFound] = useState(false);
+    const token = useSelector((state: RootState) => state.auth.token);
     const [hesabats, setHesabats] = useState<Hesabat[] | undefined>([]);
     const finKod = useSelector((state: RootState) => state.auth.fin_kod);
-    const token = useSelector((state: RootState) => state.auth.token);
     const [hesabatLength, setHesabatLength] = useState<number | null>(null);
 
     useEffect(() => {
@@ -198,7 +198,18 @@ export default function MyHesabat() {
                                             {hesabat.work_plan_serial_number}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                            {hesabat.activity_type_name}
+                                          {hesabat.activity_type_names && hesabat.activity_type_names.length > 0 ? (
+                                                <>
+                                                    {hesabat.activity_type_names[0]}
+                                                    {hesabat.activity_type_names.length > 1 && (
+                                                        <span className="text-center bg-green-200 dark:bg-green-600 text-green-900 dark:text-green-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                                                            +{hesabat.activity_type_names.length - 1}
+                                                        </span>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                "Mövcud deyil"
+                                            )}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                             {!hesabat.submitted ? (

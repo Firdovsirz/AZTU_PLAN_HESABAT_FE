@@ -79,24 +79,6 @@ export default function SubmittedHesabats() {
         }
     };
 
-    useEffect(() => {
-        const loadActivityNames = async () => {
-            if (hesabats) {
-                const uniqueCodes = Array.from(new Set(hesabats.map(p => p.activity_type_code)));
-                const activityMap: { [key: number]: string } = {};
-
-                for (const code of uniqueCodes) {
-                    const name = await getActivityNameByCode(code);
-                    activityMap[code] = name;
-                }
-
-                setActivityNames(activityMap);
-            }
-        };
-
-        loadActivityNames();
-    }, [hesabats]);
-
     if (loading) {
         // Skeleton table placeholder (5 rows)
         return (
@@ -273,6 +255,12 @@ export default function SubmittedHesabats() {
                                             isHeader
                                             className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                         >
+                                            Qiymət uyğunluğu
+                                        </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
                                             Baxış
                                         </TableCell>
                                         <TableCell
@@ -294,8 +282,11 @@ export default function SubmittedHesabats() {
                                                 <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                                     {hesabat.plan_work_serial_number}
                                                 </TableCell>
-                                                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                    {activityNames[hesabat.activity_type_code] || <CircularProgress size={16} />}
+                                                <TableCell className="flex jusitfy-center items-center px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                    {hesabat.activity_type_names[0]}
+                                                    <span className="text-center bg-green-200 dark:bg-green-600 text-green-900 dark:text-green-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                                                        +{hesabat.activity_type_names.length - 1}
+                                                    </span>
                                                 </TableCell>
                                                 <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                                     {hesabat.done_percentage} ({hesabat.assessment_score})
@@ -328,6 +319,39 @@ export default function SubmittedHesabats() {
                                                             Qiymətləndirilməyib
                                                         </p>
                                                     )}
+                                                </TableCell>
+                                                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                    {(() => {
+                                                        if (hesabat.admin_assessment === null || hesabat.admin_assessment === undefined || hesabat.assessment_score === null || hesabat.assessment_score === undefined) {
+                                                            return (
+                                                                <p className="text-center bg-yellow-200 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                                                                    Qiymətləndirilməyib
+                                                                </p>
+                                                            );
+                                                        }
+
+                                                        // Map assessment_score to range
+                                                        const scoreRanges: { [key: number]: [number, number] } = {
+                                                            1: [0, 20],
+                                                            2: [30, 40],
+                                                            3: [40, 60],
+                                                            4: [60, 80],
+                                                            5: [80, 100],
+                                                        };
+
+                                                        const range = scoreRanges[hesabat.assessment_score];
+                                                        const isMatch = range && hesabat.admin_assessment >= range[0] && hesabat.admin_assessment <= range[1];
+
+                                                        return isMatch ? (
+                                                            <p className="text-center bg-green-200 dark:bg-green-600 text-green-900 dark:text-green-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                                                                Uyğundur
+                                                            </p>
+                                                        ) : (
+                                                            <p className="text-center bg-red-200 dark:bg-red-600 text-red-900 dark:text-red-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                                                                Uyğun deyil
+                                                            </p>
+                                                        );
+                                                    })()}
                                                 </TableCell>
                                                 <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                                     <div onClick={() => {

@@ -14,6 +14,7 @@ import FacultyPage from "./pages/FacultyPage/FacultyPage";
 import NewPlanPage from "./pages/NewPlanPage/NewPlanPage";
 import DocViewPage from "./pages/DocViewPage/DocViewPage";
 import ArchivePage from "./pages/ArchivePage/ArchivePage";
+import EditPlanPage from "./pages/EditPlanPage/EditPlanPage";
 import AllUsersPage from "./pages/AllUsersPage/AllUsersPage";
 import AllPlansPage from "./pages/AllPlansPage/AllPlansPage";
 import { ScrollToTop } from "./components/common/ScrollToTop";
@@ -84,6 +85,7 @@ export default function App() {
             <Route path="/new-plan" element={<NewPlanPage />} />
             <Route path="/my-plan" element={<MyPlanPage />} />
             <Route path="/all-plans" element={<AllPlansPage />} />
+            <Route path="/edit-plan" element={<EditPlanPage />} />
 
             {/* Hesabat */}
             <Route path="/my-hesabat" element={<MyHesabatPage />} />

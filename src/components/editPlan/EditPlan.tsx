@@ -2,21 +2,28 @@ import Swal from "sweetalert2";
 import Label from "../form/Label";
 import Button from "../ui/button/Button";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router";
 import Input from "../form/input/InputField";
-import DatePicker from "../form/date-picker";
 import TextArea from "../form/input/TextArea";
 import { RootState } from "../../redux/store";
 import Skeleton from "@mui/material/Skeleton";
 import MultiSelect from "../form/MultiSelect";
 import DoneIcon from '@mui/icons-material/Done';
-import { createPlan } from "../../services/plan/plan";
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, ReactHTMLElement } from "react";
+import { updatePlan } from "../../services/plan/plan";
 import CircularProgress from "@mui/material/CircularProgress";
 import { createActivity } from "../../services/activity/activityService";
+import { getPlanBySerialNumber, SinglePlan } from "../../services/plan/plan";
 import { Activity, getActivities } from "../../services/activity/activityService";
 
-export default function NewPlan() {
+export default function EditPlan() {
+    const location = useLocation();
+    const { work_plan_serial_number } = location.state ?? "";
+    console.log(work_plan_serial_number);
+    const [error, setError] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [plan, setPlan] = useState<SinglePlan>();
+    const [notFound, setNotFound] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [activities, setActivities] = useState<Activity[]>([]);
     const finKod = useSelector((state: RootState) => state.auth.fin_kod);
@@ -24,11 +31,9 @@ export default function NewPlan() {
 
     // form data
 
-    const [workYear, setWorkYear] = useState(2025);
     const [activityTypeCodes, setActivityTypeCodes] = useState<string[]>([]);
-    const [workDesc, setWorkDesc] = useState("");
-    const [deadline, setDeadline] = useState("");
     const [activityTypeName, setActivityTypeName] = useState("");
+    const [selectedActivityTypeNames, setSelectedActivityTypeNames] = useState<string[]>([]);
 
     useEffect(() => {
         getActivities(finKod ? finKod : "", token ? token : '')
@@ -37,6 +42,27 @@ export default function NewPlan() {
                 setLoading(false);
             });
     }, []);
+
+    useEffect(() => {
+        if (!work_plan_serial_number || !token) return;
+
+        setLoading(true);
+
+        getPlanBySerialNumber(work_plan_serial_number, token)
+            .then((data) => {
+                if (data === "ERROR") {
+                    setError(true);
+                } else if (data === "NOT FOUND") {
+                    setNotFound(true);
+                } else if (data && typeof data === "object") {
+                    console.log(data);
+                    setPlan(data);
+                }
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    }, [work_plan_serial_number, token]);
 
     const maxCode = activities.length > 0 ? Math.max(...activities.map((a) => a.actvity_type_code)) : 0;
 
@@ -51,48 +77,15 @@ export default function NewPlan() {
         return options;
     }, [activities]);
 
-    const handleSelectChange = (values: string[]) => {
-        setActivityTypeCodes(values);
-    };
+const handleSelectChange = (values: string[]) => {
+    setActivityTypeCodes(values);
 
-    const handleCreate = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
+    const selectedNames = activityOptions
+        .filter(option => values.includes(option.value))
+        .map(option => option.text);
 
-        const formData = new FormData();
-        if (finKod) {
-            formData.append("fin_kod", finKod);
-        }
-        formData.append("work_year", String(workYear));
-        activityTypeCodes.forEach(code => {
-            formData.append("activity_type_code", code);
-        });
-        formData.append("work_desc", workDesc);
-        formData.append("deadline", deadline);
-
-        try {
-            const result = await createPlan(formData, token ? token : '');
-
-            if (result === "SUCCESS") {
-                Swal.fire({
-                    icon: "success",
-                    title: "Plan uğurla yaradıldı",
-                    confirmButtonText: "OK"
-                });
-            } else {
-                throw new Error("Plan creation failed");
-            }
-        } catch (error) {
-            Swal.fire({
-                icon: "error",
-                title: "Xəta baş verdi",
-                text: "Plan yaradılarkən problem yarandı.",
-                confirmButtonText: "Bağla"
-            });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+    setSelectedActivityTypeNames(selectedNames);
+};
 
     const handleCreateActivity = async () => {
         if (activityTypeName.trim() === "") {
@@ -149,6 +142,68 @@ export default function NewPlan() {
 
     };
 
+    const handleUpdatePlan = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            setIsSubmitting(true);
+            const res = await updatePlan(work_plan_serial_number, activityTypeCodes, selectedActivityTypeNames, token ? token : "");
+
+            if (res === "SUCCESS") {
+                setPlan(prev => prev ? {
+                    ...prev,
+                    activities: [...(prev.activities || []), ...selectedActivityTypeNames]
+                } : prev);
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Plan uğurla yeniləndi.",
+                }).then(() => {
+                    setIsSubmitting(false);
+                })
+            } else if (res === "PLAN NOT FOUND") {
+                Swal.fire({
+                    icon: "error",
+                    title: "Planda dəyişiklik edərkən problem yarandı.",
+                    text: "Plan mövcud deyil.",
+                }).then(() => {
+                    setIsSubmitting(false);
+                })
+            } else if (res === "CONFLICT") {
+                Swal.fire({
+                    icon: "error",
+                    title: "Təkrar fəaliyyət növü.",
+                    text: "Plan üçün eyni fəaliyyət növü əlavə edilə bilməz.",
+                }).then(() => {
+                    setIsSubmitting(false);
+                })
+            } else if (res === "ERROR") {
+                Swal.fire({
+                    icon: "error",
+                    title: "Planda dəyişiklik edərkən problem yarandı.",
+                    text: "Yenidən cəhd edin.",
+                }).then(() => {
+                    setIsSubmitting(false);
+                })
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Planda dəyişiklik edərkən problem yarandı.",
+                    text: "Yenidən cəhd edin.",
+                }).then(() => {
+                    setIsSubmitting(false);
+                })
+            }
+        } catch (err) {
+            Swal.fire({
+                icon: "error",
+                title: "Planda dəyişiklik edərkən problem yarandı.",
+                text: "Yenidən cəhd edin.",
+            }).then(() => {
+                    setIsSubmitting(false);
+                })
+        }
+    };
+
     if (loading) {
         return (
             <form className="w-full space-y-5 py-10">
@@ -173,9 +228,31 @@ export default function NewPlan() {
 
     return (
         <>
-            <form
-                onSubmit={handleCreate}
-            >
+            <form onSubmit={handleUpdatePlan}>
+                <div className="mb-[20px]">
+                    <p className="text-gray-700 dark:text-gray-300">
+                        Siz planı redaktə edərkən yalnız yeni fəaliyyət növü əlavə edə bilərsiz!
+                    </p>
+                </div>
+                <div className="mb-[10px]">
+                    <Label htmlFor="input">Fəaliyyət növləri</Label>
+                    {loading ? (
+                        <>
+                            <Skeleton variant="rectangular" width={120} height={30} sx={{ borderRadius: "20px", display: "inline-block", marginRight: "8px", marginBottom: "8px" }} />
+                            <Skeleton variant="rectangular" width={150} height={30} sx={{ borderRadius: "20px", display: "inline-block", marginRight: "8px", marginBottom: "8px" }} />
+                            <Skeleton variant="rectangular" width={100} height={30} sx={{ borderRadius: "20px", display: "inline-block", marginRight: "8px", marginBottom: "8px" }} />
+                        </>
+                    ) : (
+                        plan?.activities.map((activity, index) => (
+                            <div
+                                className="inline-block bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-[20px] px-3 py-2 mb-2 mr-2"
+                                key={index}
+                            >
+                                {activity}
+                            </div>
+                        ))
+                    )}
+                </div>
                 <div className="flex justify-between items-center w-full mb-[20px]">
                     <div style={{
                         width: "calc((100% / 2) - 10px)"
@@ -187,7 +264,7 @@ export default function NewPlan() {
                         width: "calc((100% / 2) - 10px)"
                     }}>
                         <Label htmlFor="inputTwo">İş ili</Label>
-                        <Input type="text" id="inputTwo" value={String(workYear)} onChange={(e) => { setWorkYear(+e.target.value) }} />
+                        <Input type="text" id="inputTwo" value={String(plan?.work_year)} readOnly />
                     </div>
                 </div>
                 <div className="flex justify-between items-center w-full mb-[20px]">
@@ -207,15 +284,13 @@ export default function NewPlan() {
                     <div style={{
                         width: "calc((100% / 2) - 10px)"
                     }}>
-                        <DatePicker
-                            id="date-picker"
-                            label="Son tarix"
-                            placeholder="Tarix seçin"
-                            value={deadline}
-                            onChange={(dates, currentDateString) => {
-                                setDeadline(currentDateString);
-                                console.log(dates);
-                            }}
+                        <Input
+                            value={
+                                plan?.deadline
+                                    ? new Date(plan.deadline).toLocaleDateString("en-GB")
+                                    : ""
+                            }
+                            readOnly
                         />
                     </div>
                 </div>
@@ -239,7 +314,7 @@ export default function NewPlan() {
                         width: "calc((100% / 2) - 10px)"
                     }}>
                         <Label htmlFor="input">İşin qısa təsviri</Label>
-                        <TextArea rows={1} value={workDesc} onChange={(value) => { setWorkDesc(value) }} placeholder="İşin qısa təsviri" />
+                        <TextArea rows={1} value={plan?.work_desc} disabled />
                     </div>
                 </div>
                 <div className="w-full flex justify-center items-center">

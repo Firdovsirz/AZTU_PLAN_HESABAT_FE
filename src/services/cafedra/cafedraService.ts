@@ -54,7 +54,6 @@ export const getCafedrasByFaculty = async (
     }
 };
 
-
 export const getCafDetails = async (cafedra_code: string, token: string): Promise<CafedraDetailsInterface[] | string> => {
     const response = await apiClient.get(`/api/cafedra/${cafedra_code}`, {
         headers: {

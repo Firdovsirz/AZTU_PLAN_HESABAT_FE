@@ -5,38 +5,36 @@ import {
     TableHeader,
     TableRow
 } from "../ui/table";
-import { Modal } from "../ui/modal";
 import Label from "../form/Label";
+import { Modal } from "../ui/modal";
 import Stack from '@mui/material/Stack';
 import Button from "../ui/button/Button";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import Input from "../form/input/InputField";
 import { RootState } from "../../redux/store";
 import Skeleton from "@mui/material/Skeleton";
 import { useModal } from "../../hooks/useModal";
+import EditIcon from '@mui/icons-material/Edit';
 import Pagination from '@mui/material/Pagination';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import CircularProgress from "@mui/material/CircularProgress";
 import { getPlanByFinKod, Plan } from "../../services/plan/plan";
-import { getActivityByCode } from "../../services/activity/activityService";
 
 export default function MyPlan() {
     const [error, setError] = useState("");
-    const { isOpen, openModal, closeModal } = useModal();
     console.error(error);
-    const [selectedPlan, setSelectedPlan] = useState<Plan>();
-    const [loading, setLoading] = useState(true);
-    const [notFound, setNotFound] = useState(false);
-    const [plans, setPlans] = useState<Plan[] | undefined>([]);
-    const [activityNames, setActivityNames] = useState<{ [key: number]: string }>({});
-    const [start, setStart] = useState<number>(0);
+    const navigate = useNavigate();
     const [end, setEnd] = useState<number>(5);
+    const [loading, setLoading] = useState(true);
+    const [start, setStart] = useState<number>(0);
+    const [notFound, setNotFound] = useState(false);
+    const { isOpen, openModal, closeModal } = useModal();
+    const [selectedPlan, setSelectedPlan] = useState<Plan>();
+    const [plans, setPlans] = useState<Plan[] | undefined>([]);
     const [planLength, setPLanLength] = useState<number | null>();
-    const finKod = useSelector((state: RootState) => state.auth.fin_kod);
     const token = useSelector((state: RootState) => state.auth.token);
-
-    console.log(planLength);
+    const finKod = useSelector((state: RootState) => state.auth.fin_kod);
 
     useEffect(() => {
         if (finKod) {
@@ -59,47 +57,7 @@ export default function MyPlan() {
         }
     }, [finKod]);
 
-    const getActivityNameByCode = async (activityCode: number) => {
-        if (activityNames[activityCode]) {
-            return activityNames[activityCode];
-        }
-
-        try {
-            const res = await getActivityByCode(activityCode, token ? token : '');
-            let name = "Gözlənilməz xəta";
-            if (res === "Not found") {
-                name = "Mismatch";
-            } else if (res !== "error") {
-                name = res;
-            }
-
-            setActivityNames(prev => ({ ...prev, [activityCode]: name }));
-            return name;
-        } catch (err) {
-            return "Gözlənilməz xəta";
-        }
-    };
-
-    useEffect(() => {
-        const loadActivityNames = async () => {
-            if (plans) {
-                const uniqueCodes = Array.from(new Set(plans.map(p => p.activity_type_code)));
-                const activityMap: { [key: number]: string } = {};
-
-                for (const code of uniqueCodes) {
-                    const name = await getActivityNameByCode(code);
-                    activityMap[code] = name;
-                }
-
-                setActivityNames(activityMap);
-            }
-        };
-
-        loadActivityNames();
-    }, [plans]);
-
     if (loading) {
-        // Show skeleton table mimicking table rows while loading
         const skeletonRows = Array.from({ length: 5 });
         return (
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -229,6 +187,12 @@ export default function MyPlan() {
                                 >
                                     Baxış
                                 </TableCell>
+                                <TableCell
+                                    isHeader
+                                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                >
+                                    Redaktə et
+                                </TableCell>
                             </TableRow>
                         </TableHeader>
                         {/* Table Body */}
@@ -243,7 +207,18 @@ export default function MyPlan() {
                                             {plan.work_plan_serial_number}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                            {activityNames[plan.activity_type_code] || <CircularProgress size={16} />}
+                                            {plan.activity_type_names && plan.activity_type_names.length > 0 ? (
+                                                <>
+                                                    {plan.activity_type_names[0]}
+                                                    {plan.activity_type_names.length > 1 && (
+                                                        <span className="text-center bg-green-200 dark:bg-green-600 text-green-900 dark:text-green-100 px-2 py-1 rounded-[20px] inline-block ml-[10px]">
+                                                            +{plan.activity_type_names.length - 1}
+                                                        </span>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                "Mövcud deyil"
+                                            )}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                             {plan.work_row_number}
@@ -257,6 +232,13 @@ export default function MyPlan() {
                                                 openModal();
                                             }} className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-yellow-200 text-yellow-400 dark:bg-yellow-400 cursor-pointer">
                                                 <VisibilityIcon className="text-yellow-500 dark:text-yellow-700" />
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                            <div onClick={() => {
+                                                navigate("/edit-plan", { state: { work_plan_serial_number: plan.work_plan_serial_number } });
+                                            }} className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-blue-200 text-blue-400 dark:bg-blue-400 cursor-pointer">
+                                                <EditIcon className="text-blue-500 dark:text-blue-700" />
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -298,21 +280,21 @@ export default function MyPlan() {
                                 });
                         }}
                         sx={{
-                                '& .MuiPaginationItem-root': {
-                                    color: 'text.primary',
-                                    bgcolor: 'background.paper',
+                            '& .MuiPaginationItem-root': {
+                                color: 'text.primary',
+                                bgcolor: 'background.paper',
+                            },
+                            '& .MuiPaginationItem-root.Mui-selected': {
+                                bgcolor: 'primary.main',
+                                color: 'primary.contrastText',
+                                '&:hover': {
+                                    bgcolor: 'primary.dark',
                                 },
-                                '& .MuiPaginationItem-root.Mui-selected': {
-                                    bgcolor: 'primary.main',
-                                    color: 'primary.contrastText',
-                                    '&:hover': {
-                                        bgcolor: 'primary.dark',
-                                    },
-                                },
-                                '& .MuiPaginationItem-root:hover': {
-                                    bgcolor: 'action.hover',
-                                },
-                            }}
+                            },
+                            '& .MuiPaginationItem-root:hover': {
+                                bgcolor: 'action.hover',
+                            },
+                        }}
                     />
                 </Stack>
             </div>
@@ -326,7 +308,7 @@ export default function MyPlan() {
                     <form className="flex flex-col">
                         <div className="px-2 overflow-y-auto custom-scrollbar">
                             <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                                 <div>
+                                <div>
                                     <Label>Plan nömrəsi</Label>
                                     <Input type="text" value={selectedPlan?.work_plan_serial_number} readOnly />
                                 </div>
@@ -334,11 +316,6 @@ export default function MyPlan() {
                                 <div>
                                     <Label>Fin Kod</Label>
                                     <Input type="text" value={selectedPlan?.fin_kod} readOnly />
-                                </div>
-
-                                <div>
-                                    <Label>Fəaliyyət növü</Label>
-                                    <Input type="text" value={activityNames[selectedPlan?.activity_type_code ? selectedPlan?.activity_type_code : 0]} readOnly />
                                 </div>
 
                                 <div>
@@ -370,6 +347,15 @@ export default function MyPlan() {
                                 <div>
                                     <Label>İşin qısa təsviri</Label>
                                     <Input type="text" value={selectedPlan?.work_desc} />
+                                </div>
+
+                                <div>
+                                    <Label>Fəaliyyət növləri</Label>
+                                    <ol className="list-decimal list-inside text-gray-700 dark:text-gray-300">
+                                        {selectedPlan?.activity_type_names.map((name, index) => (
+                                            <li key={index}>{name}</li>
+                                        ))}
+                                    </ol>
                                 </div>
                             </div>
                         </div>

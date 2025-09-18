@@ -119,33 +119,38 @@ export default function SignUpForm() {
 
   // Cafedra Service
 
-  const [cafedras, setCafedras] = useState<Cafedra[]>([]);
+  // Cafedra Service
+const [cafedras, setCafedras] = useState<Cafedra[]>([]);
 
-  useEffect(() => {
-    getCafedrasByFaculty(faculty, token ? token : '')
-      .then((res) => {
-        if (res === "NOT FOUND") {
-          setCafedras([]);
-        } else {
-          setCafedras(res.cafedras);
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [faculty]);
+useEffect(() => {
+  if (!faculty) return;
 
-  const cafedraOptions = useMemo(() => {
-    const options = cafedras.map((cafedra) => ({
-      value: String(cafedra.cafedra_code),
-      label: `${cafedra.cafedra_name} (${cafedra.cafedra_code})`
-    }));
-    return options;
-  }, [cafedras]);
+  getCafedrasByFaculty(faculty, token || '')
+    .then((res) => {
+      if (!res || res === "NOT FOUND" || !res.cafedras) {
+        setCafedras([]);
+      } else {
+        setCafedras(res.cafedras);
+      }
+    })
+    .catch((err) => {
+      console.error("Failed to fetch cafedras:", err);
+      setCafedras([]); // ✅ handle errors gracefully
+    })
+    .finally(() => setLoading(false));
+}, [faculty]);
 
-  const handleCafedraChange = (value: string) => {
-    setCafedra(value);
-  };
+// Map cafedras safely
+const cafedraOptions = useMemo(() => {
+  return (cafedras || []).map((cafedra) => ({
+    value: String(cafedra.cafedra_code),
+    label: `${cafedra.cafedra_name} (${cafedra.cafedra_code})`
+  }));
+}, [cafedras]);
+
+const handleCafedraChange = (value: string) => {
+  setCafedra(value);
+};
 
   // Signup Service
 
