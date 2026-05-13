@@ -34,17 +34,16 @@ export default function MyHesabatDetails() {
     const work_plan_serial_number = location.state ?? "";
     const [doneLoading, setDoneLoading] = useState(false);
     const [donePercentage, setDonePercentage] = useState("");
-    const [activities, setActivities] = useState<[]>([]);
     const role = useSelector((state: RootState) => state.auth.role);
     const [assessments, setAssessments] = useState<Assessment[]>([]);
     const [assessmentLoading, setAssessmentLoading] = useState(false);
     const token = useSelector((state: RootState) => state.auth.token);
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-    const finKod = useSelector((state: RootState) => state.auth.fin_kod);
+    useSelector((state: RootState) => state.auth.fin_kod);
     const [adminAssessment, setAdminAssessment] = useState<number | null>(null);
     const [assessmentScore, setAssessmentScore] = useState<number | null>(null);
-    const [activityTypeCodes, setActivityTypeCodes] = useState<number | null>(null);
-    const [activityTypeNames, setActivityTypeNames] = useState<string | null>(null);
+    const [, setActivityTypeCodes] = useState<number | null>(null);
+    const [, setActivityTypeNames] = useState<string | null>(null);
     const [updatableAssessment, setUpdatableAssessment] = useState<boolean>(false);
     const [newAdminAssessment, setNewAdminAssessment] = useState<number | null>(null);
 

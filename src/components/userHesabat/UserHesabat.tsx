@@ -199,7 +199,7 @@ export default function UserHesabat({ finKod }: UserPlanProps) {
                                             {hesabat.work_plan_serial_number}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                            {hesabat.activity_type_code}
+                                            {hesabat.activity_type_codes?.join(", ")}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                             {!hesabat.submitted ? (

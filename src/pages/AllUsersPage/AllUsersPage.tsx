@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PageMeta from "../../components/common/PageMeta";
 import AllUsers from "../../components/allUsers/AllUsers";
 import ComponentCard from "../../components/common/ComponentCard";

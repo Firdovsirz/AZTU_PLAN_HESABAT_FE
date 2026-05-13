@@ -15,10 +15,8 @@ import Skeleton from "@mui/material/Skeleton";
 import Pagination from '@mui/material/Pagination';
 import { getPlans } from "../../services/plan/plan";
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import CircularProgress from "@mui/material/CircularProgress";
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { getActivityByCode } from "../../services/activity/activityService";
 import { getSubmittedHesabats, SubmittedHesabatsInterface } from "../../services/hesabat/hesabatService";
 
 export default function SubmittedHesabats() {
@@ -34,7 +32,6 @@ export default function SubmittedHesabats() {
     const [hesabatLength, setHEsabatLength] = useState<number | null>();
     const finKod = useSelector((state: RootState) => state.auth.fin_kod);
     const [hesabats, setHesabats] = useState<SubmittedHesabatsInterface[] | undefined>([]);
-    const [activityNames, setActivityNames] = useState<{ [key: number]: string }>({});
 
     useEffect(() => {
         setLoading(true);
@@ -58,26 +55,6 @@ export default function SubmittedHesabats() {
         }
     }, [start, end]);
 
-    const getActivityNameByCode = async (activityCode: number) => {
-        if (activityNames[activityCode]) {
-            return activityNames[activityCode];
-        }
-
-        try {
-            const res = await getActivityByCode(activityCode, token ? token : '');
-            let name = "Gözlənilməz xəta";
-            if (res === "Not found") {
-                name = "Mismatch";
-            } else if (res !== "error") {
-                name = res;
-            }
-
-            setActivityNames(prev => ({ ...prev, [activityCode]: name }));
-            return name;
-        } catch (err) {
-            return "Gözlənilməz xəta";
-        }
-    };
 
     if (loading) {
         // Skeleton table placeholder (5 rows)
