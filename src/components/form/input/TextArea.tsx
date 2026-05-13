@@ -27,14 +27,14 @@ const TextArea: React.FC<TextareaProps> = ({
     }
   };
 
-  let textareaClasses = `w-full rounded-lg border px-4 py-2.5 text-sm shadow-theme-xs focus:outline-hidden ${className} `;
+  let textareaClasses = `w-full rounded-xl border px-4 py-3 text-sm shadow-sm shadow-gray-900/[0.02] transition-all duration-200 focus:outline-hidden focus:ring-4 placeholder:text-gray-400 ${className} `;
 
   if (disabled) {
-    textareaClasses += ` bg-gray-100 opacity-50 text-gray-500 border-gray-300 cursor-not-allowed opacity40 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700`;
+    textareaClasses += ` bg-gray-50 text-gray-500 border-gray-200 cursor-not-allowed opacity-60 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700`;
   } else if (error) {
-    textareaClasses += ` bg-transparent  border-gray-300 focus:border-error-300 focus:ring-3 focus:ring-error-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-error-800`;
+    textareaClasses += ` bg-error-25 text-error-700 border-error-300 focus:border-error-500 focus:ring-error-500/15 dark:bg-error-500/[0.06] dark:border-error-500/60 dark:text-error-400 dark:focus:border-error-500`;
   } else {
-    textareaClasses += ` bg-transparent text-gray-900 dark:text-gray-300 text-gray-900 border-gray-300 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800`;
+    textareaClasses += ` bg-white text-gray-800 border-gray-200 hover:border-gray-300 focus:border-brand-400 focus:ring-brand-500/15 dark:border-gray-700/70 dark:bg-gray-900/60 dark:text-white/90 dark:hover:border-gray-600 dark:focus:border-brand-500`;
   }
 
   return (

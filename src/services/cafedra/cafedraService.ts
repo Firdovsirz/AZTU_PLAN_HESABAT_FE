@@ -34,6 +34,45 @@ export interface CafedraDetailsInterface {
     create_at: string;
 }
 
+export const updateCafedra = async (cafedra_code: string, cafedra_name: string, token: string | null) => {
+    try {
+        const response = await apiClient.put(
+            `/api/update/cafedra/${cafedra_code}/${cafedra_name}`,
+            {},
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        return response.data;
+    } catch (err: any) {
+        return err?.response?.data ?? { statusCode: 500, message: "error" };
+    }
+};
+
+export const deleteCafedra = async (cafedra_code: string, token: string | null) => {
+    try {
+        const response = await apiClient.delete(
+            `/api/delete/cafedra/${cafedra_code}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        return response.data;
+    } catch (err: any) {
+        return err?.response?.data ?? { statusCode: 500, message: "error" };
+    }
+};
+
+export const getAllCafedras = async (faculty_code: string, token: string | null) => {
+    try {
+        const response = await apiClient.get(`/api/cafedras/${faculty_code}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.data.statusCode === 200) {
+            return response.data.cafedras as Cafedra[];
+        }
+        return [];
+    } catch {
+        return [];
+    }
+};
+
 export const getCafedrasByFaculty = async (
     faculty_code: string,
     token: string

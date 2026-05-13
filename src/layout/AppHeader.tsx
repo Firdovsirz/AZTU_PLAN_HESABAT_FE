@@ -40,7 +40,7 @@ const AppHeader: React.FC = () => {
   }, []);
 
   return (
-    <header className="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
+    <header className="sticky top-0 flex w-full bg-white/80 backdrop-blur-xl border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900/80 lg:border-b shadow-[0_1px_0_0_rgba(16,24,40,0.04)]">
       <div className="flex flex-col items-center justify-between grow lg:flex-row lg:px-6">
         <div className="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
           <button
@@ -82,17 +82,17 @@ const AppHeader: React.FC = () => {
             {/* Cross Icon */}
           </button>
 
-          <Link to="/home" className="lg:hidden">
-            <img
-              className="dark:hidden"
-              src="./images/logo/logo.svg"
-              alt="Logo"
-            />
-            <img
-              className="hidden dark:block"
-              src="./images/logo/logo-dark.svg"
-              alt="Logo"
-            />
+          <Link to="/home" className="flex items-center gap-2 lg:hidden">
+            <div className="flex items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800 p-1.5 shadow-md shadow-brand-500/30 ring-1 ring-white/20">
+              <img
+                src="/aztu_logo.webp"
+                alt="AzTU"
+                className="h-6 w-6 object-contain"
+              />
+            </div>
+            <span className="text-sm font-semibold tracking-tight text-gray-900 dark:text-white">
+              AzTU
+            </span>
           </Link>
 
           <button
@@ -114,6 +114,18 @@ const AppHeader: React.FC = () => {
               />
             </svg>
           </button>
+
+          <div className="hidden lg:flex items-center gap-3 pl-2">
+            <div className="h-8 w-px bg-gradient-to-b from-transparent via-gray-200 to-transparent dark:via-gray-700" />
+            <div className="flex flex-col leading-tight">
+              <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-brand-600 dark:text-brand-400">
+                AzTU
+              </span>
+              <span className="text-sm font-semibold text-gray-800 dark:text-white/90">
+                Plan & Hesabat sistemi
+              </span>
+            </div>
+          </div>
 
           {/* <div className="hidden lg:block">
             <form>

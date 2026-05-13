@@ -5,6 +5,7 @@ import { RootState } from "./redux/store";
 import AppLayout from "./layout/AppLayout";
 import type { JwtPayload } from "jwt-decode";
 import SignIn from "./pages/AuthPages/SignIn";
+import LandingPage from "./pages/Landing/LandingPage";
 import SignUp from "./pages/AuthPages/SignUp";
 import UserProfiles from "./pages/UserProfiles";
 import NotFound from "./pages/OtherPage/NotFound";
@@ -31,6 +32,11 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import MyHesabatDetailsPage from "./pages/MyHesabatDetailsPage/MyHesabatDetailsPage";
 import SubmittedHesabatsPage from "./pages/SubmittedHesabatsPage/SubmittedHesabatsPage";
 import ApproveWaitingUsersPage from "./pages/ApproveWaitingUsersPage/ApproveWaitingUsersPage";
+import ActivitiesSettingsPage from "./pages/Settings/ActivitiesSettingsPage";
+import FacultiesSettingsPage from "./pages/Settings/FacultiesSettingsPage";
+import CafedrasSettingsPage from "./pages/Settings/CafedrasSettingsPage";
+import DutiesSettingsPage from "./pages/Settings/DutiesSettingsPage";
+import DepartmentsSettingsPage from "./pages/Settings/DepartmentsSettingsPage";
 
 function isTokenValid(token: string | null): boolean {
   if (!token) return false;
@@ -55,7 +61,7 @@ export default function App() {
         <ScrollToTop />
         <Routes>
           {/* Dashboard Layout */}
-          <Route element={isValid ? <AppLayout /> : <Navigate to="/" />}>
+          <Route element={isValid ? <AppLayout /> : <Navigate to="/signin" />}>
             <Route index path="/home" element={<Home />} />
 
             {/* Others Page */}
@@ -98,10 +104,20 @@ export default function App() {
             {/* Archive */}
             <Route path="/archive" element={<ArchivePage />} />
 
+            {/* Settings (admin) */}
+            <Route path="/settings/activities" element={<ActivitiesSettingsPage />} />
+            <Route path="/settings/faculties" element={<FacultiesSettingsPage />} />
+            <Route path="/settings/cafedras" element={<CafedrasSettingsPage />} />
+            <Route path="/settings/duties" element={<DutiesSettingsPage />} />
+            <Route path="/settings/departments" element={<DepartmentsSettingsPage />} />
+
           </Route>
 
+          {/* Public Landing */}
+          <Route path="/" element={isValid ? <Navigate to="/home" /> : <LandingPage />} />
+
           {/* Auth Layout */}
-          <Route path="/" element={<SignIn />} />
+          <Route path="/signin" element={isValid ? <Navigate to="/home" /> : <SignIn />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/otp-verification/:finKod" element={<OtpVerificationPage />} />
           <Route path="/reset-password/:token" element={<NewPasswordPage />} />

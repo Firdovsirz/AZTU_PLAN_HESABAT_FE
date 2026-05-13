@@ -32,16 +32,17 @@ const Select: React.FC<SelectProps> = ({
   };
 
   return (
-    <select
-      className={`h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pr-11 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 ${
-        selectedValue
-          ? "text-gray-800 dark:text-white/90"
-          : "text-gray-400 dark:text-gray-400"
-      } ${className}`}
-      value={selectedValue}
-      onChange={handleChange}
-      disabled={disabled}
-    >
+    <div className="relative w-full">
+      <select
+        className={`h-11 w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-2.5 pr-11 text-sm shadow-sm shadow-gray-900/[0.02] transition-all duration-200 hover:border-gray-300 focus:border-brand-400 focus:outline-hidden focus:ring-4 focus:ring-brand-500/15 disabled:opacity-60 disabled:cursor-not-allowed dark:border-gray-700/70 dark:bg-gray-900/60 dark:text-white/90 dark:hover:border-gray-600 dark:focus:border-brand-500 ${
+          selectedValue
+            ? "text-gray-800 dark:text-white/90"
+            : "text-gray-400 dark:text-gray-400"
+        } ${className}`}
+        value={selectedValue}
+        onChange={handleChange}
+        disabled={disabled}
+      >
       {/* Placeholder option */}
       <option
         value=""
@@ -60,7 +61,13 @@ const Select: React.FC<SelectProps> = ({
           {option.label}
         </option>
       ))}
-    </select>
+      </select>
+      <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+          <path d="M5 7.5l5 5 5-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </span>
+    </div>
   );
 };
 

@@ -59,7 +59,7 @@ export default function NewPassword() {
                     showConfirmButton: false,
                     timerProgressBar: true
                 }).then(() => {
-                    navigate("/");
+                    navigate("/signin");
                 });
             }
 
@@ -74,7 +74,7 @@ export default function NewPassword() {
                     showConfirmButton: false,
                     timerProgressBar: true
                 }).then(() => {
-                    navigate("/");
+                    navigate("/signin");
                 });
             } else if (res === "UNAUTHORIZED") {
                 return Swal.fire({
@@ -83,7 +83,7 @@ export default function NewPassword() {
                     text: "Zəhmət olmasa yenidən otp kod əldə edin.",
                     confirmButtonText: "OK"
                 }).then(() => {
-                    navigate("/");
+                    navigate("/signin");
                 });
             } else {
                 return Swal.fire({
@@ -100,7 +100,7 @@ export default function NewPassword() {
                 title: "Şifrəni yeniləyərkən xəta baş verdi!",
                 confirmButtonText: "OK"
             }).then(() => {
-                navigate("/");
+                navigate("/signin");
             });
         } finally {
             setLoading(false);
@@ -243,7 +243,7 @@ export default function NewPassword() {
                             <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                                 Artıq hesabınız var? {""}
                                 <Link
-                                    to="/"
+                                    to="/signin"
                                     className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                                 >
                                     Daxil Ol

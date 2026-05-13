@@ -1,5 +1,5 @@
 import React from "react";
-import Logo from "../../../public/logo-light.png";
+import Logo from "../../../public/aztu_logo.webp";
 import GridShape from "../../components/common/GridShape";
 import ThemeTogglerTwo from "../../components/common/ThemeTogglerTwo";
 
@@ -16,16 +16,27 @@ export default function AuthLayout({
           <div className="relative flex items-center justify-center z-1">
             {/* <!-- ===== Common Grid Shape Start ===== --> */}
             <GridShape />
-            <div className="flex flex-col items-center max-w-xs">
+            <div className="flex flex-col items-center max-w-sm gap-6">
+              <div className="relative flex items-center justify-center rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur-xl shadow-2xl shadow-black/30">
                 <img
-                  width={200}
-                  height={50}
+                  width={140}
+                  height={140}
                   src={Logo}
-                  alt="Logo"
+                  alt="AzTU Logo"
+                  className="h-32 w-32 object-contain drop-shadow-2xl"
                 />
-              <h2 className="text-3xl text-center text-gray-400 dark:text-white/60">
-                Plan Hesabat İnformasiya sistemi
-              </h2>
+              </div>
+              <div className="text-center">
+                <p className="mb-2 text-xs font-medium uppercase tracking-[0.3em] text-brand-200">
+                  Azərbaycan Texniki Universiteti
+                </p>
+                <h2 className="text-3xl font-semibold leading-tight text-white">
+                  Plan & Hesabat
+                  <span className="block bg-gradient-to-r from-white via-blue-light-100 to-brand-200 bg-clip-text text-transparent">
+                    İnformasiya Sistemi
+                  </span>
+                </h2>
+              </div>
             </div>
           </div>
         </div>

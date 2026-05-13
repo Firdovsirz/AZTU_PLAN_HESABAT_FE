@@ -81,7 +81,7 @@ export default function ResetPassword() {
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Artıq hesabınız var? {""}
                 <Link
-                  to="/"
+                  to="/signin"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
                   Daxil Ol

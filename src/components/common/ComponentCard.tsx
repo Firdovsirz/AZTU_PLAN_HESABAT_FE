@@ -13,11 +13,11 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
 }) => {
   return (
     <div
-      className={`rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] ${className}`}
+      className={`group/card relative overflow-hidden rounded-2xl border border-gray-200/80 bg-white/90 backdrop-blur-sm shadow-sm shadow-gray-900/[0.02] transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/[0.04] hover:border-gray-200 dark:border-gray-800 dark:bg-gray-900/40 ${className}`}
     >
-      {/* Card Header */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-500/30 to-transparent" />
       <div className="px-6 py-5">
-        <h3 className="text-base font-medium text-gray-800 dark:text-white/90">
+        <h3 className="text-base font-semibold tracking-tight text-gray-900 dark:text-white">
           {title}
         </h3>
         {desc && (
@@ -26,8 +26,6 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
           </p>
         )}
       </div>
-
-      {/* Card Body */}
       <div className="p-4 border-t border-gray-100 dark:border-gray-800 sm:p-6">
         <div className="space-y-6">{children}</div>
       </div>

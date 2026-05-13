@@ -30,38 +30,34 @@ const Switch: React.FC<SwitchProps> = ({
     color === "blue"
       ? {
           background: isChecked
-            ? "bg-brand-500 "
-            : "bg-gray-200 dark:bg-white/10", // Blue version
-          knob: isChecked
-            ? "translate-x-full bg-white"
-            : "translate-x-0 bg-white",
+            ? "bg-gradient-to-b from-brand-500 to-brand-600 shadow-inner shadow-brand-700/30"
+            : "bg-gray-200 dark:bg-white/10",
         }
       : {
           background: isChecked
-            ? "bg-gray-800 dark:bg-white/10"
-            : "bg-gray-200 dark:bg-white/10", // Gray version
-          knob: isChecked
-            ? "translate-x-full bg-white"
-            : "translate-x-0 bg-white",
+            ? "bg-gradient-to-b from-gray-700 to-gray-900"
+            : "bg-gray-200 dark:bg-white/10",
         };
 
   return (
     <label
       className={`flex cursor-pointer select-none items-center gap-3 text-sm font-medium ${
-        disabled ? "text-gray-400" : "text-gray-700 dark:text-gray-400"
+        disabled ? "text-gray-400 cursor-not-allowed" : "text-gray-700 dark:text-gray-300"
       }`}
-      onClick={handleToggle} // Toggle when the label itself is clicked
+      onClick={handleToggle}
     >
       <div className="relative">
         <div
-          className={`block transition duration-150 ease-linear h-6 w-11 rounded-full ${
+          className={`block transition-all duration-300 ease-out h-6 w-11 rounded-full ring-1 ring-inset ring-black/5 ${
             disabled
               ? "bg-gray-100 pointer-events-none dark:bg-gray-800"
               : switchColors.background
           }`}
         ></div>
         <div
-          className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full shadow-theme-sm duration-150 ease-linear transform ${switchColors.knob}`}
+          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-md ring-1 ring-black/5 transition-all duration-300 ease-out ${
+            isChecked ? "left-[22px]" : "left-0.5"
+          }`}
         ></div>
       </div>
       {label}

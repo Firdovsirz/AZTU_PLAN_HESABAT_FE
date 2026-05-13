@@ -1,14 +1,15 @@
 import { ReactNode } from "react";
 
 interface ButtonProps {
-  children: ReactNode; // Button text or content
-  size?: "sm" | "md"; // Button size
-  variant?: "primary" | "outline"; // Button variant
-  startIcon?: ReactNode; // Icon before the text
-  endIcon?: ReactNode; // Icon after the text
-  onClick?: () => void; // Click handler
-  disabled?: boolean; // Disabled state
-  className?: string; // Disabled state
+  children: ReactNode;
+  size?: "sm" | "md" | "lg";
+  variant?: "primary" | "outline" | "ghost" | "danger";
+  startIcon?: ReactNode;
+  endIcon?: ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  className?: string;
+  type?: "button" | "submit" | "reset";
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -19,32 +20,36 @@ const Button: React.FC<ButtonProps> = ({
   endIcon,
   onClick,
   className = "",
-  disabled = false
+  disabled = false,
+  type = "submit",
 }) => {
-  // Size Classes
   const sizeClasses = {
-    sm: "px-4 py-3 text-sm",
-    md: "px-5 py-3.5 text-sm",
+    sm: "px-3.5 py-2 text-sm",
+    md: "px-5 py-2.5 text-sm",
+    lg: "px-6 py-3 text-base",
   };
 
-  // Variant Classes
   const variantClasses = {
     primary:
-      "bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300",
+      "bg-gradient-to-b from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/25 ring-1 ring-inset ring-brand-400/40 hover:from-brand-600 hover:to-brand-700 hover:shadow-lg hover:shadow-brand-500/30 disabled:from-brand-300 disabled:to-brand-400 disabled:shadow-none",
     outline:
-      "bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300",
+      "bg-white text-gray-700 ring-1 ring-inset ring-gray-200 shadow-sm hover:bg-gray-50 hover:ring-gray-300 dark:bg-gray-900/60 dark:text-gray-300 dark:ring-gray-700 dark:hover:bg-white/[0.03]",
+    ghost:
+      "bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/[0.06] dark:hover:text-white",
+    danger:
+      "bg-gradient-to-b from-error-500 to-error-600 text-white shadow-md shadow-error-500/25 ring-1 ring-inset ring-error-400/40 hover:from-error-600 hover:to-error-700",
   };
 
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-lg transition ${className} ${
+      className={`inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-200 active:scale-[0.98] focus:outline-hidden focus:ring-4 focus:ring-brand-500/15 ${
         sizeClasses[size]
       } ${variantClasses[variant]} ${
-        disabled ? "cursor-not-allowed opacity-50" : ""
-      }`}
+        disabled ? "cursor-not-allowed opacity-60 active:scale-100" : ""
+      } ${className}`}
       onClick={onClick}
       disabled={disabled}
-      type="submit"
+      type={type}
     >
       {startIcon && <span className="flex items-center">{startIcon}</span>}
       {children}

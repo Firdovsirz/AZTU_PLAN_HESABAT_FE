@@ -69,6 +69,52 @@ export const createActivity = async (activity_type_name: string, fin_kod: string
     }
 };
 
+export const getAllActivities = async (fin_kod: string, token: string | null) => {
+    try {
+        const response = await apiClient.get(`/api/activities/${fin_kod}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.data.statusCode === 200) {
+            return response.data.activities as Activity[];
+        }
+        return [];
+    } catch {
+        return [];
+    }
+};
+
+export const updateActivity = async (
+    activity_code: number,
+    activity_name: string,
+    token: string | null
+) => {
+    try {
+        const response = await apiClient.put(
+            `/api/update/activity/${activity_code}/${activity_name}`,
+            {},
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        return response.data;
+    } catch (err: any) {
+        return err?.response?.data ?? { statusCode: 500, message: "error" };
+    }
+};
+
+export const deleteActivity = async (
+    activity_code: number,
+    token: string | null
+) => {
+    try {
+        const response = await apiClient.delete(
+            `/api/delete/activity/${activity_code}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        return response.data;
+    } catch (err: any) {
+        return err?.response?.data ?? { statusCode: 500, message: "error" };
+    }
+};
+
 export const getActivityByCode = async (activityTypeCode: number, token: string) => {
     try {
         const response = await apiClient.get(`/api/activity/${activityTypeCode}`, {

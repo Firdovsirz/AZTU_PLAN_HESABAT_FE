@@ -39,10 +39,10 @@ const Radio: React.FC<RadioProps> = ({
         disabled={disabled} // Disable input
       />
       <span
-        className={`flex h-5 w-5 items-center justify-center rounded-full border-[1.25px] ${
+        className={`flex h-5 w-5 items-center justify-center rounded-full border transition-all duration-200 ${
           checked
-            ? "border-brand-500 bg-brand-500"
-            : "bg-transparent border-gray-300 dark:border-gray-700"
+            ? "border-transparent bg-gradient-to-br from-brand-500 to-brand-600 shadow-md shadow-brand-500/30"
+            : "bg-white border-gray-300 hover:border-brand-400 dark:bg-gray-900/60 dark:border-gray-700"
         } ${
           disabled
             ? "bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-gray-700"
@@ -50,8 +50,8 @@ const Radio: React.FC<RadioProps> = ({
         }`}
       >
         <span
-          className={`h-2 w-2 rounded-full bg-white ${
-            checked ? "block" : "hidden"
+          className={`h-2 w-2 rounded-full bg-white transition-all duration-200 ${
+            checked ? "scale-100 opacity-100" : "scale-0 opacity-0"
           }`}
         ></span>
       </span>

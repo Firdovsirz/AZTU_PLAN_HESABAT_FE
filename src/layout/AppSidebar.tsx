@@ -7,7 +7,7 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import AddIcon from '@mui/icons-material/Add';
-import Logo from "../../public/logo-light.png";
+import Logo from "../../public/aztu_logo.webp";
 import { Link, useLocation } from "react-router";
 import PersonIcon from '@mui/icons-material/Person';
 import PeopleIcon from '@mui/icons-material/People';
@@ -15,6 +15,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import HistoryIcon from '@mui/icons-material/History';
 import { useSidebar } from "../context/SidebarContext";
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type NavItem = {
@@ -79,6 +80,16 @@ const getMainItems = (role: number): NavItem[] => {
       name: "Kafedram",
       icon: <SchoolIcon />,
       path: "/archive"
+    }, {
+      name: "Tənzimləmələr",
+      icon: <SettingsIcon />,
+      subItems: [
+        { name: "Aktivlik növləri", path: "/settings/activities" },
+        { name: "Fakültələr", path: "/settings/faculties" },
+        { name: "Kafedralar", path: "/settings/cafedras" },
+        { name: "Vəzifələr", path: "/settings/duties" },
+        { name: "Şöbələr", path: "/settings/departments" }
+      ]
     }
   ];
 
@@ -104,7 +115,8 @@ const getMainItems = (role: number): NavItem[] => {
         item.name !== "İcraya məsul şəxslər" &&
         item.name !== "Təsdiq gözləyən istifadəçilər" &&
         item.name !== "Bütün hesabatlar" &&
-        item.name !== "Kafedram"
+        item.name !== "Kafedram" &&
+        item.name !== "Tənzimləmələr"
       )
     });
   } else if (role === 3) {
@@ -118,7 +130,8 @@ const getMainItems = (role: number): NavItem[] => {
         item.name !== "Təhvil verilmiş hesabatlar" &&
         item.name !== "Bütün hesabatlar" &&
         item.name !== "İcraya məsul şəxslər" &&
-        item.name !== "Təsdiq gözləyən istifadəçilər"
+        item.name !== "Təsdiq gözləyən istifadəçilər" &&
+        item.name !== "Tənzimləmələr"
       )
     });
   } else if (role === 4) {
@@ -133,11 +146,12 @@ const getMainItems = (role: number): NavItem[] => {
         item.name !== "Bütün hesabatlar" &&
         item.name !== "İcraya məsul şəxslər" &&
         item.name !== "Təsdiq gözləyən istifadəçilər" &&
-        item.name !== "Kafedram"
+        item.name !== "Kafedram" &&
+        item.name !== "Tənzimləmələr"
       )
     });
   } else {
-    return navItems;
+    return navItems.filter(item => item.name !== "Tənzimləmələr");
   }
 }
 
@@ -235,7 +249,7 @@ const AppSidebar: React.FC = () => {
   };
 
   const renderMenuItems = (items: NavItem[], menuType: "main" | "others") => (
-    <ul className="flex flex-col gap-4">
+    <ul className="flex flex-col gap-1">
       {items.map((nav, index) => (
         <li key={nav.name}>
           {nav.subItems ? (
@@ -249,6 +263,9 @@ const AppSidebar: React.FC = () => {
                   : "lg:justify-start"
                 }`}
             >
+              {openSubmenu?.type === menuType && openSubmenu?.index === index && (
+                <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-gradient-to-b from-brand-500 to-brand-700" />
+              )}
               <span
                 className={`menu-item-icon-size  ${openSubmenu?.type === menuType && openSubmenu?.index === index
                   ? "menu-item-icon-active"
@@ -274,9 +291,13 @@ const AppSidebar: React.FC = () => {
             nav.path && (
               <Link
                 to={nav.path}
-                className={`menu-item group ${isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
-                  }`}
+                title={isCollapsed ? nav.name : undefined}
+                className={`menu-item group relative ${isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
+                  } ${isCollapsed ? "lg:justify-center" : ""}`}
               >
+                {isActive(nav.path) && (
+                  <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-gradient-to-b from-brand-500 to-brand-700" />
+                )}
                 <span
                   className={`menu-item-icon-size ${isActive(nav.path)
                     ? "menu-item-icon-active"
@@ -352,9 +373,11 @@ const AppSidebar: React.FC = () => {
   const role = roleFromStore ?? 0;
   const othersItems = getOthersItems(role);
 
+  const isCollapsed = !isExpanded && !isHovered && !isMobileOpen;
+
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white/95 backdrop-blur-xl dark:bg-gray-900/95 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 shadow-[0_8px_30px_rgba(16,24,40,0.04)]
         ${isExpanded || isMobileOpen
           ? "w-[290px]"
           : isHovered
@@ -367,69 +390,98 @@ const AppSidebar: React.FC = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className={`py-8 flex ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
-          }`}
+        className={`py-6 flex ${isCollapsed ? "lg:justify-center" : "justify-start"}`}
       >
-        <Link to="/home">
-          {isExpanded || isHovered || isMobileOpen ? (
-            <>
-              <img
-                className="dark:hidden"
-                src={Logo}
-                alt="Logo"
-                width={70}
-                height={40}
-              />
-              <img
-                className="hidden dark:block"
-                src={Logo}
-                alt="Logo"
-                width={70}
-                height={40}
-              />
-            </>
-          ) : (
+        <Link
+          to="/home"
+          className={`group flex items-center gap-3 ${isCollapsed ? "justify-center w-full" : ""}`}
+        >
+          <div className="relative flex items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800 p-2.5 shadow-lg shadow-brand-500/30 ring-1 ring-white/20 transition-transform duration-300 group-hover:scale-105">
             <img
               src={Logo}
-              alt="Logo"
-              width={32}
-              height={32}
+              alt="AzTU"
+              className="h-8 w-8 object-contain drop-shadow"
             />
+          </div>
+          {!isCollapsed && (
+            <div className="flex flex-col leading-tight">
+              <span className="text-[15px] font-semibold tracking-tight text-gray-900 dark:text-white">
+                AzTU
+              </span>
+              <span className="text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                Plan • Hesabat
+              </span>
+            </div>
           )}
         </Link>
       </div>
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+      <div className="relative flex-1 -mx-2 px-2 flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-6">
             <div>
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered
-                  ? "lg:justify-center"
-                  : "justify-start"
+              <div
+                className={`mb-3 flex items-center ${isCollapsed ? "lg:justify-center" : "justify-between"
                   }`}
               >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Menyu"
+                {isCollapsed ? (
+                  <HorizontaLDots className="size-5 text-gray-400" />
                 ) : (
-                  <HorizontaLDots className="size-6" />
+                  <>
+                    <h2 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">
+                      Menyu
+                    </h2>
+                    <span className="h-px flex-1 ml-3 bg-gradient-to-r from-gray-200 to-transparent dark:from-gray-700" />
+                  </>
                 )}
-              </h2>
+              </div>
               {renderMenuItems(getMainItems(role), "main")}
             </div>
             {role < 4 && othersItems.length > 0 && (
-              <div className="">
-                <h2
-                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
+              <div>
+                <div
+                  className={`mb-3 flex items-center ${isCollapsed ? "lg:justify-center" : "justify-between"
                     }`}
                 >
-                  {isExpanded || isHovered || isMobileOpen ? "Digər" : <HorizontaLDots />}
-                </h2>
+                  {isCollapsed ? (
+                    <HorizontaLDots className="size-5 text-gray-400" />
+                  ) : (
+                    <>
+                      <h2 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">
+                        Digər
+                      </h2>
+                      <span className="h-px flex-1 ml-3 bg-gradient-to-r from-gray-200 to-transparent dark:from-gray-700" />
+                    </>
+                  )}
+                </div>
                 {renderMenuItems(othersItems, "others")}
               </div>
             )}
           </div>
         </nav>
       </div>
+
+      {!isCollapsed && (
+        <div className="mt-auto mb-4 pt-4">
+          <div className="relative overflow-hidden rounded-2xl border border-brand-100 bg-gradient-to-br from-brand-50 via-white to-brand-50 p-4 dark:border-brand-500/20 dark:from-brand-500/[0.08] dark:via-gray-900 dark:to-brand-500/[0.04]">
+            <div className="pointer-events-none absolute -top-8 -right-8 h-24 w-24 rounded-full bg-brand-500/10 blur-2xl" />
+            <div className="relative flex items-start gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-md shadow-brand-500/30">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2l2.39 4.84L20 7.27l-4 3.9.94 5.51L12 14.5l-4.94 2.18.94-5.51-4-3.9 5.61-.43L12 2z" fill="currentColor" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[13px] font-semibold text-gray-900 dark:text-white">
+                  AzTU Sistemi
+                </p>
+                <p className="mt-0.5 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
+                  Plan və hesabatların idarə paneli
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 };
