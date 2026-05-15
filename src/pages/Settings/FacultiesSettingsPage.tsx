@@ -9,6 +9,7 @@ import AdminGuard from "./AdminGuard";
 import {
     Faculty,
     getFaculties,
+    createFaculty,
     updateFaculty,
     deleteFaculty
 } from "../../services/faculty/facultyService";
@@ -39,9 +40,22 @@ export default function FacultiesSettingsPage() {
                     title=""
                     rows={rows}
                     loading={loading}
-                    canCreate={false}
+                    canCreate
+                    codeLabel="Fakültə kodu"
                     nameLabel="Fakültə adı"
+                    createFields={[
+                        { key: "code", label: "Fakültə kodu" },
+                        { key: "name", label: "Fakültə adı" }
+                    ]}
                     onRefresh={load}
+                    onCreate={async (values) => {
+                        const code = (values.code ?? "").trim();
+                        const name = (values.name ?? "").trim();
+                        if (!code || !name) return { ok: false, message: "Kod və ad mütləqdir" };
+                        const res = await createFaculty(code, name, token);
+                        if (res?.statusCode === 201) return { ok: true };
+                        return { ok: false, message: res?.message ?? "Xəta" };
+                    }}
                     onUpdate={async (row, newName) => {
                         const res = await updateFaculty(String(row.code), newName, token);
                         if (res?.statusCode === 200) return { ok: true };

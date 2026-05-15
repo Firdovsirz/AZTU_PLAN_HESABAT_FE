@@ -32,7 +32,9 @@ export default function NewPlan() {
 
     useEffect(() => {
         getActivities(finKod ? finKod : "", token ? token : '')
-            .then(setActivities)
+            .then((result) => {
+                setActivities(Array.isArray(result) ? result : []);
+            })
             .finally(() => {
                 setLoading(false);
             });

@@ -34,6 +34,27 @@ export interface CafedraDetailsInterface {
     create_at: string;
 }
 
+export const createCafedra = async (
+    faculty_code: string,
+    cafedra_code: string,
+    cafedra_name: string,
+    token: string | null
+) => {
+    try {
+        const response = await apiClient.post(
+            `/api/add-cafedra`,
+            null,
+            {
+                params: { faculty_code, cafedra_code, cafedra_name },
+                headers: { Authorization: `Bearer ${token}` }
+            }
+        );
+        return response.data;
+    } catch (err: any) {
+        return err?.response?.data ?? { statusCode: 500, message: "error" };
+    }
+};
+
 export const updateCafedra = async (cafedra_code: string, cafedra_name: string, token: string | null) => {
     try {
         const response = await apiClient.put(

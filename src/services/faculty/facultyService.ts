@@ -20,6 +20,22 @@ export const getFaculties = async (token: string | null) => {
     }
 }
 
+export const createFaculty = async (faculty_code: string, faculty_name: string, token: string | null) => {
+    try {
+        const response = await apiClient.post(
+            `/api/add-faculty`,
+            null,
+            {
+                params: { faculty_code, faculty_name },
+                headers: { Authorization: `Bearer ${token}` }
+            }
+        );
+        return response.data;
+    } catch (err: any) {
+        return err?.response?.data ?? { statusCode: 500, message: "error" };
+    }
+};
+
 export const updateFaculty = async (faculty_code: string, faculty_name: string, token: string | null) => {
     try {
         const response = await apiClient.put(

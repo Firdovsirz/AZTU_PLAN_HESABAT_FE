@@ -9,6 +9,7 @@ import AdminGuard from "./AdminGuard";
 import {
     Cafedra,
     getAllCafedras,
+    createCafedra,
     updateCafedra,
     deleteCafedra
 } from "../../services/cafedra/cafedraService";
@@ -64,8 +65,22 @@ export default function CafedrasSettingsPage() {
                     title=""
                     rows={rows}
                     loading={loading}
-                    canCreate={false}
+                    canCreate={!!facultyCode}
+                    codeLabel="Kafedra kodu"
                     nameLabel="Kafedra adı"
+                    createFields={[
+                        { key: "code", label: "Kafedra kodu" },
+                        { key: "name", label: "Kafedra adı" }
+                    ]}
+                    onCreate={async (values) => {
+                        const code = (values.code ?? "").trim();
+                        const name = (values.name ?? "").trim();
+                        if (!facultyCode) return { ok: false, message: "Fakültə seçin" };
+                        if (!code || !name) return { ok: false, message: "Kod və ad mütləqdir" };
+                        const res = await createCafedra(facultyCode, code, name, token);
+                        if (res?.statusCode === 201) return { ok: true };
+                        return { ok: false, message: res?.message ?? "Xəta" };
+                    }}
                     onRefresh={load}
                     headerExtra={
                         <select
