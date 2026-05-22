@@ -34,6 +34,7 @@ export default function MyHesabatDetails() {
     const work_plan_serial_number = location.state ?? "";
     const [doneLoading, setDoneLoading] = useState(false);
     const [donePercentage, setDonePercentage] = useState("");
+    const [resultIndicator, setResultIndicator] = useState("");
     const role = useSelector((state: RootState) => state.auth.role);
     const [assessments, setAssessments] = useState<Assessment[]>([]);
     const [assessmentLoading, setAssessmentLoading] = useState(false);
@@ -91,6 +92,7 @@ export default function MyHesabatDetails() {
                     setActivityTypeNames(h.activity_type_names);
                     setDonePercentage(h.done_percentage);
                     setDocPath(h.activity_doc_path);
+                    setResultIndicator(h.result_indicator ?? "");
                     setSubmitted(h.submitted);
                 }
             })
@@ -188,6 +190,9 @@ export default function MyHesabatDetails() {
             }
             if (uploadedFile) {
                 formData.append("activity_doc_path", uploadedFile);
+            }
+            if (resultIndicator) {
+                formData.append("result_indicator", resultIndicator);
             }
 
             const res = await submitHesabat(formData, token ? token : '');
@@ -663,6 +668,18 @@ export default function MyHesabatDetails() {
                                         </span>
                                     ) : null}
                                 </div>
+                            </div>
+
+                            <div className="lg:col-span-2">
+                                <Label>Nəticə indikatoru</Label>
+                                <Input
+                                    type="text"
+                                    value={resultIndicator}
+                                    placeholder="Nəticə indikatorunu daxil edin"
+                                    onChange={(e) => setResultIndicator(e.target.value)}
+                                    disabled={submitted}
+                                    readOnly={submitted}
+                                />
                             </div>
 
                             <div>

@@ -27,6 +27,7 @@ export default function NewPlan() {
     const [workYear, setWorkYear] = useState(new Date().getFullYear());
     const [activityTypeCodes, setActivityTypeCodes] = useState<string[]>([]);
     const [workDesc, setWorkDesc] = useState("");
+    const [goal, setGoal] = useState("");
     const [deadline, setDeadline] = useState("");
     const [activityTypeName, setActivityTypeName] = useState("");
 
@@ -70,6 +71,9 @@ export default function NewPlan() {
             formData.append("activity_type_code", code);
         });
         formData.append("work_desc", workDesc);
+        if (goal) {
+            formData.append("goal", goal);
+        }
         formData.append("deadline", deadline);
 
         try {
@@ -242,6 +246,14 @@ export default function NewPlan() {
                     }}>
                         <Label htmlFor="input">İşin qısa təsviri</Label>
                         <TextArea rows={1} value={workDesc} onChange={(value) => { setWorkDesc(value) }} placeholder="İşin qısa təsviri" />
+                    </div>
+                </div>
+                <div className="flex justify-between items-center w-full mb-[20px]">
+                    <div style={{
+                        width: "100%"
+                    }}>
+                        <Label htmlFor="goal">Hədəf</Label>
+                        <TextArea rows={2} value={goal} onChange={(value) => { setGoal(value) }} placeholder="Planın hədəfi" />
                     </div>
                 </div>
                 <div className="w-full flex justify-center items-center">

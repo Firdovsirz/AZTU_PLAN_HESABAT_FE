@@ -7,6 +7,7 @@ export interface Plan {
     work_row_number: number;
     activity_type_names: string[];
     work_desc: string;
+    goal?: string | null;
     deadline: string;
 }
 
@@ -22,6 +23,7 @@ export interface AllPlan {
     activity_type_codes: string[];
     activity_type_names: string[];
     deadline: string;
+    goal?: string | null;
     created_at: string;
 }
 
@@ -29,6 +31,7 @@ export interface SinglePlan {
     work_plan_serial_number: string;
     work_year: number;
     work_desc: string;
+    goal?: string | null;
     deadline: string;
     activities: string[];
 }
@@ -118,6 +121,7 @@ export const getPlanBySerialNumber = async (work_plan_serial_number: string, tok
                 'work_plan_serial_number': response.data.work_plan_serial_number,
                 'work_year': response.data.work_year,
                 'work_desc': response.data.work_desc,
+                'goal': response.data.goal,
                 'deadline': response.data.deadline,
                 'activities': response.data.activities
             }

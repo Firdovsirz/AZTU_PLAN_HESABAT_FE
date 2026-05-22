@@ -15,6 +15,7 @@ export interface Hesabat {
     activity_type_codes: string[];
     duration_analysis: number;
     note: string;
+    result_indicator: string | null;
     submitted: boolean;
 }
 
@@ -36,6 +37,7 @@ export interface SubmittedHesabatsInterface {
     submitted_at: string;
     duration_analysis: number,
     note: string;
+    result_indicator: string | null;
     submitted: boolean;
     done: boolean;
 }
