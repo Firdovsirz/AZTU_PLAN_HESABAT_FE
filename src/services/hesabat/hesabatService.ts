@@ -5,6 +5,7 @@ export interface Hesabat {
     work_plan_serial_number: string;
     doc_name: string;
     work_desc: string;
+    goal?: string | null;
     activity_doc_path: File;
     done_percentage: number;
     assessment_score: number;

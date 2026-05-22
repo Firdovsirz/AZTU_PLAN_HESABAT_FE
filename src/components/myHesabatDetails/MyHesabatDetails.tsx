@@ -535,6 +535,17 @@ export default function MyHesabatDetails() {
                                 />
                             </div>
 
+                            <div className="lg:col-span-2">
+                                <Label>Hədəf</Label>
+                                <Input
+                                    type="text"
+                                    value={hesabat?.goal ?? ""}
+                                    placeholder={hesabat?.goal ? undefined : "Təyin edilməyib"}
+                                    disabled
+                                    readOnly
+                                />
+                            </div>
+
                             <div>
                                 <Label>Qiymətləndirmə</Label>
                                 <Select
