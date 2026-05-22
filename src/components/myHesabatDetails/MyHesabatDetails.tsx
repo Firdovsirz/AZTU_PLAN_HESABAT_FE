@@ -50,7 +50,7 @@ export default function MyHesabatDetails() {
     useEffect(() => {
         setLoading(true);
         getAssessments(token ? token : '')
-            .then(setAssessments);
+            .then((res) => setAssessments(Array.isArray(res) ? res : []));
         // getActivities(finKod ? finKod : "", token ? token : '')
         //     .then(setActivities)
         //     .finally(() => {
@@ -82,7 +82,7 @@ export default function MyHesabatDetails() {
         setLoading(true);
         getHesabatBySerialNumber(work_plan_serial_number, token ? token : '')
             .then((res) => {
-                if (res) {
+                if (res && typeof res === "object") {
                     const h = res;
                     console.log(h);
                     setHesabat(h);
@@ -487,7 +487,7 @@ export default function MyHesabatDetails() {
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Fəaliyyət növləri</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    {hesabat?.activity_type_names?.map((activity, index) => (
+                    {(Array.isArray(hesabat?.activity_type_names) ? hesabat?.activity_type_names : []).map((activity, index) => (
                         <span
                             key={index}
                             className="inline-flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-white/5 dark:text-gray-300 dark:ring-white/10"

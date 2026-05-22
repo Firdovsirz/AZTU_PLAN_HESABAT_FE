@@ -24,7 +24,7 @@ export default function NewPlan() {
 
     // form data
 
-    const [workYear, setWorkYear] = useState(2025);
+    const [workYear, setWorkYear] = useState(new Date().getFullYear());
     const [activityTypeCodes, setActivityTypeCodes] = useState<string[]>([]);
     const [workDesc, setWorkDesc] = useState("");
     const [deadline, setDeadline] = useState("");
