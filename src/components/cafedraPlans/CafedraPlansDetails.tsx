@@ -18,34 +18,74 @@ import {
     CafedraPlansHesabatsResponse,
     getCafedraPlansHesabats
 } from "../../services/cafedra/cafedraService";
+import {
+    DepartmentPlansHesabatsResponse,
+    getDepartmentPlansHesabats
+} from "../../services/department/departmentService";
+
+type UnitKind = "cafedra" | "department";
+
+interface UnifiedHeader {
+    kind: UnitKind;
+    code: string;
+    name: string;
+    faculty_code?: string;
+    faculty_name?: string | null;
+}
 
 export default function CafedraPlansDetails() {
-    const { cafedra_code } = useParams<{ cafedra_code: string }>();
+    const params = useParams<{ cafedra_code?: string; unit_type?: string; unit_code?: string }>();
     const navigate = useNavigate();
     const token = useSelector((state: RootState) => state.auth.token);
     const role = useSelector((state: RootState) => state.auth.role);
 
+    const unitKind: UnitKind = params.unit_type === "department" ? "department" : "cafedra";
+    const unitCode = params.unit_code || params.cafedra_code || "";
+
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
-    const [data, setData] = useState<CafedraPlansHesabatsResponse | null>(null);
+    const [header, setHeader] = useState<UnifiedHeader | null>(null);
+    const [items, setItems] = useState<CafedraPlanHesabatItem[]>([]);
     const [activityFilter, setActivityFilter] = useState<string>("");
     const [statusFilter, setStatusFilter] = useState<string>("");
     const [search, setSearch] = useState<string>("");
 
     useEffect(() => {
-        if (!cafedra_code || role !== 1) return;
+        if (!unitCode || role !== 1) return;
         let cancelled = false;
         setLoading(true);
         setNotFound(false);
-        getCafedraPlansHesabats(cafedra_code, token)
+        const fetcher = unitKind === "department"
+            ? getDepartmentPlansHesabats(unitCode, token)
+            : getCafedraPlansHesabats(unitCode, token);
+        fetcher
             .then((res) => {
                 if (cancelled) return;
                 if (res === "NOT FOUND") {
                     setNotFound(true);
+                    setHeader(null);
+                    setItems([]);
                 } else if (res === "ERROR") {
-                    setData(null);
+                    setHeader(null);
+                    setItems([]);
+                } else if (unitKind === "department") {
+                    const d = res as DepartmentPlansHesabatsResponse;
+                    setHeader({
+                        kind: "department",
+                        code: d.department_code,
+                        name: d.department_name
+                    });
+                    setItems(d.items as unknown as CafedraPlanHesabatItem[]);
                 } else {
-                    setData(res);
+                    const c = res as CafedraPlansHesabatsResponse;
+                    setHeader({
+                        kind: "cafedra",
+                        code: c.cafedra_code,
+                        name: c.cafedra_name,
+                        faculty_code: c.faculty_code,
+                        faculty_name: c.faculty_name
+                    });
+                    setItems(c.items);
                 }
             })
             .finally(() => {
@@ -54,23 +94,21 @@ export default function CafedraPlansDetails() {
         return () => {
             cancelled = true;
         };
-    }, [cafedra_code, token, role]);
+    }, [unitCode, unitKind, token, role]);
 
     const activityOptions = useMemo(() => {
-        if (!data) return [] as string[];
         const set = new Set<string>();
-        data.items.forEach((it) => {
+        items.forEach((it) => {
             it.activity_type_names.forEach((n) => {
                 if (n) set.add(n);
             });
         });
         return Array.from(set).sort();
-    }, [data]);
+    }, [items]);
 
     const filteredItems: CafedraPlanHesabatItem[] = useMemo(() => {
-        if (!data) return [];
         const q = search.trim().toLowerCase();
-        return data.items.filter((it) => {
+        return items.filter((it) => {
             if (activityFilter && !it.activity_type_names.includes(activityFilter)) return false;
             if (statusFilter === "submitted" && !it.is_submitted) return false;
             if (statusFilter === "pending" && it.is_submitted) return false;
@@ -84,7 +122,7 @@ export default function CafedraPlansDetails() {
                 (it.work_desc || "").toLowerCase().includes(q)
             );
         });
-    }, [data, activityFilter, statusFilter, search]);
+    }, [items, activityFilter, statusFilter, search]);
 
     if (role !== 1) {
         return (
@@ -115,7 +153,7 @@ export default function CafedraPlansDetails() {
         );
     }
 
-    if (!data) {
+    if (!header) {
         return (
             <div className="w-full flex justify-center items-center p-6 text-gray-600 dark:text-gray-300">
                 Məlumat yüklənmədi
@@ -127,11 +165,13 @@ export default function CafedraPlansDetails() {
         <div>
             <div className="mb-5 p-4 rounded-lg border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
                 <p className="text-gray-800 dark:text-gray-200 font-medium">
-                    Kafedra: {data.cafedra_name} ({data.cafedra_code})
+                    {header.kind === "department" ? "Struktur bölmə" : "Kafedra"}: {header.name} ({header.code})
                 </p>
-                <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-                    Fakültə: {data.faculty_name || "-"} ({data.faculty_code})
-                </p>
+                {header.kind === "cafedra" && (
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                        Fakültə: {header.faculty_name || "-"} ({header.faculty_code || "-"})
+                    </p>
+                )}
             </div>
 
             <div className="flex flex-col lg:flex-row gap-3 mb-5">

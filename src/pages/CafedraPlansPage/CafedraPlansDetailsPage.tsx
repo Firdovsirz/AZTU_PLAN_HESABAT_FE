@@ -10,9 +10,9 @@ export default function CafedraPlansDetailsPage() {
                 title="Plan Hesabat AzTU"
                 description="Azərbaycan Texniki Universiteti Plan Hesabat İnformasiya sistemi"
             />
-            <PageBreadcrumb pageTitle="Kafedranın planları və hesabatları" />
+            <PageBreadcrumb pageTitle="Bölmənin planları və hesabatları" />
             <div className="space-y-6">
-                <ComponentCard title="Kafedranın planları və hesabatları">
+                <ComponentCard title="Bölmənin planları və hesabatları">
                     <CafedraPlansDetails />
                 </ComponentCard>
             </div>

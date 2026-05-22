@@ -95,6 +95,7 @@ export default function App() {
             <Route path="/all-plans" element={<AllPlansPage />} />
             <Route path="/cafedra-plans" element={<CafedraPlansPage />} />
             <Route path="/cafedra-plans/:cafedra_code" element={<CafedraPlansDetailsPage />} />
+            <Route path="/cafedra-plans/:unit_type/:unit_code" element={<CafedraPlansDetailsPage />} />
             <Route path="/edit-plan" element={<EditPlanPage />} />
 
             {/* Hesabat */}
