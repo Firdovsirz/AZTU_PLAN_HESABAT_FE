@@ -18,6 +18,8 @@ import ArchivePage from "./pages/ArchivePage/ArchivePage";
 import EditPlanPage from "./pages/EditPlanPage/EditPlanPage";
 import AllUsersPage from "./pages/AllUsersPage/AllUsersPage";
 import AllPlansPage from "./pages/AllPlansPage/AllPlansPage";
+import CafedraPlansPage from "./pages/CafedraPlansPage/CafedraPlansPage";
+import CafedraPlansDetailsPage from "./pages/CafedraPlansPage/CafedraPlansDetailsPage";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import MyHesabatPage from "./pages/MyHesabatPage/MyHesabatPage";
 import NewPasswordPage from "./pages/AuthPages/NewPasswordPage";
@@ -91,6 +93,8 @@ export default function App() {
             <Route path="/new-plan" element={<NewPlanPage />} />
             <Route path="/my-plan" element={<MyPlanPage />} />
             <Route path="/all-plans" element={<AllPlansPage />} />
+            <Route path="/cafedra-plans" element={<CafedraPlansPage />} />
+            <Route path="/cafedra-plans/:cafedra_code" element={<CafedraPlansDetailsPage />} />
             <Route path="/edit-plan" element={<EditPlanPage />} />
 
             {/* Hesabat */}

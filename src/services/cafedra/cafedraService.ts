@@ -129,6 +129,54 @@ export const getCafDetails = async (cafedra_code: string, token: string): Promis
 };
 
 
+export interface CafedraPlanHesabatItem {
+    fin_kod: string;
+    name: string | null;
+    surname: string | null;
+    father_name: string | null;
+    work_plan_serial_number: string;
+    work_year: number;
+    work_row_number: number;
+    work_desc: string | null;
+    deadline: string | null;
+    created_at: string | null;
+    activity_type_codes: (string | number)[];
+    activity_type_names: (string | null)[];
+    is_submitted: boolean;
+    is_done: boolean;
+    admin_assessment: number | null;
+    ai_assessment: number | null;
+    done_percentage: string | null;
+}
+
+export interface CafedraPlansHesabatsResponse {
+    statusCode: number;
+    cafedra_code: string;
+    cafedra_name: string;
+    faculty_code: string;
+    faculty_name: string | null;
+    items: CafedraPlanHesabatItem[];
+}
+
+export const getCafedraPlansHesabats = async (
+    cafedra_code: string,
+    token: string | null
+): Promise<CafedraPlansHesabatsResponse | "NOT FOUND" | "ERROR"> => {
+    try {
+        const response = await apiClient.get(`/api/cafedra/${cafedra_code}/plans-hesabats`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.data.statusCode === 200) {
+            return response.data as CafedraPlansHesabatsResponse;
+        } else if (response.data.statusCode === 404) {
+            return "NOT FOUND";
+        }
+        return "ERROR";
+    } catch {
+        return "ERROR";
+    }
+};
+
 export const getCafUsers = async (cafedra_code: string, start: number, end: number, token: string): Promise<CafedraUser[] | string | { users: CafedraUser[], total_users: number }> => {
     try {
         const response = await apiClient.get(`/api/cafedra/${cafedra_code}/users/${start}/${end}`, {

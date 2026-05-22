@@ -69,6 +69,10 @@ const getMainItems = (role: number): NavItem[] => {
       icon: <ListIcon />,
       path: "/all-plans"
     }, {
+      name: "Kafedralar üzrə planlar",
+      icon: <SchoolIcon />,
+      path: "/cafedra-plans"
+    }, {
       name: "Təhvil verilmiş hesabatlar",
       icon: <ListIcon />,
       path: "/submitted-hesabats"
@@ -111,6 +115,7 @@ const getMainItems = (role: number): NavItem[] => {
         item.name !== "Arxiv" &&
         item.name !== "Bütün istifadəçilər" &&
         item.name !== "Bütün planlar" &&
+        item.name !== "Kafedralar üzrə planlar" &&
         item.name !== "Təhvil verilmiş hesabatlar" &&
         item.name !== "İcraya məsul şəxslər" &&
         item.name !== "Təsdiq gözləyən istifadəçilər" &&
@@ -127,6 +132,7 @@ const getMainItems = (role: number): NavItem[] => {
         item.name !== "Arxiv" &&
         item.name !== "Bütün istifadəçilər" &&
         item.name !== "Bütün planlar" &&
+        item.name !== "Kafedralar üzrə planlar" &&
         item.name !== "Təhvil verilmiş hesabatlar" &&
         item.name !== "Bütün hesabatlar" &&
         item.name !== "İcraya məsul şəxslər" &&
@@ -142,6 +148,7 @@ const getMainItems = (role: number): NavItem[] => {
         item.name !== "Arxiv" &&
         item.name !== "Bütün istifadəçilər" &&
         item.name !== "Bütün planlar" &&
+        item.name !== "Kafedralar üzrə planlar" &&
         item.name !== "Təhvil verilmiş hesabatlar" &&
         item.name !== "Bütün hesabatlar" &&
         item.name !== "İcraya məsul şəxslər" &&

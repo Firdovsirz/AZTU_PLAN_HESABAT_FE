@@ -71,11 +71,10 @@ export default function MyHesabatDetails() {
     // }, [activities]);
 
     const assessmentOptions = useMemo(() => {
-        const options = assessments.map((assessment) => ({
+        return assessments.map((assessment) => ({
             value: String(assessment.assessment_score),
             label: `${assessment.score_name} (${assessment.assessment_score})`
         }));
-        return options;
     }, [assessments]);
 
     useEffect(() => {
