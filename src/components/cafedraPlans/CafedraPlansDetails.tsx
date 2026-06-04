@@ -217,25 +217,22 @@ export default function CafedraPlansDetails() {
                             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                                 <TableRow>
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                        Ad, Soyad, Ata adı (FİN)
-                                    </TableCell>
-                                    <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                         Plan nömrəsi
                                     </TableCell>
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                         Fəaliyyət növləri
                                     </TableCell>
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                        İcra tarixi
+                                        Məqsəd
+                                    </TableCell>
+                                    <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                                        İl
                                     </TableCell>
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                         Status
                                     </TableCell>
                                     <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                        Plan
-                                    </TableCell>
-                                    <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                        Hesabat
+                                        Əməliyyatlar
                                     </TableCell>
                                 </TableRow>
                             </TableHeader>
@@ -244,9 +241,6 @@ export default function CafedraPlansDetails() {
                                     const names = it.activity_type_names.filter(Boolean) as string[];
                                     return (
                                         <TableRow key={it.work_plan_serial_number}>
-                                            <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                {it.name} {it.surname} {it.father_name} ({it.fin_kod})
-                                            </TableCell>
                                             <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                                 {it.work_plan_serial_number}
                                             </TableCell>
@@ -257,6 +251,9 @@ export default function CafedraPlansDetails() {
                                                         +{names.length - 1}
                                                     </span>
                                                 )}
+                                            </TableCell>
+                                            <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                {it.work_desc || "-"}
                                             </TableCell>
                                             <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                                 {it.work_year}
@@ -277,27 +274,29 @@ export default function CafedraPlansDetails() {
                                                 )}
                                             </TableCell>
                                             <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                <div
-                                                    onClick={() =>
-                                                        navigate("/my-plan-details", {
-                                                            state: it.work_plan_serial_number
-                                                        })
-                                                    }
-                                                    className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-yellow-200 dark:bg-yellow-400 cursor-pointer"
-                                                >
-                                                    <VisibilityIcon className="text-yellow-500 dark:text-yellow-700" />
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                                <div
-                                                    onClick={() =>
-                                                        navigate("/my-hesabat-details", {
-                                                            state: it.work_plan_serial_number
-                                                        })
-                                                    }
-                                                    className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-blue-600 dark:bg-blue-600 cursor-pointer"
-                                                >
-                                                    <ArrowOutwardIcon className="text-white dark:text-white" />
+                                                <div className="flex items-center gap-2">
+                                                    <div
+                                                        onClick={() =>
+                                                            navigate("/my-plan-details", {
+                                                                state: it.work_plan_serial_number
+                                                            })
+                                                        }
+                                                        title="Plan"
+                                                        className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-yellow-200 dark:bg-yellow-400 cursor-pointer"
+                                                    >
+                                                        <VisibilityIcon className="text-yellow-500 dark:text-yellow-700" />
+                                                    </div>
+                                                    <div
+                                                        onClick={() =>
+                                                            navigate("/my-hesabat-details", {
+                                                                state: it.work_plan_serial_number
+                                                            })
+                                                        }
+                                                        title="Hesabat"
+                                                        className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-blue-600 dark:bg-blue-600 cursor-pointer"
+                                                    >
+                                                        <ArrowOutwardIcon className="text-white dark:text-white" />
+                                                    </div>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
