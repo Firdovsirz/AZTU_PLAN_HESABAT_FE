@@ -32,6 +32,7 @@ import FacultyDetailsPage from "./pages/FacultyDetailsPage/FacultyDetailsPage";
 import CafedraDetailsPage from "./pages/CafedraDetailsPage/CafedraDetailsPage";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import MyHesabatDetailsPage from "./pages/MyHesabatDetailsPage/MyHesabatDetailsPage";
+import MyPlanDetailsPage from "./pages/MyPlanDetailsPage/MyPlanDetailsPage";
 import SubmittedHesabatsPage from "./pages/SubmittedHesabatsPage/SubmittedHesabatsPage";
 import ApproveWaitingUsersPage from "./pages/ApproveWaitingUsersPage/ApproveWaitingUsersPage";
 import ActivitiesSettingsPage from "./pages/Settings/ActivitiesSettingsPage";
@@ -92,6 +93,7 @@ export default function App() {
             {/* Plan */}
             <Route path="/new-plan" element={<NewPlanPage />} />
             <Route path="/my-plan" element={<MyPlanPage />} />
+            <Route path="/my-plan-details" element={<MyPlanDetailsPage />} />
             <Route path="/all-plans" element={<AllPlansPage />} />
             <Route path="/cafedra-plans" element={<CafedraPlansPage />} />
             <Route path="/cafedra-plans/:cafedra_code" element={<CafedraPlansDetailsPage />} />

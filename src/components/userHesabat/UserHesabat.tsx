@@ -7,6 +7,7 @@ import {
 } from "../ui/table";
 import Stack from '@mui/material/Stack';
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { RootState } from "../../redux/store";
 import Skeleton from '@mui/material/Skeleton';
@@ -19,6 +20,7 @@ interface UserPlanProps {
 }
 
 export default function UserHesabat({ finKod }: UserPlanProps) {
+    const navigate = useNavigate();
     const [end, setEnd] = useState(3);
     const [error, setError] = useState("");
     const [start, setStart] = useState(0);
@@ -224,7 +226,12 @@ export default function UserHesabat({ finKod }: UserPlanProps) {
                                             )}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                            <div className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-yellow-200 text-yellow-400 dark:bg-yellow-400 cursor-pointer">
+                                            <div
+                                                onClick={() =>
+                                                    navigate("/my-hesabat-details", { state: hesabat.work_plan_serial_number })
+                                                }
+                                                className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-yellow-200 text-yellow-400 dark:bg-yellow-400 cursor-pointer"
+                                            >
                                                 <VisibilityIcon className="text-yellow-500 dark:text-yellow-700" />
                                             </div>
                                         </TableCell>
