@@ -11,27 +11,15 @@ const translations = {
       signIn: "Sign In",
     },
     hero: {
-      badge: "AzTU Digital Platforms",
-      title: "Empowering Academic Planning, Reporting & Learning Outcomes",
+      badge: "AzTU Digital Platform",
+      title: "Empowering Academic Planning & Reporting",
       subtitle:
-        "Two integrated platforms supporting Azerbaijan Technical University in delivering transparent, structured and high-quality academic processes.",
+        "An integrated platform supporting Azerbaijan Technical University in delivering transparent, structured and high-quality academic planning and reporting processes.",
       cta: "Get Started",
       learnMore: "Learn more",
     },
-    clo: {
-      label: "Platform 01",
-      title: "CLO-PLO Platform",
-      description:
-        "The CLO-PLO Platform is a centralized digital solution designed to manage, review, and publish course-related information in a transparent and systematic manner. It enables institutions to align Course Learning Outcomes (CLOs) with Program Learning Outcomes (PLOs), monitor assessment methods and student workload, and support continuous academic quality improvement. The platform ensures accurate, updated, and easily accessible information for students, faculty, and stakeholders.",
-      points: [
-        "Align CLOs with PLOs across programs",
-        "Monitor assessment methods and student workload",
-        "Support continuous academic quality improvement",
-        "Provide updated information for students and faculty",
-      ],
-    },
     plan: {
-      label: "Platform 02",
+      label: "Platform",
       title: "Plan & Reporting Platform",
       description:
         "The Plan & Reporting Platform is a centralized digital system designed to support departments in preparing, managing, and monitoring annual action plans and institutional reports. The platform enables departments to document strategic objectives, track progress on planned activities, record achievements, and generate annual performance reports in a structured and transparent manner. It promotes accountability, continuous improvement, and effective communication by ensuring that planning and reporting processes are organized, accessible, and aligned with institutional goals.",
@@ -49,7 +37,7 @@ const translations = {
       items: [
         {
           title: "Centralized Management",
-          text: "All planning, reporting and outcome data in one secure place.",
+          text: "All planning and reporting data in one secure place.",
         },
         {
           title: "Transparent Workflows",
@@ -75,27 +63,15 @@ const translations = {
       signIn: "Daxil ol",
     },
     hero: {
-      badge: "AzTU Rəqəmsal Platformaları",
-      title: "Akademik Planlaşdırma, Hesabat və Tədris Nəticələrinin İdarə Edilməsi",
+      badge: "AzTU Rəqəmsal Platforması",
+      title: "Akademik Planlaşdırma və Hesabatın İdarə Edilməsi",
       subtitle:
-        "Azərbaycan Texniki Universitetində şəffaf, strukturlu və yüksək keyfiyyətli akademik prosesləri dəstəkləyən iki inteqrasiya olunmuş platforma.",
+        "Azərbaycan Texniki Universitetində şəffaf, strukturlu və yüksək keyfiyyətli akademik planlaşdırma və hesabat proseslərini dəstəkləyən inteqrasiya olunmuş platforma.",
       cta: "Başla",
       learnMore: "Ətraflı",
     },
-    clo: {
-      label: "Platforma 01",
-      title: "CLO-PLO Platforması",
-      description:
-        "CLO-PLO Platforması fənlərlə bağlı məlumatların şəffaf və sistemli şəkildə idarə edilməsi, nəzərdən keçirilməsi və dərc edilməsi üçün nəzərdə tutulmuş mərkəzləşdirilmiş rəqəmsal həlldir. Platforma təhsil müəssisələrinə Fənn Tədris Nəticələrini (CLO) Proqram Tədris Nəticələri (PLO) ilə uzlaşdırmağa, qiymətləndirmə metodlarını və tələbə iş yükünü izləməyə, eləcə də davamlı akademik keyfiyyət artımını dəstəkləməyə imkan verir. Platforma tələbələr, müəllimlər və maraqlı tərəflər üçün dəqiq, yenilənmiş və asanlıqla əldə edilə bilən məlumatları təmin edir.",
-      points: [
-        "CLO-ları proqramlar üzrə PLO-larla uzlaşdırın",
-        "Qiymətləndirmə metodlarını və tələbə iş yükünü izləyin",
-        "Davamlı akademik keyfiyyət artımını dəstəkləyin",
-        "Tələbə və müəllimlər üçün yenilənmiş məlumat təqdim edin",
-      ],
-    },
     plan: {
-      label: "Platforma 02",
+      label: "Platforma",
       title: "Plan və Hesabat Platforması",
       description:
         "Plan və Hesabat Platforması kafedraların illik fəaliyyət planlarının və institutional hesabatlarının hazırlanması, idarə olunması və monitorinqi üçün nəzərdə tutulmuş mərkəzləşdirilmiş rəqəmsal sistemdir. Platforma kafedralara strateji məqsədləri sənədləşdirməyə, planlaşdırılan fəaliyyətlərin icrasını izləməyə, nailiyyətləri qeyd etməyə və illik fəaliyyət hesabatlarını strukturlu və şəffaf şəkildə hazırlamağa imkan verir. Bu, planlaşdırma və hesabat proseslərinin nizamlı, əlçatan və müəssisənin strateji məqsədləri ilə uzlaşdırılmış olmasını təmin edərək hesabatlılığı, davamlı təkmilləşməni və effektiv kommunikasiyanı dəstəkləyir.",
@@ -113,7 +89,7 @@ const translations = {
       items: [
         {
           title: "Mərkəzləşdirilmiş İdarəetmə",
-          text: "Bütün planlaşdırma, hesabat və nəticə məlumatları bir təhlükəsiz mərkəzdə.",
+          text: "Bütün planlaşdırma və hesabat məlumatları bir təhlükəsiz mərkəzdə.",
         },
         {
           title: "Şəffaf İş Axını",
@@ -153,8 +129,8 @@ export default function LandingPage() {
   return (
     <>
       <PageMeta
-        title="AzTU | Plan, Hesabat və CLO-PLO Platformaları"
-        description="Azərbaycan Texniki Universiteti Plan, Hesabat və CLO-PLO platformaları haqqında məlumat."
+        title="AzTU | Plan və Hesabat Platforması"
+        description="Azərbaycan Texniki Universiteti Plan və Hesabat platforması haqqında məlumat."
       />
       <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-white">
         <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/80">
@@ -268,8 +244,8 @@ export default function LandingPage() {
 
           {/* Platforms */}
           <section id="platforms" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-            <div className="grid gap-8 lg:grid-cols-2">
-              {[t.clo, t.plan].map((p, idx) => (
+            <div className="grid gap-8">
+              {[t.plan].map((p, idx) => (
                 <div
                   key={p.title}
                   className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 transition-shadow hover:shadow-xl dark:border-gray-800 dark:bg-gray-900"
