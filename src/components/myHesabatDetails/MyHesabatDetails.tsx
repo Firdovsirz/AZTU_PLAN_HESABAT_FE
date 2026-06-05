@@ -13,6 +13,7 @@ import Button from "../ui/button/Button";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import Input from "../form/input/InputField";
+import apiClient from "../../util/apiClient";
 import { RootState } from "../../redux/store";
 import Skeleton from "@mui/material/Skeleton";
 import FileInput from "../form/input/FileInput";
@@ -47,6 +48,26 @@ export default function MyHesabatDetails() {
     const [, setActivityTypeNames] = useState<string | null>(null);
     const [updatableAssessment, setUpdatableAssessment] = useState<boolean>(false);
     const [newAdminAssessment, setNewAdminAssessment] = useState<number | null>(null);
+
+    // The document endpoint is auth-protected, so a plain <a href> download
+    // (which omits the Authorization header) would 401. Fetch it as an
+    // authenticated blob via apiClient and trigger the download client-side.
+    const handleDownloadDoc = async () => {
+        if (!docPath) return;
+        try {
+            const response = await apiClient.get(docPath, { responseType: "blob" });
+            const url = URL.createObjectURL(response.data as Blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = docName || docPath.split("/").pop() || "document";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        } catch {
+            Swal.fire({ icon: "error", title: "Sənəd yüklənə bilmədi." });
+        }
+    };
 
     useEffect(() => {
         setLoading(true);
@@ -588,14 +609,14 @@ export default function MyHesabatDetails() {
                                             >
                                                 <VisibilityIcon sx={{ fontSize: 18 }} />
                                             </Link>
-                                            <a
-                                                href={`${docPath}`}
-                                                download={docName}
+                                            <button
+                                                type="button"
+                                                onClick={handleDownloadDoc}
                                                 className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-b from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/25 ring-1 ring-inset ring-brand-400/40 transition-all hover:from-brand-600 hover:to-brand-700 hover:scale-105 active:scale-95"
                                                 title="Yüklə"
                                             >
                                                 <DownloadIcon sx={{ fontSize: 18 }} />
-                                            </a>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
