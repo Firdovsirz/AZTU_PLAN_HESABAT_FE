@@ -6,6 +6,7 @@ import AppLayout from "./layout/AppLayout";
 import type { JwtPayload } from "jwt-decode";
 import SignIn from "./pages/AuthPages/SignIn";
 import LandingPage from "./pages/Landing/LandingPage";
+import HowToUsePage from "./pages/Landing/HowToUsePage";
 import SignUp from "./pages/AuthPages/SignUp";
 import UserProfiles from "./pages/UserProfiles";
 import NotFound from "./pages/OtherPage/NotFound";
@@ -122,6 +123,7 @@ export default function App() {
 
           {/* Public Landing */}
           <Route path="/" element={isValid ? <Navigate to="/home" /> : <LandingPage />} />
+          <Route path="/how-to-use" element={<HowToUsePage />} />
 
           {/* Auth Layout */}
           <Route path="/signin" element={isValid ? <Navigate to="/home" /> : <SignIn />} />

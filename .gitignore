@@ -27,3 +27,8 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Unblurred "How to use" source screenshots (contain real FIN codes) — never ship.
+# Kept outside public/ so they're never served. Only the redacted images in
+# public/images/how-to-use/ are committed/served.
+/how-to-use-src/

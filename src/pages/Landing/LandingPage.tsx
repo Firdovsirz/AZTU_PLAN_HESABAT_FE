@@ -9,6 +9,7 @@ const translations = {
   en: {
     nav: {
       signIn: "Sign In",
+      howTo: "How to use?",
     },
     hero: {
       badge: "AzTU Digital Platform",
@@ -61,6 +62,7 @@ const translations = {
   az: {
     nav: {
       signIn: "Daxil ol",
+      howTo: "Necə istifadə etməli?",
     },
     hero: {
       badge: "AzTU Rəqəmsal Platforması",
@@ -152,6 +154,13 @@ export default function LandingPage() {
             </Link>
 
             <div className="flex items-center gap-2 sm:gap-3">
+              <Link
+                to="/how-to-use"
+                className="hidden rounded-full px-3 py-1 text-xs font-semibold text-gray-500 transition-colors hover:text-gray-700 md:inline-flex dark:text-gray-400 dark:hover:text-white"
+              >
+                {t.nav.howTo}
+              </Link>
+
               <div className="flex items-center rounded-full border border-gray-200 bg-white p-0.5 dark:border-gray-800 dark:bg-gray-900">
                 <button
                   onClick={() => setLang("az")}
