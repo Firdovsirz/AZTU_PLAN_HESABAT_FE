@@ -41,6 +41,8 @@ export default function MyHesabatDetails() {
     const [assessmentLoading, setAssessmentLoading] = useState(false);
     const token = useSelector((state: RootState) => state.auth.token);
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+    const [docInputMode, setDocInputMode] = useState<"file" | "url">("file");
+    const [docUrl, setDocUrl] = useState("");
     useSelector((state: RootState) => state.auth.fin_kod);
     const [adminAssessment, setAdminAssessment] = useState<number | null>(null);
     const [assessmentScore, setAssessmentScore] = useState<number | null>(null);
@@ -49,11 +51,19 @@ export default function MyHesabatDetails() {
     const [updatableAssessment, setUpdatableAssessment] = useState<boolean>(false);
     const [newAdminAssessment, setNewAdminAssessment] = useState<number | null>(null);
 
+    // A submitted document is either an uploaded file (served from our API) or
+    // an external URL the user pasted in. URLs are opened directly.
+    const isExternalDoc = (value: string) => /^https?:\/\//i.test(value);
+
     // The document endpoint is auth-protected, so a plain <a href> download
     // (which omits the Authorization header) would 401. Fetch it as an
     // authenticated blob via apiClient and trigger the download client-side.
     const handleDownloadDoc = async () => {
         if (!docPath) return;
+        if (isExternalDoc(docPath)) {
+            window.open(docPath, "_blank", "noopener,noreferrer");
+            return;
+        }
         try {
             const response = await apiClient.get(docPath, { responseType: "blob" });
             const url = URL.createObjectURL(response.data as Blob);
@@ -189,6 +199,26 @@ export default function MyHesabatDetails() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        const trimmedUrl = docUrl.trim();
+        if (docInputMode === "url" && !isExternalDoc(trimmedUrl)) {
+            Swal.fire({
+                icon: "error",
+                title: "Düzgün link daxil edin",
+                text: "Sənəd linki http:// və ya https:// ilə başlamalıdır.",
+                confirmButtonText: "OK"
+            });
+            return;
+        }
+        if (docInputMode === "file" && !uploadedFile) {
+            Swal.fire({
+                icon: "error",
+                title: "Sənəd əlavə edin",
+                text: "Fayl yükləyin və ya sənəd linki daxil edin.",
+                confirmButtonText: "OK"
+            });
+            return;
+        }
+
         const result = await Swal.fire({
             title: "Təsdiq",
             text: "Hesabatı təqdim etmək istədiyinizdən əminsiniz? Təqdim edildikdən sonra heç bir dəyişiklik etməyə icazə verilməyəcək!",
@@ -209,7 +239,9 @@ export default function MyHesabatDetails() {
             if (assessmentScore !== null) {
                 formData.append("assessment_score", assessmentScore.toString());
             }
-            if (uploadedFile) {
+            if (docInputMode === "url") {
+                formData.append("activity_doc_url", trimmedUrl);
+            } else if (uploadedFile) {
                 formData.append("activity_doc_path", uploadedFile);
             }
             if (resultIndicator) {
@@ -598,17 +630,31 @@ export default function MyHesabatDetails() {
                                             </span>
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-medium text-gray-900 dark:text-white">{docName || "Sənəd"}</p>
-                                                <p className="text-[11px] text-gray-500">Yüklənmiş hesabat sənədi</p>
+                                                <p className="text-[11px] text-gray-500">
+                                                    {isExternalDoc(docPath) ? "Hesabat sənədinin linki" : "Yüklənmiş hesabat sənədi"}
+                                                </p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <Link
-                                                to={`/doc/${docPath}`}
-                                                className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-warning-50 text-warning-600 ring-1 ring-inset ring-warning-200/70 transition-all hover:bg-warning-100 hover:scale-105 active:scale-95 dark:bg-warning-500/10 dark:text-warning-400 dark:ring-warning-500/20"
-                                                title="Baxış"
-                                            >
-                                                <VisibilityIcon sx={{ fontSize: 18 }} />
-                                            </Link>
+                                            {isExternalDoc(docPath) ? (
+                                                <a
+                                                    href={docPath}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-warning-50 text-warning-600 ring-1 ring-inset ring-warning-200/70 transition-all hover:bg-warning-100 hover:scale-105 active:scale-95 dark:bg-warning-500/10 dark:text-warning-400 dark:ring-warning-500/20"
+                                                    title="Baxış"
+                                                >
+                                                    <VisibilityIcon sx={{ fontSize: 18 }} />
+                                                </a>
+                                            ) : (
+                                                <Link
+                                                    to={`/doc/${docPath}`}
+                                                    className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-warning-50 text-warning-600 ring-1 ring-inset ring-warning-200/70 transition-all hover:bg-warning-100 hover:scale-105 active:scale-95 dark:bg-warning-500/10 dark:text-warning-400 dark:ring-warning-500/20"
+                                                    title="Baxış"
+                                                >
+                                                    <VisibilityIcon sx={{ fontSize: 18 }} />
+                                                </Link>
+                                            )}
                                             <button
                                                 type="button"
                                                 onClick={handleDownloadDoc}
@@ -622,8 +668,54 @@ export default function MyHesabatDetails() {
                                 </div>
                             ) : (
                                 <div className="lg:col-span-2">
-                                    <Label>Fayl yükləyin (Hesabatınızı əsaslandırmaq üçün)</Label>
-                                    <FileInput onChange={handleFileChange} />
+                                    <Label>Sənəd əlavə edin (Hesabatınızı əsaslandırmaq üçün)</Label>
+                                    <div className="mb-3 inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1 dark:border-gray-700 dark:bg-white/[0.03]">
+                                        <button
+                                            type="button"
+                                            onClick={() => setDocInputMode("file")}
+                                            className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
+                                                docInputMode === "file"
+                                                    ? "bg-white text-brand-600 shadow-sm dark:bg-gray-900 dark:text-brand-400"
+                                                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                            }`}
+                                        >
+                                            Fayl yüklə
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setDocInputMode("url")}
+                                            className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
+                                                docInputMode === "url"
+                                                    ? "bg-white text-brand-600 shadow-sm dark:bg-gray-900 dark:text-brand-400"
+                                                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                            }`}
+                                        >
+                                            Sənəd linki
+                                        </button>
+                                    </div>
+                                    {docInputMode === "file" ? (
+                                        <>
+                                            <FileInput
+                                                accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.txt,.rtf,.odt,.ods,.odp,.png,.jpg,.jpeg,.gif,.webp"
+                                                onChange={handleFileChange}
+                                            />
+                                            <p className="mt-1.5 text-[11px] text-gray-500">
+                                                PDF, Word, Excel, PowerPoint, mətn və şəkil faylları (maksimum 10 MB).
+                                            </p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Input
+                                                type="text"
+                                                value={docUrl}
+                                                placeholder="https://..."
+                                                onChange={(e) => setDocUrl(e.target.value)}
+                                            />
+                                            <p className="mt-1.5 text-[11px] text-gray-500">
+                                                Sənədin tam linkini daxil edin (Google Drive, OneDrive və s.).
+                                            </p>
+                                        </>
+                                    )}
                                 </div>
                             )}
 

@@ -98,18 +98,25 @@ export const getCafedrasByFaculty = async (
     faculty_code: string,
     token: string
 ): Promise<CafedraResponse | "NOT FOUND"> => {
-    const response = await apiClient.get(`/api/cafedras/${faculty_code}`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
+    try {
+        // A faculty with no cafedras returns HTTP 404, so accept all statuses
+        // here and translate them into "NOT FOUND" instead of letting axios
+        // throw — an unhandled rejection here breaks the whole page load.
+        const response = await apiClient.get(`/api/cafedras/${encodeURIComponent(faculty_code)}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            validateStatus: () => true
+        });
 
-    if (response.data.statusCode === 200) {
-        return {
-            cafedra_count: response.data.cafedra_count,
-            cafedras: response.data.cafedras,
-        };
-    } else {
+        if (response.data?.statusCode === 200) {
+            return {
+                cafedra_count: response.data.cafedra_count,
+                cafedras: response.data.cafedras,
+            };
+        }
+        return "NOT FOUND";
+    } catch {
         return "NOT FOUND";
     }
 };
