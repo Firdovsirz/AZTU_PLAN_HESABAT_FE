@@ -24,6 +24,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { submitHesabat } from "../../services/hesabat/hesabatService";
 import { getAssessments, Assessment } from "../../services/assessment/assessmentService";
+import CommentsView from "../comments/CommentsView";
 
 export default function MyHesabatDetails() {
     const location = useLocation();
@@ -827,6 +828,9 @@ export default function MyHesabatDetails() {
                     ) : null}
                 </div>
             </form>
+
+            <CommentsView targetType="hesabat" serial={hesabat?.work_plan_serial_number} />
+
             {role === 1 ? (
                 <div className="sticky bottom-4 z-10 mx-auto flex max-w-fit items-center gap-3 rounded-2xl border border-gray-200 bg-white/90 p-2 shadow-2xl shadow-gray-900/10 backdrop-blur dark:border-gray-700 dark:bg-gray-900/90">
                     <Button variant="outline" size="sm" disabled={assessmentLoading} onClick={handleAddAssessment}>

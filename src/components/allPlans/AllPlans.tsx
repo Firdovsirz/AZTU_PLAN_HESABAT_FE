@@ -14,12 +14,14 @@ import { RootState } from "../../redux/store";
 import Skeleton from '@mui/material/Skeleton';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import Pagination from '@mui/material/Pagination';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { AllPlan, getPlans } from "../../services/plan/plan";
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import AdminItemModal from "../admin/AdminItemModal";
+import CommentModal from "../admin/CommentModal";
 
 export default function AllPlans() {
     const navigate = useNavigate();
@@ -35,6 +37,7 @@ export default function AllPlans() {
     const token = useSelector((state: RootState) => state.auth.token);
     const finKod = useSelector((state: RootState) => state.auth.fin_kod);
     const [adminModal, setAdminModal] = useState<{ mode: "edit" | "delete"; serial: string } | null>(null);
+    const [commentModal, setCommentModal] = useState<{ serial: string; owner: string } | null>(null);
     const [toast, setToast] = useState("");
 
     useEffect(() => {
@@ -261,6 +264,14 @@ export default function AllPlans() {
                                                         >
                                                             <DeleteIcon sx={{ fontSize: 18 }} />
                                                         </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setCommentModal({ serial: plan.work_plan_serial_number, owner: plan.fin_kod })}
+                                                            className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-warning-50 text-warning-600 ring-1 ring-inset ring-warning-200/70 hover:bg-warning-100 dark:bg-warning-500/10 dark:text-warning-400 dark:ring-warning-500/20"
+                                                            title="Şərh"
+                                                        >
+                                                            <ChatBubbleOutlineIcon sx={{ fontSize: 18 }} />
+                                                        </button>
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
@@ -354,6 +365,20 @@ export default function AllPlans() {
                                 setPLanLength(0);
                             }
                         });
+                    }}
+                />
+            )}
+
+            {commentModal && (
+                <CommentModal
+                    isOpen={!!commentModal}
+                    onClose={() => setCommentModal(null)}
+                    targetType="plan"
+                    targetSerial={commentModal.serial}
+                    ownerFinKod={commentModal.owner}
+                    onSuccess={(msg) => {
+                        setToast(msg);
+                        setTimeout(() => setToast(""), 4000);
                     }}
                 />
             )}

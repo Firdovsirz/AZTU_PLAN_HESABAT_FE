@@ -6,6 +6,7 @@ import { RootState } from "../../redux/store";
 import Skeleton from "@mui/material/Skeleton";
 import Input from "../form/input/InputField";
 import { getPlanBySerialNumber } from "../../services/plan/plan";
+import CommentsView from "../comments/CommentsView";
 
 interface SinglePlanDetails {
     fin_kod: string;
@@ -151,6 +152,8 @@ export default function MyPlanDetails() {
                     </div>
                 </div>
             </div>
+
+            <CommentsView targetType="plan" serial={plan.work_plan_serial_number} />
         </div>
     );
 }

@@ -14,12 +14,14 @@ import { RootState } from "../../redux/store";
 import Skeleton from "@mui/material/Skeleton";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import Pagination from '@mui/material/Pagination';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { getSubmittedHesabats, SubmittedHesabatsInterface } from "../../services/hesabat/hesabatService";
 import AdminItemModal from "../admin/AdminItemModal";
+import CommentModal from "../admin/CommentModal";
 
 export default function SubmittedHesabats() {
     const navigate = useNavigate();
@@ -35,6 +37,7 @@ export default function SubmittedHesabats() {
     const finKod = useSelector((state: RootState) => state.auth.fin_kod);
     const [hesabats, setHesabats] = useState<SubmittedHesabatsInterface[] | undefined>([]);
     const [adminModal, setAdminModal] = useState<{ mode: "edit" | "delete"; serial: string } | null>(null);
+    const [commentModal, setCommentModal] = useState<{ serial: string; owner: string } | null>(null);
     const [toast, setToast] = useState("");
 
     const reload = () => {
@@ -409,6 +412,14 @@ export default function SubmittedHesabats() {
                                                         >
                                                             <DeleteIcon sx={{ fontSize: 18 }} />
                                                         </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setCommentModal({ serial: hesabat.plan_work_serial_number, owner: hesabat.fin_kod })}
+                                                            className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-warning-50 text-warning-600 ring-1 ring-inset ring-warning-200/70 hover:bg-warning-100 dark:bg-warning-500/10 dark:text-warning-400 dark:ring-warning-500/20"
+                                                            title="Şərh"
+                                                        >
+                                                            <ChatBubbleOutlineIcon sx={{ fontSize: 18 }} />
+                                                        </button>
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
@@ -494,6 +505,20 @@ export default function SubmittedHesabats() {
                         setToast(msg);
                         setTimeout(() => setToast(""), 4000);
                         reload();
+                    }}
+                />
+            )}
+
+            {commentModal && (
+                <CommentModal
+                    isOpen={!!commentModal}
+                    onClose={() => setCommentModal(null)}
+                    targetType="hesabat"
+                    targetSerial={commentModal.serial}
+                    ownerFinKod={commentModal.owner}
+                    onSuccess={(msg) => {
+                        setToast(msg);
+                        setTimeout(() => setToast(""), 4000);
                     }}
                 />
             )}
