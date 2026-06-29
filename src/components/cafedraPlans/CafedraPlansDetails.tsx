@@ -5,7 +5,9 @@ import { RootState } from "../../redux/store";
 import Skeleton from "@mui/material/Skeleton";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import CommentModal from "../admin/CommentModal";
 import {
     Table,
     TableBody,
@@ -58,6 +60,8 @@ export default function CafedraPlansDetails() {
     const [activityFilter, setActivityFilter] = useState<string>("");
     const [statusFilter, setStatusFilter] = useState<string>("");
     const [search, setSearch] = useState<string>("");
+    const [commentModal, setCommentModal] = useState<{ serial: string; owner: string } | null>(null);
+    const [toast, setToast] = useState<string>("");
 
     useEffect(() => {
         if (!unitCode || role !== 1) return;
@@ -182,6 +186,11 @@ export default function CafedraPlansDetails() {
 
     return (
         <div>
+            {toast && (
+                <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-700 dark:border-green-500/20 dark:bg-green-500/10 dark:text-green-300">
+                    {toast}
+                </div>
+            )}
             <div className="mb-5 p-4 rounded-lg border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
                 <p className="text-gray-800 dark:text-gray-200 font-medium">
                     {header.kind === "department" ? "Struktur bölmə" : header.kind === "faculty" ? "Fakültə" : "Kafedra"}: {header.name} ({header.code})
@@ -316,6 +325,19 @@ export default function CafedraPlansDetails() {
                                                     >
                                                         <ArrowOutwardIcon className="text-white dark:text-white" />
                                                     </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            setCommentModal({
+                                                                serial: it.work_plan_serial_number,
+                                                                owner: it.fin_kod
+                                                            })
+                                                        }
+                                                        title="Şərh"
+                                                        className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-warning-50 text-warning-600 ring-1 ring-inset ring-warning-200/70 hover:bg-warning-100 dark:bg-warning-500/10 dark:text-warning-400 dark:ring-warning-500/20"
+                                                    >
+                                                        <ChatBubbleOutlineIcon sx={{ fontSize: 18 }} />
+                                                    </button>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
@@ -325,6 +347,20 @@ export default function CafedraPlansDetails() {
                         </Table>
                     </div>
                 </div>
+            )}
+
+            {commentModal && (
+                <CommentModal
+                    isOpen={!!commentModal}
+                    onClose={() => setCommentModal(null)}
+                    targetType="plan"
+                    targetSerial={commentModal.serial}
+                    ownerFinKod={commentModal.owner}
+                    onSuccess={(msg) => {
+                        setToast(msg);
+                        setTimeout(() => setToast(""), 4000);
+                    }}
+                />
             )}
         </div>
     );

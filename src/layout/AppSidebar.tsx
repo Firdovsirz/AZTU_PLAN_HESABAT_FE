@@ -18,6 +18,7 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SendIcon from '@mui/icons-material/Send';
 import InboxIcon from '@mui/icons-material/Inbox';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type NavItem = {
@@ -95,6 +96,10 @@ const getMainItems = (role: number): NavItem[] => {
       icon: <InboxIcon />,
       path: "/requests"
     }, {
+      name: "Şərhlər",
+      icon: <ChatBubbleOutlineIcon />,
+      path: "/my-comments"
+    }, {
       name: "Tənzimləmələr",
       icon: <SettingsIcon />,
       subItems: [
@@ -116,7 +121,8 @@ const getMainItems = (role: number): NavItem[] => {
         item.name !== "Hesabatım" &&
         item.name !== "Kafedralarım" &&
         item.name !== "Kafedram" &&
-        item.name !== "Sorğularım"
+        item.name !== "Sorğularım" &&
+        item.name !== "Şərhlər"
       );
     });
   } else if (role === 2) {
@@ -174,7 +180,8 @@ const getMainItems = (role: number): NavItem[] => {
   } else {
     return navItems.filter(item =>
       item.name !== "Tənzimləmələr" &&
-      item.name !== "Sorğularım"
+      item.name !== "Sorğularım" &&
+      item.name !== "Şərhlər"
     );
   }
 }

@@ -49,6 +49,21 @@ export const getComments = async (
     }
 };
 
+// Current user: all comments addressed to them (any target), newest first.
+export const getMyComments = async (token: string | null): Promise<AppComment[]> => {
+    try {
+        const response = await apiClient.get("/api/my-comments", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.data?.statusCode === 200) {
+            return response.data.comments ?? [];
+        }
+        return [];
+    } catch {
+        return [];
+    }
+};
+
 // Admin: delete a comment.
 export const deleteComment = async (id: number, token: string | null) => {
     try {

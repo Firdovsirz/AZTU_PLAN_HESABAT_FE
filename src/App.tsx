@@ -45,6 +45,7 @@ import MyRequestsPage from "./pages/Requests/MyRequestsPage";
 import RequestsPage from "./pages/Requests/RequestsPage";
 import YouSaidWeDidPage from "./pages/Settings/YouSaidWeDidPage";
 import YouSaidWeDidPublicPage from "./pages/Landing/YouSaidWeDidPage";
+import MyCommentsPage from "./pages/Comments/MyCommentsPage";
 
 function isTokenValid(token: string | null): boolean {
   if (!token) return false;
@@ -119,6 +120,9 @@ export default function App() {
             {/* Requests */}
             <Route path="/my-requests" element={<MyRequestsPage />} />
             <Route path="/requests" element={<RequestsPage />} />
+
+            {/* Comments */}
+            <Route path="/my-comments" element={<MyCommentsPage />} />
 
             {/* Settings (admin) */}
             <Route path="/settings/activities" element={<ActivitiesSettingsPage />} />
