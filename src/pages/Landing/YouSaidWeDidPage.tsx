@@ -15,6 +15,7 @@ const translations: Record<
     youSaid: string;
     weDid: string;
     empty: string;
+    status: { in_progress: string; done: string };
     footer: { rights: string; institution: string };
   }
 > = {
@@ -35,6 +36,7 @@ const translations: Record<
     youSaid: "Siz dediniz",
     weDid: "Biz etdik",
     empty: "Hələ heç bir qeyd yoxdur.",
+    status: { in_progress: "İcradadır", done: "Tamamlandı" },
     footer: {
       rights: "Bütün hüquqlar qorunur.",
       institution: "Azərbaycan Texniki Universiteti",
@@ -56,6 +58,7 @@ const translations: Record<
     youSaid: "You said",
     weDid: "We did",
     empty: "No entries yet.",
+    status: { in_progress: "In progress", done: "Done" },
     footer: {
       rights: "All rights reserved.",
       institution: "Azerbaijan Technical University",
@@ -226,9 +229,20 @@ export default function YouSaidWeDidPublicPage() {
                       </p>
                     </div>
                     <div className="px-6 py-5">
-                      <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                        {t.weDid}
-                      </p>
+                      <div className="mb-1 flex items-center justify-between gap-2">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                          {t.weDid}
+                        </p>
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            item.status === "in_progress"
+                              ? "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"
+                              : "bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-300"
+                          }`}
+                        >
+                          {item.status === "in_progress" ? t.status.in_progress : t.status.done}
+                        </span>
+                      </div>
                       <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
                         {lang === "az" ? item.we_did_az : item.we_did_en}
                       </p>

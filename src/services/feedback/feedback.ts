@@ -1,11 +1,14 @@
 import apiClient from "../../util/apiClient";
 
+export type FeedbackStatus = "in_progress" | "done";
+
 export interface YouSaidWeDid {
     id: number;
     you_said_az: string;
     you_said_en: string;
     we_did_az: string;
     we_did_en: string;
+    status: FeedbackStatus;
     created_at: string | null;
     updated_at: string | null;
 }
@@ -15,6 +18,7 @@ export interface YouSaidWeDidPayload {
     you_said_en: string;
     we_did_az: string;
     we_did_en: string;
+    status: FeedbackStatus;
 }
 
 // Public: list all "you said / we did" entries (used on the landing page).

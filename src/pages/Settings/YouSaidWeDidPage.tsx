@@ -12,14 +12,26 @@ import { Modal } from "../../components/ui/modal";
 import AdminGuard from "./AdminGuard";
 import {
     YouSaidWeDid,
+    FeedbackStatus,
     getYouSaidWeDid,
     createYouSaidWeDid,
     updateYouSaidWeDid,
     deleteYouSaidWeDid,
 } from "../../services/feedback/feedback";
 
-const EMPTY = { you_said_az: "", you_said_en: "", we_did_az: "", we_did_en: "" };
+const EMPTY = {
+    you_said_az: "",
+    you_said_en: "",
+    we_did_az: "",
+    we_did_en: "",
+    status: "done" as FeedbackStatus,
+};
 type Form = typeof EMPTY;
+
+const STATUS_LABEL: Record<FeedbackStatus, string> = {
+    in_progress: "İcradadır",
+    done: "Tamamlandı",
+};
 
 function FieldGrid({
     value,
@@ -50,6 +62,17 @@ function FieldGrid({
                 <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">We did (EN)</label>
                 <textarea value={value.we_did_en} onChange={set("we_did_en")} rows={3} className={cls} />
             </div>
+            <div>
+                <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">Status</label>
+                <select
+                    value={value.status}
+                    onChange={(e) => onChange({ ...value, status: e.target.value as FeedbackStatus })}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="done">Tamamlandı</option>
+                    <option value="in_progress">İcradadır</option>
+                </select>
+            </div>
         </div>
     );
 }
@@ -62,6 +85,7 @@ const trimmed = (f: Form): Form => ({
     you_said_en: f.you_said_en.trim(),
     we_did_az: f.we_did_az.trim(),
     we_did_en: f.we_did_en.trim(),
+    status: f.status,
 });
 
 function YouSaidWeDidManager() {
@@ -97,6 +121,7 @@ function YouSaidWeDidManager() {
                 you_said_en: editRow.you_said_en,
                 we_did_az: editRow.we_did_az,
                 we_did_en: editRow.we_did_en,
+                status: editRow.status,
             });
             setModalError("");
         }
@@ -220,6 +245,17 @@ function YouSaidWeDidManager() {
                                     key={r.id}
                                     className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40 p-4"
                                 >
+                                    <div className="mb-3">
+                                        <span
+                                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                                r.status === "in_progress"
+                                                    ? "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300"
+                                                    : "bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-300"
+                                            }`}
+                                        >
+                                            {STATUS_LABEL[r.status] ?? r.status}
+                                        </span>
+                                    </div>
                                     <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                                         <Pair label="Siz dediniz" az={r.you_said_az} en={r.you_said_en} />
                                         <Pair label="Biz etdik" az={r.we_did_az} en={r.we_did_en} />

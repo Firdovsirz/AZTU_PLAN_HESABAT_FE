@@ -22,8 +22,12 @@ import {
     DepartmentPlansHesabatsResponse,
     getDepartmentPlansHesabats
 } from "../../services/department/departmentService";
+import {
+    FacultyPlansHesabatsResponse,
+    getFacultyPlansHesabats
+} from "../../services/faculty/facultyService";
 
-type UnitKind = "cafedra" | "department";
+type UnitKind = "cafedra" | "department" | "faculty";
 
 interface UnifiedHeader {
     kind: UnitKind;
@@ -39,7 +43,12 @@ export default function CafedraPlansDetails() {
     const token = useSelector((state: RootState) => state.auth.token);
     const role = useSelector((state: RootState) => state.auth.role);
 
-    const unitKind: UnitKind = params.unit_type === "department" ? "department" : "cafedra";
+    const unitKind: UnitKind =
+        params.unit_type === "department"
+            ? "department"
+            : params.unit_type === "faculty"
+            ? "faculty"
+            : "cafedra";
     const unitCode = params.unit_code || params.cafedra_code || "";
 
     const [loading, setLoading] = useState(true);
@@ -57,6 +66,8 @@ export default function CafedraPlansDetails() {
         setNotFound(false);
         const fetcher = unitKind === "department"
             ? getDepartmentPlansHesabats(unitCode, token)
+            : unitKind === "faculty"
+            ? getFacultyPlansHesabats(unitCode, token)
             : getCafedraPlansHesabats(unitCode, token);
         fetcher
             .then((res) => {
@@ -76,6 +87,14 @@ export default function CafedraPlansDetails() {
                         name: d.department_name
                     });
                     setItems(d.items as unknown as CafedraPlanHesabatItem[]);
+                } else if (unitKind === "faculty") {
+                    const f = res as FacultyPlansHesabatsResponse;
+                    setHeader({
+                        kind: "faculty",
+                        code: f.faculty_code,
+                        name: f.faculty_name
+                    });
+                    setItems(f.items as unknown as CafedraPlanHesabatItem[]);
                 } else {
                     const c = res as CafedraPlansHesabatsResponse;
                     setHeader({
@@ -148,7 +167,7 @@ export default function CafedraPlansDetails() {
     if (notFound) {
         return (
             <div className="w-full flex justify-center items-center p-6 text-gray-600 dark:text-gray-300">
-                Kafedra tapılmadı
+                {unitKind === "department" ? "Struktur bölmə tapılmadı" : unitKind === "faculty" ? "Fakültə tapılmadı" : "Kafedra tapılmadı"}
             </div>
         );
     }
@@ -165,7 +184,7 @@ export default function CafedraPlansDetails() {
         <div>
             <div className="mb-5 p-4 rounded-lg border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
                 <p className="text-gray-800 dark:text-gray-200 font-medium">
-                    {header.kind === "department" ? "Struktur bölmə" : "Kafedra"}: {header.name} ({header.code})
+                    {header.kind === "department" ? "Struktur bölmə" : header.kind === "faculty" ? "Fakültə" : "Kafedra"}: {header.name} ({header.code})
                 </p>
                 {header.kind === "cafedra" && (
                     <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">

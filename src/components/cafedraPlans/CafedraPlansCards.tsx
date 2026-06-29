@@ -6,12 +6,38 @@ import Skeleton from "@mui/material/Skeleton";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import SchoolIcon from "@mui/icons-material/School";
 import ApartmentIcon from "@mui/icons-material/Apartment";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { Faculty, getFaculties } from "../../services/faculty/facultyService";
 import { Cafedra, getCafedrasByFaculty } from "../../services/cafedra/cafedraService";
 import { Department, getDepartments } from "../../services/department/departmentService";
 
-type UnitKind = "cafedra" | "department";
+type UnitKind = "cafedra" | "department" | "faculty";
+
+// Per-kind card styling/labels (literal Tailwind classes so they aren't purged).
+const KIND_STYLE: Record<
+    UnitKind,
+    { card: string; hoverText: string; label: string; Icon: typeof SchoolIcon }
+> = {
+    cafedra: {
+        card: "bg-blue-600 border-blue-600 hover:bg-transparent hover:border-blue-600",
+        hoverText: "group-hover:text-blue-600",
+        label: "Kafedra",
+        Icon: SchoolIcon,
+    },
+    department: {
+        card: "bg-purple-600 border-purple-600 hover:bg-transparent hover:border-purple-600",
+        hoverText: "group-hover:text-purple-600",
+        label: "Struktur bölmə",
+        Icon: ApartmentIcon,
+    },
+    faculty: {
+        card: "bg-emerald-600 border-emerald-600 hover:bg-transparent hover:border-emerald-600",
+        hoverText: "group-hover:text-emerald-600",
+        label: "Fakültə",
+        Icon: AccountBalanceIcon,
+    },
+};
 
 interface UnitRow {
     kind: UnitKind;
@@ -68,8 +94,17 @@ export default function CafedraPlansCards() {
                     faculty_name: null
                 }));
 
+                // The faculty itself is a structure too (its own dekanat-level plans).
+                const facultyUnits: UnitRow[] = fac.map((f) => ({
+                    kind: "faculty",
+                    code: f.faculty_code,
+                    name: f.faculty_name,
+                    faculty_code: f.faculty_code,
+                    faculty_name: f.faculty_name
+                }));
+
                 if (cancelled) return;
-                setUnits([...cafedraResults.flat(), ...departmentUnits]);
+                setUnits([...facultyUnits, ...cafedraResults.flat(), ...departmentUnits]);
             } finally {
                 if (!cancelled) setLoading(false);
             }
@@ -84,7 +119,8 @@ export default function CafedraPlansCards() {
         return units.filter((u) => {
             if (kindFilter && u.kind !== kindFilter) return false;
             if (facultyFilter) {
-                if (u.kind !== "cafedra") return false;
+                // Keep the faculty itself + its cafedras (both carry faculty_code);
+                // departments (faculty_code null) are excluded.
                 if (u.faculty_code !== facultyFilter) return false;
             }
             if (!q) return true;
@@ -114,7 +150,7 @@ export default function CafedraPlansCards() {
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Kafedra/struktur ad və ya kodu üzrə axtarış"
+                    placeholder="Fakültə/kafedra/struktur ad və ya kodu üzrə axtarış"
                     className="w-full lg:w-1/3 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
                 />
                 <select
@@ -122,7 +158,8 @@ export default function CafedraPlansCards() {
                     onChange={(e) => setKindFilter(e.target.value as "" | UnitKind)}
                     className="w-full lg:w-1/3 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
                 >
-                    <option value="">Hamısı (kafedralar və struktur bölmələr)</option>
+                    <option value="">Hamısı (fakültələr, kafedralar və struktur bölmələr)</option>
+                    <option value="faculty">Yalnız fakültələr</option>
                     <option value="cafedra">Yalnız kafedralar</option>
                     <option value="department">Yalnız struktur bölmələr</option>
                 </select>
@@ -131,7 +168,7 @@ export default function CafedraPlansCards() {
                     onChange={(e) => setFacultyFilter(e.target.value)}
                     className="w-full lg:w-1/3 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
                 >
-                    <option value="">Bütün fakültələr (yalnız kafedralar üçün)</option>
+                    <option value="">Bütün fakültələr (fakültə + kafedraları)</option>
                     {faculties.map((f) => (
                         <option key={f.faculty_code} value={f.faculty_code}>
                             {f.faculty_name}
@@ -158,61 +195,34 @@ export default function CafedraPlansCards() {
             ) : (
                 <div className="flex flex-wrap -mx-2">
                     {filtered.map((u) => {
-                        const isDept = u.kind === "department";
+                        const s = KIND_STYLE[u.kind];
+                        const Icon = s.Icon;
                         return (
                             <div className="w-full sm:w-1/2 lg:w-1/3 px-2 mb-4" key={`${u.kind}-${u.code}`}>
                                 <Link
                                     to={`/cafedra-plans/${u.kind}/${u.code}`}
-                                    className={`group flex items-start justify-between p-4 rounded-lg border-2 cursor-pointer transition-colors duration-300 h-full ${
-                                        isDept
-                                            ? "bg-purple-600 border-purple-600 hover:bg-transparent hover:border-purple-600"
-                                            : "bg-blue-600 border-blue-600 hover:bg-transparent hover:border-blue-600"
-                                    }`}
+                                    className={`group flex items-start justify-between p-4 rounded-lg border-2 cursor-pointer transition-colors duration-300 h-full ${s.card}`}
                                 >
                                     <div className="flex flex-col">
                                         <div className="flex items-center gap-2 mb-2">
-                                            {isDept ? (
-                                                <ApartmentIcon
-                                                    className={`text-white ${
-                                                        isDept ? "group-hover:text-purple-600" : "group-hover:text-blue-600"
-                                                    }`}
-                                                />
-                                            ) : (
-                                                <SchoolIcon className="text-white group-hover:text-blue-600" />
-                                            )}
-                                            <p
-                                                className={`text-white text-lg break-words ${
-                                                    isDept ? "group-hover:text-purple-600" : "group-hover:text-blue-600"
-                                                }`}
-                                            >
+                                            <Icon className={`text-white ${s.hoverText}`} />
+                                            <p className={`text-white text-lg break-words ${s.hoverText}`}>
                                                 {u.name}
                                             </p>
                                         </div>
-                                        <p
-                                            className={`text-white/80 text-sm ${
-                                                isDept ? "group-hover:text-purple-600" : "group-hover:text-blue-600"
-                                            }`}
-                                        >
-                                            Növ: {isDept ? "Struktur bölmə" : "Kafedra"}
+                                        <p className={`text-white/80 text-sm ${s.hoverText}`}>
+                                            Növ: {s.label}
                                         </p>
-                                        <p
-                                            className={`text-white/80 text-sm ${
-                                                isDept ? "group-hover:text-purple-600" : "group-hover:text-blue-600"
-                                            }`}
-                                        >
+                                        <p className={`text-white/80 text-sm ${s.hoverText}`}>
                                             Kod: {u.code}
                                         </p>
-                                        {u.faculty_name && (
-                                            <p className="text-white/80 group-hover:text-blue-600 text-sm">
+                                        {u.kind === "cafedra" && u.faculty_name && (
+                                            <p className={`text-white/80 text-sm ${s.hoverText}`}>
                                                 Fakültə: {u.faculty_name}
                                             </p>
                                         )}
                                     </div>
-                                    <ArrowOutwardIcon
-                                        className={`text-white ${
-                                            isDept ? "group-hover:text-purple-600" : "group-hover:text-blue-600"
-                                        }`}
-                                    />
+                                    <ArrowOutwardIcon className={`text-white ${s.hoverText}`} />
                                 </Link>
                             </div>
                         );
