@@ -167,3 +167,46 @@ export const updatePlan = async (
         return "ERROR";
     }
 }
+
+// Editable scalar fields for a plan (used by both the request flow and the
+// admin direct-edit flow).
+export interface PlanEditChanges {
+    work_year?: number | string;
+    work_desc?: string;
+    goal?: string | null;
+    deadline?: string | null;
+}
+
+// Admin: directly edit a plan's scalar fields. The owner is notified server-side.
+export const adminEditPlan = async (
+    work_plan_serial_number: string,
+    changes: PlanEditChanges,
+    token: string | null
+) => {
+    try {
+        const response = await apiClient.patch(
+            `/api/plan/${work_plan_serial_number}/edit`,
+            { changes },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        return response.data;
+    } catch (err: any) {
+        return err?.response?.data ?? { statusCode: 500, message: "error" };
+    }
+};
+
+// Admin: directly delete a plan (and its hesabats). The owner is notified.
+export const adminDeletePlan = async (
+    work_plan_serial_number: string,
+    token: string | null
+) => {
+    try {
+        const response = await apiClient.delete(
+            `/api/plan/${work_plan_serial_number}/delete`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        return response.data;
+    } catch (err: any) {
+        return err?.response?.data ?? { statusCode: 500, message: "error" };
+    }
+};

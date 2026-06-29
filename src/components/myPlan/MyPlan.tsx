@@ -17,10 +17,13 @@ import { RootState } from "../../redux/store";
 import Skeleton from "@mui/material/Skeleton";
 import { useModal } from "../../hooks/useModal";
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import Pagination from '@mui/material/Pagination';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { getPlanByFinKod, Plan } from "../../services/plan/plan";
+import { RequestType } from "../../services/request/request";
+import RequestActionModal from "../requests/RequestActionModal";
 
 export default function MyPlan() {
     const [error, setError] = useState("");
@@ -36,6 +39,12 @@ export default function MyPlan() {
     const [planLength, setPLanLength] = useState<number | null>();
     const token = useSelector((state: RootState) => state.auth.token);
     const finKod = useSelector((state: RootState) => state.auth.fin_kod);
+    const role = useSelector((state: RootState) => state.auth.role);
+    // Roles 2 (dekan), 3 (kafedra müdiri) and 4 (müəllim) request edits/deletes
+    // for admin approval instead of changing their plans directly.
+    const isRequester = role === 2 || role === 3 || role === 4;
+    const [requestModal, setRequestModal] = useState<{ mode: RequestType; plan: Plan } | null>(null);
+    const [toast, setToast] = useState("");
 
     useEffect(() => {
         if (finKod) {
@@ -72,7 +81,7 @@ export default function MyPlan() {
         "Sıra",
         "İcra tarixi",
         "Baxış",
-        "Redaktə",
+        "Əməliyyatlar",
     ];
 
     if (loading) {
@@ -121,6 +130,11 @@ export default function MyPlan() {
 
     return (
         <>
+            {toast && (
+                <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-700 dark:border-green-500/20 dark:bg-green-500/10 dark:text-green-300">
+                    {toast}
+                </div>
+            )}
             <TableShell>
                 <Table>
                     <TableHeader>
@@ -185,16 +199,39 @@ export default function MyPlan() {
                                         </button>
                                     </TableCell>
                                     <TableCell>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                navigate("/edit-plan", { state: { work_plan_serial_number: plan.work_plan_serial_number } });
-                                            }}
-                                            className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-600 ring-1 ring-inset ring-brand-200/70 transition-all hover:bg-brand-100 hover:scale-105 active:scale-95 dark:bg-brand-500/10 dark:text-brand-400 dark:ring-brand-500/20"
-                                            title="Redaktə et"
-                                        >
-                                            <EditIcon sx={{ fontSize: 18 }} />
-                                        </button>
+                                        <div className="flex items-center gap-2">
+                                            {isRequester ? (
+                                                <>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setRequestModal({ mode: "edit", plan })}
+                                                        className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-600 ring-1 ring-inset ring-brand-200/70 transition-all hover:bg-brand-100 hover:scale-105 active:scale-95 dark:bg-brand-500/10 dark:text-brand-400 dark:ring-brand-500/20"
+                                                        title="Redaktə sorğusu"
+                                                    >
+                                                        <EditIcon sx={{ fontSize: 18 }} />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setRequestModal({ mode: "delete", plan })}
+                                                        className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-error-50 text-error-600 ring-1 ring-inset ring-error-200/70 transition-all hover:bg-error-100 hover:scale-105 active:scale-95 dark:bg-error-500/10 dark:text-error-400 dark:ring-error-500/20"
+                                                        title="Silmə sorğusu"
+                                                    >
+                                                        <DeleteIcon sx={{ fontSize: 18 }} />
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        navigate("/edit-plan", { state: { work_plan_serial_number: plan.work_plan_serial_number } });
+                                                    }}
+                                                    className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-600 ring-1 ring-inset ring-brand-200/70 transition-all hover:bg-brand-100 hover:scale-105 active:scale-95 dark:bg-brand-500/10 dark:text-brand-400 dark:ring-brand-500/20"
+                                                    title="Redaktə et"
+                                                >
+                                                    <EditIcon sx={{ fontSize: 18 }} />
+                                                </button>
+                                            )}
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             )
@@ -329,6 +366,30 @@ export default function MyPlan() {
                     </form>
                 </div>
             </Modal>
+
+            {requestModal && (
+                <RequestActionModal
+                    isOpen={!!requestModal}
+                    onClose={() => setRequestModal(null)}
+                    targetType="plan"
+                    targetSerial={requestModal.plan.work_plan_serial_number}
+                    mode={requestModal.mode}
+                    currentValues={
+                        requestModal.mode === "edit"
+                            ? {
+                                  work_year: requestModal.plan.work_year,
+                                  work_desc: requestModal.plan.work_desc,
+                                  goal: requestModal.plan.goal,
+                                  deadline: requestModal.plan.deadline,
+                              }
+                            : undefined
+                    }
+                    onSuccess={() => {
+                        setToast("Sorğunuz admin-ə göndərildi");
+                        setTimeout(() => setToast(""), 4000);
+                    }}
+                />
+            )}
         </>
     )
 }

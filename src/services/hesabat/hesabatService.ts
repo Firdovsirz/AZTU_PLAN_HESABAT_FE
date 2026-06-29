@@ -236,6 +236,48 @@ export const updateAssessment = async (assessment_data: UpdateAssessmentRequest,
     }
 }
 
+// Editable text fields for a hesabat (used by both the request flow and the
+// admin direct-edit flow).
+export interface HesabatEditChanges {
+    result_indicator?: string | null;
+    note?: string | null;
+    done_percentage?: string;
+}
+
+// Admin: directly edit a hesabat's text fields. The owner is notified server-side.
+export const adminEditHesabat = async (
+    work_plan_serial_number: string,
+    changes: HesabatEditChanges,
+    token: string | null
+) => {
+    try {
+        const response = await apiClient.patch(
+            `/api/hesabat/${work_plan_serial_number}/edit`,
+            { changes },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        return response.data;
+    } catch (err: any) {
+        return err?.response?.data ?? { statusCode: 500, message: "error" };
+    }
+};
+
+// Admin: directly delete a hesabat. The owner is notified server-side.
+export const deleteHesabat = async (
+    work_plan_serial_number: string,
+    token: string | null
+) => {
+    try {
+        const response = await apiClient.delete(
+            `/api/hesabat/${work_plan_serial_number}/delete`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        return response.data;
+    } catch (err: any) {
+        return err?.response?.data ?? { statusCode: 500, message: "error" };
+    }
+};
+
 // Get archive
 
 export const getArchive = async (start: number, end: number, token: string) => {

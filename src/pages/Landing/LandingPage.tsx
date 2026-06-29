@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import PageMeta from "../../components/common/PageMeta";
+import { YouSaidWeDid, getYouSaidWeDid } from "../../services/feedback/feedback";
 
 type Lang = "az" | "en";
 
@@ -53,6 +54,12 @@ const translations = {
           text: "Stakeholders get accurate and up-to-date information when needed.",
         },
       ],
+    },
+    youSaidWeDid: {
+      title: "You Said, We Did",
+      subtitle: "How your feedback shapes our continuous improvements.",
+      youSaid: "You said",
+      weDid: "We did",
     },
     footer: {
       rights: "All rights reserved.",
@@ -107,6 +114,12 @@ const translations = {
         },
       ],
     },
+    youSaidWeDid: {
+      title: "Siz dediniz, Biz etdik",
+      subtitle: "Rəyləriniz davamlı təkmilləşmələrimizi necə formalaşdırır.",
+      youSaid: "Siz dediniz",
+      weDid: "Biz etdik",
+    },
     footer: {
       rights: "Bütün hüquqlar qorunur.",
       institution: "Azərbaycan Texniki Universiteti",
@@ -121,10 +134,16 @@ export default function LandingPage() {
     return stored === "en" || stored === "az" ? stored : "az";
   });
 
+  const [feedback, setFeedback] = useState<YouSaidWeDid[]>([]);
+
   useEffect(() => {
     localStorage.setItem("landing-lang", lang);
     document.documentElement.lang = lang;
   }, [lang]);
+
+  useEffect(() => {
+    getYouSaidWeDid().then(setFeedback);
+  }, []);
 
   const t = translations[lang];
 
@@ -343,6 +362,45 @@ export default function LandingPage() {
               </div>
             </div>
           </section>
+
+          {/* You Said, We Did */}
+          {feedback.length > 0 && (
+            <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+              <div className="mx-auto max-w-2xl text-center">
+                <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl dark:text-white">
+                  {t.youSaidWeDid.title}
+                </h2>
+                <p className="mt-4 text-base text-gray-600 dark:text-gray-400">
+                  {t.youSaidWeDid.subtitle}
+                </p>
+              </div>
+              <div className="mt-12 grid gap-6 md:grid-cols-2">
+                {feedback.map((item) => (
+                  <div
+                    key={item.id}
+                    className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+                  >
+                    <div className="border-b border-gray-100 bg-brand-500/5 px-6 py-5 dark:border-gray-800">
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-400">
+                        {t.youSaidWeDid.youSaid}
+                      </p>
+                      <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
+                        {item.you_said}
+                      </p>
+                    </div>
+                    <div className="px-6 py-5">
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                        {t.youSaidWeDid.weDid}
+                      </p>
+                      <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
+                        {item.we_did}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </main>
 
         <footer className="border-t border-gray-200 dark:border-gray-800">

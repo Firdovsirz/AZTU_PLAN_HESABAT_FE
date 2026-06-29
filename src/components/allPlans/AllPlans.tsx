@@ -12,11 +12,14 @@ import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { RootState } from "../../redux/store";
 import Skeleton from '@mui/material/Skeleton';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import Pagination from '@mui/material/Pagination';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { AllPlan, getPlans } from "../../services/plan/plan";
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import AdminItemModal from "../admin/AdminItemModal";
 
 export default function AllPlans() {
     const navigate = useNavigate();
@@ -31,6 +34,8 @@ export default function AllPlans() {
     const role = useSelector((state: RootState) => state.auth.role);
     const token = useSelector((state: RootState) => state.auth.token);
     const finKod = useSelector((state: RootState) => state.auth.fin_kod);
+    const [adminModal, setAdminModal] = useState<{ mode: "edit" | "delete"; serial: string } | null>(null);
+    const [toast, setToast] = useState("");
 
     useEffect(() => {
         setLoading(true);
@@ -72,6 +77,7 @@ export default function AllPlans() {
                                 <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Status</TableCell>
                                 <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Baxış</TableCell>
                                 <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Qiymətləndir</TableCell>
+                                <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Əməliyyatlar</TableCell>
                             </TableRow>
                         </TableHeader>
                         <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
@@ -101,6 +107,9 @@ export default function AllPlans() {
                                     <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                         <Skeleton variant="circular" width={28} height={28} />
                                     </TableCell>
+                                    <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                        <Skeleton variant="circular" width={28} height={28} />
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -120,8 +129,13 @@ export default function AllPlans() {
 
     return (
         <>
-            {role === 1 ? (
+            {role === 0 || role === 1 ? (
                 <>
+                    {toast && (
+                        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-700 dark:border-green-500/20 dark:bg-green-500/10 dark:text-green-300">
+                            {toast}
+                        </div>
+                    )}
                     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
                         <div className="max-w-full overflow-x-auto">
                             <Table>
@@ -176,6 +190,12 @@ export default function AllPlans() {
                                         >
                                             Hesabat
                                         </TableCell>
+                                        <TableCell
+                                            isHeader
+                                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                                        >
+                                            Əməliyyatlar
+                                        </TableCell>
                                     </TableRow>
                                 </TableHeader>
                                 {/* Table Body */}
@@ -221,6 +241,26 @@ export default function AllPlans() {
                                                         navigate("/my-hesabat-details", { state: plan.work_plan_serial_number })
                                                     }} className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-blue-600 dark:bg-blue-600 cursor-pointer">
                                                         <ArrowOutwardIcon className="text-white dark:text-white" />
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setAdminModal({ mode: "edit", serial: plan.work_plan_serial_number })}
+                                                            className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-brand-50 text-brand-600 ring-1 ring-inset ring-brand-200/70 hover:bg-brand-100 dark:bg-brand-500/10 dark:text-brand-400 dark:ring-brand-500/20"
+                                                            title="Redaktə et"
+                                                        >
+                                                            <EditIcon sx={{ fontSize: 18 }} />
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setAdminModal({ mode: "delete", serial: plan.work_plan_serial_number })}
+                                                            className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-error-50 text-error-600 ring-1 ring-inset ring-error-200/70 hover:bg-error-100 dark:bg-error-500/10 dark:text-error-400 dark:ring-error-500/20"
+                                                            title="Sil"
+                                                        >
+                                                            <DeleteIcon sx={{ fontSize: 18 }} />
+                                                        </button>
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
@@ -293,6 +333,29 @@ export default function AllPlans() {
                         Əsas səhifəyə qayıt
                     </Link>
                 </div>
+            )}
+
+            {adminModal && (
+                <AdminItemModal
+                    isOpen={!!adminModal}
+                    onClose={() => setAdminModal(null)}
+                    targetType="plan"
+                    targetSerial={adminModal.serial}
+                    mode={adminModal.mode}
+                    onSuccess={(msg) => {
+                        setToast(msg);
+                        setTimeout(() => setToast(""), 4000);
+                        getPlans(start, end, token ? token : "").then((res) => {
+                            if (typeof res !== "string" && Array.isArray(res.plans)) {
+                                setPlans(res.plans);
+                                setPLanLength(res.total_plans);
+                            } else if (res === "NO CONTENT") {
+                                setPlans([]);
+                                setPLanLength(0);
+                            }
+                        });
+                    }}
+                />
             )}
         </>
     )

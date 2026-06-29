@@ -11,9 +11,13 @@ import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { RootState } from "../../redux/store";
 import Skeleton from "@mui/material/Skeleton";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import Pagination from '@mui/material/Pagination';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { getHesabatByFinKod, Hesabat } from "../../services/hesabat/hesabatService";
+import { RequestType } from "../../services/request/request";
+import RequestActionModal from "../requests/RequestActionModal";
 
 export default function MyHesabat() {
     const navigate = useNavigate();
@@ -26,7 +30,12 @@ export default function MyHesabat() {
     const token = useSelector((state: RootState) => state.auth.token);
     const [hesabats, setHesabats] = useState<Hesabat[] | undefined>([]);
     const finKod = useSelector((state: RootState) => state.auth.fin_kod);
+    const role = useSelector((state: RootState) => state.auth.role);
     const [hesabatLength, setHesabatLength] = useState<number | null>(null);
+    // Roles 2/3/4 request edits/deletes for admin approval.
+    const isRequester = role === 2 || role === 3 || role === 4;
+    const [requestModal, setRequestModal] = useState<{ mode: RequestType; hesabat: Hesabat } | null>(null);
+    const [toast, setToast] = useState("");
 
     useEffect(() => {
         if (finKod) {
@@ -142,6 +151,11 @@ export default function MyHesabat() {
 
     return (
         <>
+            {toast && (
+                <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-700 dark:border-green-500/20 dark:bg-green-500/10 dark:text-green-300">
+                    {toast}
+                </div>
+            )}
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
                 <div className="max-w-full overflow-x-auto">
                     <Table>
@@ -182,7 +196,7 @@ export default function MyHesabat() {
                                     isHeader
                                     className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                                 >
-                                    Baxış
+                                    Əməliyyatlar
                                 </TableCell>
                             </TableRow>
                         </TableHeader>
@@ -234,10 +248,32 @@ export default function MyHesabat() {
                                             )}
                                         </TableCell>
                                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                                            <div onClick={() => {
-                                                navigate("/my-hesabat-details", { state: hesabat.work_plan_serial_number })
-                                            }} className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-yellow-200 text-yellow-400 dark:bg-yellow-400 cursor-pointer">
-                                                <VisibilityIcon className="text-yellow-500 dark:text-yellow-700" />
+                                            <div className="flex items-center gap-2">
+                                                <div onClick={() => {
+                                                    navigate("/my-hesabat-details", { state: hesabat.work_plan_serial_number })
+                                                }} className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-yellow-200 text-yellow-400 dark:bg-yellow-400 cursor-pointer">
+                                                    <VisibilityIcon className="text-yellow-500 dark:text-yellow-700" />
+                                                </div>
+                                                {isRequester && (
+                                                    <>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setRequestModal({ mode: "edit", hesabat })}
+                                                            className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-brand-50 text-brand-600 ring-1 ring-inset ring-brand-200/70 hover:bg-brand-100 dark:bg-brand-500/10 dark:text-brand-400 dark:ring-brand-500/20"
+                                                            title="Redaktə sorğusu"
+                                                        >
+                                                            <EditIcon sx={{ fontSize: 18 }} />
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setRequestModal({ mode: "delete", hesabat })}
+                                                            className="inline-flex items-center justify-center w-10 h-10 rounded-[5px] bg-error-50 text-error-600 ring-1 ring-inset ring-error-200/70 hover:bg-error-100 dark:bg-error-500/10 dark:text-error-400 dark:ring-error-500/20"
+                                                            title="Silmə sorğusu"
+                                                        >
+                                                            <DeleteIcon sx={{ fontSize: 18 }} />
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -297,6 +333,29 @@ export default function MyHesabat() {
                     />
                 </Stack>
             </div>
+
+            {requestModal && (
+                <RequestActionModal
+                    isOpen={!!requestModal}
+                    onClose={() => setRequestModal(null)}
+                    targetType="hesabat"
+                    targetSerial={requestModal.hesabat.work_plan_serial_number}
+                    mode={requestModal.mode}
+                    currentValues={
+                        requestModal.mode === "edit"
+                            ? {
+                                  result_indicator: requestModal.hesabat.result_indicator,
+                                  note: requestModal.hesabat.note,
+                                  done_percentage: requestModal.hesabat.done_percentage,
+                              }
+                            : undefined
+                    }
+                    onSuccess={() => {
+                        setToast("Sorğunuz admin-ə göndərildi");
+                        setTimeout(() => setToast(""), 4000);
+                    }}
+                />
+            )}
         </>
     )
 }

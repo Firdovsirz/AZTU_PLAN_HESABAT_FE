@@ -16,6 +16,8 @@ import HistoryIcon from '@mui/icons-material/History';
 import { useSidebar } from "../context/SidebarContext";
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import SettingsIcon from '@mui/icons-material/Settings';
+import SendIcon from '@mui/icons-material/Send';
+import InboxIcon from '@mui/icons-material/Inbox';
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type NavItem = {
@@ -85,6 +87,14 @@ const getMainItems = (role: number): NavItem[] => {
       icon: <SchoolIcon />,
       path: "/archive"
     }, {
+      name: "Sorğularım",
+      icon: <SendIcon />,
+      path: "/my-requests"
+    }, {
+      name: "Sorğular",
+      icon: <InboxIcon />,
+      path: "/requests"
+    }, {
       name: "Tənzimləmələr",
       icon: <SettingsIcon />,
       subItems: [
@@ -92,20 +102,21 @@ const getMainItems = (role: number): NavItem[] => {
         { name: "Fakültələr", path: "/settings/faculties" },
         { name: "Kafedralar", path: "/settings/cafedras" },
         { name: "Vəzifələr", path: "/settings/duties" },
-        { name: "Şöbələr", path: "/settings/departments" }
+        { name: "Şöbələr", path: "/settings/departments" },
+        { name: "Siz dediniz, Biz etdik", path: "/settings/you-said-we-did" }
       ]
     }
   ];
 
   if (role === 1) {
     return navItems.filter(item => {
-      console.log("role 1 filtering item:", item.name);
       return (
         item.name !== "Yeni Plan" &&
         item.name !== "Planım" &&
         item.name !== "Hesabatım" &&
         item.name !== "Kafedralarım" &&
-        item.name !== "Kafedram"
+        item.name !== "Kafedram" &&
+        item.name !== "Sorğularım"
       );
     });
   } else if (role === 2) {
@@ -121,6 +132,7 @@ const getMainItems = (role: number): NavItem[] => {
         item.name !== "Təsdiq gözləyən istifadəçilər" &&
         item.name !== "Bütün hesabatlar" &&
         item.name !== "Kafedram" &&
+        item.name !== "Sorğular" &&
         item.name !== "Tənzimləmələr"
       )
     });
@@ -137,6 +149,7 @@ const getMainItems = (role: number): NavItem[] => {
         item.name !== "Bütün hesabatlar" &&
         item.name !== "İcraya məsul şəxslər" &&
         item.name !== "Təsdiq gözləyən istifadəçilər" &&
+        item.name !== "Sorğular" &&
         item.name !== "Tənzimləmələr"
       )
     });
@@ -154,11 +167,15 @@ const getMainItems = (role: number): NavItem[] => {
         item.name !== "İcraya məsul şəxslər" &&
         item.name !== "Təsdiq gözləyən istifadəçilər" &&
         item.name !== "Kafedram" &&
+        item.name !== "Sorğular" &&
         item.name !== "Tənzimləmələr"
       )
     });
   } else {
-    return navItems.filter(item => item.name !== "Tənzimləmələr");
+    return navItems.filter(item =>
+      item.name !== "Tənzimləmələr" &&
+      item.name !== "Sorğularım"
+    );
   }
 }
 

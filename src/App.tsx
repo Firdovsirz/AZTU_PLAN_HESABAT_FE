@@ -41,6 +41,9 @@ import FacultiesSettingsPage from "./pages/Settings/FacultiesSettingsPage";
 import CafedrasSettingsPage from "./pages/Settings/CafedrasSettingsPage";
 import DutiesSettingsPage from "./pages/Settings/DutiesSettingsPage";
 import DepartmentsSettingsPage from "./pages/Settings/DepartmentsSettingsPage";
+import MyRequestsPage from "./pages/Requests/MyRequestsPage";
+import RequestsPage from "./pages/Requests/RequestsPage";
+import YouSaidWeDidPage from "./pages/Settings/YouSaidWeDidPage";
 
 function isTokenValid(token: string | null): boolean {
   if (!token) return false;
@@ -112,12 +115,17 @@ export default function App() {
             {/* Archive */}
             <Route path="/archive" element={<ArchivePage />} />
 
+            {/* Requests */}
+            <Route path="/my-requests" element={<MyRequestsPage />} />
+            <Route path="/requests" element={<RequestsPage />} />
+
             {/* Settings (admin) */}
             <Route path="/settings/activities" element={<ActivitiesSettingsPage />} />
             <Route path="/settings/faculties" element={<FacultiesSettingsPage />} />
             <Route path="/settings/cafedras" element={<CafedrasSettingsPage />} />
             <Route path="/settings/duties" element={<DutiesSettingsPage />} />
             <Route path="/settings/departments" element={<DepartmentsSettingsPage />} />
+            <Route path="/settings/you-said-we-did" element={<YouSaidWeDidPage />} />
 
           </Route>
 
