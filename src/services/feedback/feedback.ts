@@ -2,10 +2,19 @@ import apiClient from "../../util/apiClient";
 
 export interface YouSaidWeDid {
     id: number;
-    you_said: string;
-    we_did: string;
+    you_said_az: string;
+    you_said_en: string;
+    we_did_az: string;
+    we_did_en: string;
     created_at: string | null;
     updated_at: string | null;
+}
+
+export interface YouSaidWeDidPayload {
+    you_said_az: string;
+    you_said_en: string;
+    we_did_az: string;
+    we_did_en: string;
 }
 
 // Public: list all "you said / we did" entries (used on the landing page).
@@ -21,16 +30,15 @@ export const getYouSaidWeDid = async (): Promise<YouSaidWeDid[]> => {
     }
 };
 
-// Admin: create an entry.
+// Admin: create an entry (both languages required).
 export const createYouSaidWeDid = async (
-    you_said: string,
-    we_did: string,
+    payload: YouSaidWeDidPayload,
     token: string | null
 ) => {
     try {
         const response = await apiClient.post(
             "/api/you-said-we-did",
-            { you_said, we_did },
+            payload,
             { headers: { Authorization: `Bearer ${token}` } }
         );
         return response.data;
@@ -42,7 +50,7 @@ export const createYouSaidWeDid = async (
 // Admin: update an entry.
 export const updateYouSaidWeDid = async (
     id: number,
-    payload: { you_said?: string; we_did?: string },
+    payload: Partial<YouSaidWeDidPayload>,
     token: string | null
 ) => {
     try {

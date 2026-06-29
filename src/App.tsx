@@ -44,6 +44,7 @@ import DepartmentsSettingsPage from "./pages/Settings/DepartmentsSettingsPage";
 import MyRequestsPage from "./pages/Requests/MyRequestsPage";
 import RequestsPage from "./pages/Requests/RequestsPage";
 import YouSaidWeDidPage from "./pages/Settings/YouSaidWeDidPage";
+import YouSaidWeDidPublicPage from "./pages/Landing/YouSaidWeDidPage";
 
 function isTokenValid(token: string | null): boolean {
   if (!token) return false;
@@ -132,6 +133,7 @@ export default function App() {
           {/* Public Landing */}
           <Route path="/" element={isValid ? <Navigate to="/home" /> : <LandingPage />} />
           <Route path="/how-to-use" element={<HowToUsePage />} />
+          <Route path="/you-said-we-did" element={<YouSaidWeDidPublicPage />} />
 
           {/* Auth Layout */}
           <Route path="/signin" element={isValid ? <Navigate to="/home" /> : <SignIn />} />
