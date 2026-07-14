@@ -36,6 +36,33 @@ export interface SinglePlan {
     activities: string[];
 }
 
+export interface StructurePlanCounts {
+    cafedra: Record<string, number>;
+    department: Record<string, number>;
+    faculty: Record<string, number>;
+}
+
+// Number of plan/report entries per structure (cafedra / department / faculty).
+export const getStructurePlanCounts = async (
+    token: string | null
+): Promise<StructurePlanCounts> => {
+    try {
+        const response = await apiClient.get("/api/structure-plan-counts", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.data?.statusCode === 200) {
+            return {
+                cafedra: response.data.cafedra ?? {},
+                department: response.data.department ?? {},
+                faculty: response.data.faculty ?? {},
+            };
+        }
+        return { cafedra: {}, department: {}, faculty: {} };
+    } catch {
+        return { cafedra: {}, department: {}, faculty: {} };
+    }
+};
+
 // Get all plans
 
 export const getPlans = async (start: number, end: number, token: string): Promise<string | { plans: AllPlan, total_plans: number }> => {

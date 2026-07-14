@@ -11,6 +11,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { Faculty, getFaculties } from "../../services/faculty/facultyService";
 import { Cafedra, getCafedrasByFaculty } from "../../services/cafedra/cafedraService";
 import { Department, getDepartments } from "../../services/department/departmentService";
+import { StructurePlanCounts, getStructurePlanCounts } from "../../services/plan/plan";
 
 type UnitKind = "cafedra" | "department" | "faculty";
 
@@ -54,6 +55,7 @@ export default function CafedraPlansCards() {
     const [loading, setLoading] = useState(true);
     const [faculties, setFaculties] = useState<Faculty[]>([]);
     const [units, setUnits] = useState<UnitRow[]>([]);
+    const [counts, setCounts] = useState<StructurePlanCounts>({ cafedra: {}, department: {}, faculty: {} });
     const [facultyFilter, setFacultyFilter] = useState<string>("");
     const [kindFilter, setKindFilter] = useState<"" | UnitKind>("");
     const [search, setSearch] = useState<string>("");
@@ -64,13 +66,15 @@ export default function CafedraPlansCards() {
         setLoading(true);
         (async () => {
             try {
-                const [facRes, depRes] = await Promise.all([
+                const [facRes, depRes, countsRes] = await Promise.all([
                     getFaculties(token) as Promise<Faculty[] | undefined>,
-                    getDepartments(token) as Promise<Department[]>
+                    getDepartments(token) as Promise<Department[]>,
+                    getStructurePlanCounts(token)
                 ]);
                 const fac = Array.isArray(facRes) ? facRes : [];
                 if (cancelled) return;
                 setFaculties(fac);
+                setCounts(countsRes);
 
                 const cafedraResults = await Promise.all(
                     fac.map(async (f) => {
@@ -215,6 +219,9 @@ export default function CafedraPlansCards() {
                                         </p>
                                         <p className={`text-white/80 text-sm ${s.hoverText}`}>
                                             Kod: {u.code}
+                                        </p>
+                                        <p className={`text-white/80 text-sm ${s.hoverText}`}>
+                                            Plan/Hesabat sayı: {counts[u.kind]?.[u.code] ?? 0}
                                         </p>
                                         {u.kind === "cafedra" && u.faculty_name && (
                                             <p className={`text-white/80 text-sm ${s.hoverText}`}>
