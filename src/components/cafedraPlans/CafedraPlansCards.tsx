@@ -55,7 +55,10 @@ export default function CafedraPlansCards() {
     const [loading, setLoading] = useState(true);
     const [faculties, setFaculties] = useState<Faculty[]>([]);
     const [units, setUnits] = useState<UnitRow[]>([]);
-    const [counts, setCounts] = useState<StructurePlanCounts>({ cafedra: {}, department: {}, faculty: {} });
+    const [counts, setCounts] = useState<StructurePlanCounts>({
+        plans: { cafedra: {}, department: {}, faculty: {} },
+        users: { cafedra: {}, department: {}, faculty: {} },
+    });
     const [facultyFilter, setFacultyFilter] = useState<string>("");
     const [kindFilter, setKindFilter] = useState<"" | UnitKind>("");
     const [search, setSearch] = useState<string>("");
@@ -221,7 +224,12 @@ export default function CafedraPlansCards() {
                                             Kod: {u.code}
                                         </p>
                                         <p className={`text-white/80 text-sm ${s.hoverText}`}>
-                                            Plan/Hesabat sayı: {counts[u.kind]?.[u.code] ?? 0}
+                                            Plan/Hesabat sayı: {counts.plans[u.kind]?.[u.code] ?? 0}
+                                        </p>
+                                        <p className={`text-white/80 text-sm ${s.hoverText}`}>
+                                            {(counts.users[u.kind]?.[u.code] ?? 0) > 0
+                                                ? `Qeydiyyatlı istifadəçi: ${counts.users[u.kind][u.code]}`
+                                                : "Qeydiyyatlı istifadəçi yoxdur"}
                                         </p>
                                         {u.kind === "cafedra" && u.faculty_name && (
                                             <p className={`text-white/80 text-sm ${s.hoverText}`}>

@@ -36,13 +36,20 @@ export interface SinglePlan {
     activities: string[];
 }
 
-export interface StructurePlanCounts {
+type StructureBuckets = {
     cafedra: Record<string, number>;
     department: Record<string, number>;
     faculty: Record<string, number>;
+};
+
+export interface StructurePlanCounts {
+    plans: StructureBuckets;
+    users: StructureBuckets;
 }
 
-// Number of plan/report entries per structure (cafedra / department / faculty).
+const EMPTY_BUCKETS: StructureBuckets = { cafedra: {}, department: {}, faculty: {} };
+
+// Per-structure counts of plan/report entries and registered users.
 export const getStructurePlanCounts = async (
     token: string | null
 ): Promise<StructurePlanCounts> => {
@@ -52,14 +59,13 @@ export const getStructurePlanCounts = async (
         });
         if (response.data?.statusCode === 200) {
             return {
-                cafedra: response.data.cafedra ?? {},
-                department: response.data.department ?? {},
-                faculty: response.data.faculty ?? {},
+                plans: { ...EMPTY_BUCKETS, ...(response.data.plans ?? {}) },
+                users: { ...EMPTY_BUCKETS, ...(response.data.users ?? {}) },
             };
         }
-        return { cafedra: {}, department: {}, faculty: {} };
+        return { plans: { ...EMPTY_BUCKETS }, users: { ...EMPTY_BUCKETS } };
     } catch {
-        return { cafedra: {}, department: {}, faculty: {} };
+        return { plans: { ...EMPTY_BUCKETS }, users: { ...EMPTY_BUCKETS } };
     }
 };
 
