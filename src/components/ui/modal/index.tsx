@@ -1,4 +1,5 @@
 import { useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 interface ModalProps {
   isOpen: boolean;
@@ -51,10 +52,10 @@ export const Modal: React.FC<ModalProps> = ({
 
   const contentClasses = isFullscreen
     ? "w-full h-full"
-    : "relative w-full rounded-3xl bg-white shadow-2xl shadow-gray-900/20 ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10 animate-[modalIn_0.25s_cubic-bezier(0.16,1,0.3,1)]";
+    : "relative w-full max-h-[90vh] overflow-y-auto rounded-3xl bg-white shadow-2xl shadow-gray-900/20 ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10 animate-[modalIn_0.25s_cubic-bezier(0.16,1,0.3,1)]";
 
-  return (
-    <div className="fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999 p-4">
+  return createPortal(
+    <div className="fixed inset-0 flex items-center justify-center modal z-99999 p-4">
       <style>{`@keyframes modalIn{from{opacity:0;transform:translateY(8px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}`}</style>
       {!isFullscreen && (
         <div
@@ -90,6 +91,7 @@ export const Modal: React.FC<ModalProps> = ({
         )}
         <div>{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
