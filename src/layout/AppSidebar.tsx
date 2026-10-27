@@ -19,6 +19,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import SendIcon from '@mui/icons-material/Send';
 import InboxIcon from '@mui/icons-material/Inbox';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type NavItem = {
@@ -84,6 +85,10 @@ const getMainItems = (role: number): NavItem[] => {
       icon: <HistoryIcon />,
       path: "/archive"
     }, {
+      name: "İxrac",
+      icon: <FileDownloadIcon />,
+      path: "/export"
+    }, {
       name: "Kafedram",
       icon: <SchoolIcon />,
       path: "/archive"
@@ -139,6 +144,7 @@ const getMainItems = (role: number): NavItem[] => {
         item.name !== "Bütün hesabatlar" &&
         item.name !== "Kafedram" &&
         item.name !== "Sorğular" &&
+        item.name !== "İxrac" &&
         item.name !== "Tənzimləmələr"
       )
     });
@@ -156,6 +162,7 @@ const getMainItems = (role: number): NavItem[] => {
         item.name !== "İcraya məsul şəxslər" &&
         item.name !== "Təsdiq gözləyən istifadəçilər" &&
         item.name !== "Sorğular" &&
+        item.name !== "İxrac" &&
         item.name !== "Tənzimləmələr"
       )
     });
@@ -174,12 +181,14 @@ const getMainItems = (role: number): NavItem[] => {
         item.name !== "Təsdiq gözləyən istifadəçilər" &&
         item.name !== "Kafedram" &&
         item.name !== "Sorğular" &&
+        item.name !== "İxrac" &&
         item.name !== "Tənzimləmələr"
       )
     });
   } else {
     return navItems.filter(item =>
       item.name !== "Tənzimləmələr" &&
+      item.name !== "İxrac" &&
       item.name !== "Sorğularım" &&
       item.name !== "Şərhlər"
     );

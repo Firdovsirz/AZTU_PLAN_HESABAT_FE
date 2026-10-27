@@ -8,6 +8,8 @@ import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CommentModal from "../admin/CommentModal";
+import ExportButtons from "../export/ExportButtons";
+import { exportStructure } from "../../services/export/exportService";
 import {
     Table,
     TableBody,
@@ -191,15 +193,28 @@ export default function CafedraPlansDetails() {
                     {toast}
                 </div>
             )}
-            <div className="mb-5 p-4 rounded-lg border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-                <p className="text-gray-800 dark:text-gray-200 font-medium">
-                    {header.kind === "department" ? "Struktur bölmə" : header.kind === "faculty" ? "Fakültə" : "Kafedra"}: {header.name} ({header.code})
-                </p>
-                {header.kind === "cafedra" && (
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-                        Fakültə: {header.faculty_name || "-"} ({header.faculty_code || "-"})
+            <div className="mb-5 flex flex-col gap-3 p-4 rounded-lg border border-gray-200 bg-white sm:flex-row sm:items-center sm:justify-between dark:border-white/[0.05] dark:bg-white/[0.03]">
+                <div>
+                    <p className="text-gray-800 dark:text-gray-200 font-medium">
+                        {header.kind === "department" ? "Struktur bölmə" : header.kind === "faculty" ? "Fakültə" : "Kafedra"}: {header.name} ({header.code})
                     </p>
-                )}
+                    {header.kind === "cafedra" && (
+                        <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                            Fakültə: {header.faculty_name || "-"} ({header.faculty_code || "-"})
+                        </p>
+                    )}
+                </div>
+                {/* Exports exactly what this page lists: a faculty here means its
+                    dekanat-level members only, so kafedras are excluded. */}
+                <ExportButtons
+                    label="Bölməni ixrac et"
+                    onExport={(format) =>
+                        exportStructure(
+                            { scope: header.kind, code: header.code, content: "all", format, include_cafedras: false },
+                            token
+                        )
+                    }
+                />
             </div>
 
             <div className="flex flex-col lg:flex-row gap-3 mb-5">

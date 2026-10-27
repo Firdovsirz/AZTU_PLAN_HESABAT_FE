@@ -24,6 +24,8 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { getPlanByFinKod, Plan } from "../../services/plan/plan";
 import { RequestType } from "../../services/request/request";
 import RequestActionModal from "../requests/RequestActionModal";
+import ExportButtons from "../export/ExportButtons";
+import { exportMyDocuments } from "../../services/export/exportService";
 
 export default function MyPlan() {
     const [error, setError] = useState("");
@@ -135,6 +137,12 @@ export default function MyPlan() {
                     {toast}
                 </div>
             )}
+            <div className="mb-4 flex justify-end">
+                <ExportButtons
+                    label="Planlarımı ixrac et"
+                    onExport={(format) => exportMyDocuments("plans", format, token)}
+                />
+            </div>
             <TableShell>
                 <Table>
                     <TableHeader>

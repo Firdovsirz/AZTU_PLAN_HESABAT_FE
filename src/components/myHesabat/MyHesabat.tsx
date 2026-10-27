@@ -18,6 +18,8 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { getHesabatByFinKod, Hesabat } from "../../services/hesabat/hesabatService";
 import { RequestType } from "../../services/request/request";
 import RequestActionModal from "../requests/RequestActionModal";
+import ExportButtons from "../export/ExportButtons";
+import { exportMyDocuments } from "../../services/export/exportService";
 
 export default function MyHesabat() {
     const navigate = useNavigate();
@@ -156,6 +158,12 @@ export default function MyHesabat() {
                     {toast}
                 </div>
             )}
+            <div className="mb-4 flex justify-end">
+                <ExportButtons
+                    label="Hesabatlarımı ixrac et"
+                    onExport={(format) => exportMyDocuments("reports", format, token)}
+                />
+            </div>
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
                 <div className="max-w-full overflow-x-auto">
                     <Table>

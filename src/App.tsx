@@ -46,6 +46,7 @@ import RequestsPage from "./pages/Requests/RequestsPage";
 import YouSaidWeDidPage from "./pages/Settings/YouSaidWeDidPage";
 import YouSaidWeDidPublicPage from "./pages/Landing/YouSaidWeDidPage";
 import MyCommentsPage from "./pages/Comments/MyCommentsPage";
+import ExportPage from "./pages/ExportPage/ExportPage";
 
 function isTokenValid(token: string | null): boolean {
   if (!token) return false;
@@ -123,6 +124,9 @@ export default function App() {
 
             {/* Comments */}
             <Route path="/my-comments" element={<MyCommentsPage />} />
+
+            {/* Export (admin) */}
+            <Route path="/export" element={<ExportPage />} />
 
             {/* Settings (admin) */}
             <Route path="/settings/activities" element={<ActivitiesSettingsPage />} />
